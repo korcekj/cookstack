@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "moduleResolution": "bundler",
+    "declarationMap": true,
+    "jsx": "react-jsx",
+    "composite": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "baseUrl": "./",
+    "paths": {
+      "@cs/utils/*": ["../utils/src/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["dist"],
+  "references": [{ "path": "../utils" }]
+}
