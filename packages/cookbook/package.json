@@ -9,8 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@cs/ui": "0.0.0",
-    "@cs/utils": "0.0.0",
+    "@cs/ui": "*",
+    "@cs/utils": "*",
     "react": "^18",
     "react-dom": "^18",
     "next": "14.2.3"
