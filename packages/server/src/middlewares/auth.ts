@@ -1,6 +1,6 @@
 import type { Env } from '../types';
 
-import { initializeLucia } from '../lib/auth';
+import { initializeLucia } from '../services/auth';
 import { useTranslation } from '@intlify/hono';
 import { createMiddleware } from 'hono/factory';
 import { setCookie, getCookie } from 'hono/cookie';

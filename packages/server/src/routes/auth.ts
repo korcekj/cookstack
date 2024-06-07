@@ -8,16 +8,16 @@ import {
   generatePasswordResetToken,
   verifyEmailVerificationCode,
   generateEmailVerificationCode,
-} from '../lib/auth';
+} from '../services/auth';
 import {
   sendEmail,
   resetPasswordTemplate,
   verificationCodeTemplate,
-} from '../lib/email';
+} from '../services/email';
 import { Hono } from 'hono';
 import { eq } from 'drizzle-orm';
 import { Provider } from '../types';
-import { isURL } from '../lib/utils';
+import { isURL } from '../utils';
 import { initializeDB } from '../db';
 import { OAuth2RequestError } from 'arctic';
 import { isWithinExpirationDate } from 'oslo';
