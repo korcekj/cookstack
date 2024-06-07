@@ -1,0 +1,17 @@
+name = "cookstack"
+compatibility_date = "2023-12-01"
+
+[env.dev]
+vars = { ENV='dev', BASE_URL='http://localhost:8787', GOOGLE_REDIRECT_URL='http://localhost:8787/api/auth/signin/google/callback' }
+d1_databases = [
+  { binding="DB", database_name='cookstack', database_id='20f0177f-fc0e-430c-bf27-82ecd954e8f6' }
+]
+
+[env.production]
+vars = { ENV='production', BASE_URL='https://cookstack.korcek.com', GOOGLE_REDIRECT_URL='https://cookstack.korcek.com/api/auth/signin/google/callback' }
+d1_databases = [
+  { binding="DB", database_name='cookstack', database_id='20f0177f-fc0e-430c-bf27-82ecd954e8f6' }
+]
+routes = [
+  { pattern='cookstack.korcek.com', custom_domain=true }
+]

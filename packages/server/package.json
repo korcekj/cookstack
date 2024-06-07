@@ -1,0 +1,34 @@
+{
+  "name": "@cs/server",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev src/index.ts --env dev",
+    "deploy": "wrangler deploy --minify src/index.ts --env production",
+    "generate": "drizzle-kit generate",
+    "migrate:dev": "wrangler d1 execute cookstack --local --file=$(find drizzle -type f -name '*.sql' -print0 | xargs -r -0 ls -1 -t | head -1) --env dev",
+    "migrate:production": "wrangler d1 execute cookstack --remote --file=$(find drizzle -type f -name '*.sql' -print0 | xargs -r -0 ls -1 -t | head -1) --env production",
+    "studio:dev": "DB_URL=$(find .wrangler/state/v3/d1/miniflare-D1DatabaseObject -type f -name '*.sqlite' -print) drizzle-kit studio",
+    "studio:production": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@cs/schema": "0.0.0",
+    "@hono/zod-validator": "^0.2.1",
+    "@intlify/hono": "^0.1.1",
+    "@lucia-auth/adapter-drizzle": "^1.0.7",
+    "@noble/hashes": "^1.4.0",
+    "arctic": "^1.8.1",
+    "drizzle-orm": "^0.31.0",
+    "hono": "^4.3.4",
+    "lodash": "^4.17.21",
+    "lucia": "^3.2.0",
+    "resend": "^3.2.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240403.0",
+    "@types/lodash": "^4.17.4",
+    "better-sqlite3": "^10.0.0",
+    "drizzle-kit": "^0.22.1",
+    "wrangler": "^3.47.0"
+  }
+}

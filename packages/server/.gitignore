@@ -1,0 +1,18 @@
+node_modules
+dist
+drizzle
+.wrangler
+.dev.vars
+
+# dependencies
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# local env files
+.env
+.env*.*
+
+# typescript
+*.tsbuildinfo
