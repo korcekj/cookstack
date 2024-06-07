@@ -3,14 +3,14 @@
 import React from 'react';
 import { useTheme } from 'next-themes';
 
-import { Moon, Sun } from 'lucide-react';
-import { Button } from './button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './dropdown-menu';
+import { Button } from './button';
+import { Moon, Sun } from 'lucide-react';
 
 export const ThemeSwitch: React.FC = () => {
   const { setTheme } = useTheme();

@@ -7,12 +7,8 @@
     "composite": true,
     "outDir": "dist",
     "rootDir": "src",
-    "baseUrl": "./",
-    "paths": {
-      "@cs/utils/*": ["../utils/src/*"]
-    }
+    "baseUrl": "./"
   },
   "include": ["src/**/*"],
-  "exclude": ["dist"],
-  "references": [{ "path": "../utils" }]
+  "exclude": ["dist"]
 }
