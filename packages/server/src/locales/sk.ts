@@ -1,4 +1,4 @@
-import sk from '@cs/schema/locales/sk';
+import sk from '@cs/utils/zod/locales/sk';
 
 export default {
   ...sk,

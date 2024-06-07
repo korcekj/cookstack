@@ -1,4 +1,4 @@
-import en from '@cs/schema/locales/en';
+import en from '@cs/utils/zod/locales/en';
 
 export default {
   ...en,

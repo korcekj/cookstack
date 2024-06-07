@@ -1,4 +1,3 @@
-import { HtmlEscapedString } from 'hono/utils/html';
 import type { User, Session } from 'lucia';
 
 export type Bindings = {

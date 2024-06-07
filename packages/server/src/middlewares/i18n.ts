@@ -6,7 +6,7 @@ import {
   detectLocaleFromAcceptLanguageHeader,
 } from '@intlify/hono';
 import { get } from 'lodash';
-import { z, makeZodI18nMap } from '@cs/schema';
+import { z, makeZodI18nMap } from '@cs/utils/zod';
 import { createMiddleware } from 'hono/factory';
 
 import en from '../locales/en';

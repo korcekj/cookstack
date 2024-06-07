@@ -12,7 +12,7 @@
     "studio:production": "drizzle-kit studio"
   },
   "dependencies": {
-    "@cs/schema": "0.0.0",
+    "@cs/utils": "0.0.0",
     "@hono/zod-validator": "^0.2.1",
     "@intlify/hono": "^0.1.1",
     "@lucia-auth/adapter-drizzle": "^1.0.7",

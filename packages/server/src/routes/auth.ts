@@ -40,7 +40,7 @@ import {
   resetPasswordTokenSchema,
   signInGoogleCallbackSchema,
   generateResetPasswordTokenSchema,
-} from '@cs/schema';
+} from '@cs/utils/zod';
 
 const auth = new Hono<Env>();
 const signIn = new Hono<Env>();

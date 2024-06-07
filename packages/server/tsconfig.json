@@ -15,10 +15,10 @@
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "paths": {
-      "@cs/schema/*": ["../schema/src/*"]
+      "@cs/utils/*": ["../utils/src/*"]
     }
   },
   "include": ["src/**/*"],
   "exclude": ["dist"],
-  "references": [{ "path": "../schema" }]
+  "references": [{ "path": "../utils" }]
 }
