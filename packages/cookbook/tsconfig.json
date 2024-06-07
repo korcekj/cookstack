@@ -19,10 +19,11 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
+      "@cs/ui/*": ["../ui/src/*"],
       "@cs/utils/*": ["../utils/src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"],
-  "references": [{ "path": "../utils" }]
+  "references": [{ "path": "../ui" }, { "path": "../utils" }]
 }

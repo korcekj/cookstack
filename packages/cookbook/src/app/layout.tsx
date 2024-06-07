@@ -1,10 +1,15 @@
 import type { Metadata } from 'next';
 
-import './globals.css';
-import React from 'react';
-import { Inter } from 'next/font/google';
+import '@cs/ui/globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+import React from 'react';
+import { Rubik } from 'next/font/google';
+
+import Providers from './providers';
+import { Toaster } from '@cs/ui/components';
+import { Header } from '@/components/header';
+
+const rubik = Rubik({ subsets: ['latin'], variable: '--font-rubik' });
 
 export const metadata: Metadata = {
   title: {
@@ -15,8 +20,14 @@ export const metadata: Metadata = {
 
 const Layout = ({ children }: React.PropsWithChildren) => {
   return (
-    <html lang='en' suppressHydrationWarning>
-      <body>{children}</body>
+    <html lang='en' className={rubik.variable} suppressHydrationWarning>
+      <body>
+        <Providers>
+          <Toaster position='top-center' richColors closeButton></Toaster>
+          <Header></Header>
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 };
