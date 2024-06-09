@@ -7,7 +7,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from '@cs/ui/components';
-import Link from 'next/link';
+import { Link } from '@/navigation';
 import { Menu } from 'lucide-react';
 
 export const Header: React.FC = () => {
