@@ -4,8 +4,9 @@ import '@cs/ui/globals.css';
 
 import React from 'react';
 import { Rubik } from 'next/font/google';
+import { getMessages } from 'next-intl/server';
 
-import Providers from './providers';
+import Providers from '@/app/providers';
 import { Toaster } from '@cs/ui/components';
 import { Header } from '@/components/header';
 
@@ -18,11 +19,17 @@ export const metadata: Metadata = {
   },
 };
 
-const Layout = ({ children }: React.PropsWithChildren) => {
+type Props = React.PropsWithChildren & {
+  params: { locale: string };
+};
+
+const Layout = async ({ children, params: { locale } }: Props) => {
+  const messages = await getMessages();
+
   return (
-    <html lang='en' className={rubik.variable} suppressHydrationWarning>
+    <html lang={locale} className={rubik.variable} suppressHydrationWarning>
       <body>
-        <Providers>
+        <Providers locale={locale} messages={messages}>
           <Toaster position='top-center' richColors closeButton></Toaster>
           <Header></Header>
           {children}
