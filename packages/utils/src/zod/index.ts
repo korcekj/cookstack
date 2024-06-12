@@ -21,7 +21,7 @@ export const makeZodI18nMap =
   (
     t: (k: string, nv?: NamedValue) => string,
     te: (k: string) => boolean,
-    key = 'errors'
+    ns = 'errors'
   ): ZodErrorMap =>
   (issue, _ctx) => {
     console.log(issue);
@@ -32,7 +32,7 @@ export const makeZodI18nMap =
     const makePath = (...args: string[]) => args.filter(Boolean).join('.');
 
     const translate = (message: string, options: NamedValue) => {
-      const path = makePath(key, message);
+      const path = makePath(ns, message);
       if (te(path)) return t(path, options);
       if (te(message)) return t(message, options);
       return message;
