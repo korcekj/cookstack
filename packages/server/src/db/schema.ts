@@ -17,6 +17,7 @@ export const users = sqliteTable('users', {
   firstName: text('first_name'),
   lastName: text('last_name'),
   imageUrl: text('image_url'),
+  role: text('role', { enum: ['user', 'admin'] }).default('user'),
   createdAt: integer('created_at', { mode: 'timestamp' }).default(
     sql`(strftime('%s', 'now'))`
   ),

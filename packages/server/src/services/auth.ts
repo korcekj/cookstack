@@ -3,6 +3,7 @@ import type { Env } from '../types';
 import type { User } from '../db/schema';
 import type { ArgonOpts } from '@noble/hashes/argon2';
 
+import { omit } from 'lodash';
 import { Google } from 'arctic';
 import { eq } from 'drizzle-orm';
 import { initializeDB } from '../db';
@@ -35,17 +36,8 @@ export const initializeLucia = (c: Context<Env>) => {
     users
   );
   return new Lucia(adapter, {
-    getUserAttributes: (attributes) => ({
-      id: attributes.id,
-      email: attributes.email,
-      emailVerified: attributes.emailVerified,
-      firstName: attributes.firstName,
-      lastName: attributes.lastName,
-      imageUrl: attributes.imageUrl,
-      createdAt: attributes.createdAt,
-      updatedAt: attributes.updatedAt,
-    }),
-    sessionExpiresIn: new TimeSpan(30, 'd'), // 30 days
+    getUserAttributes: (attributes) => omit(attributes, 'hashedPassword'),
+    sessionExpiresIn: new TimeSpan(30, 'd'),
     sessionCookie: {
       attributes: {
         secure: c.env.ENV === 'production',
