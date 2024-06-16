@@ -1,9 +1,10 @@
 import type { Env } from '../types';
 
-import { initializeLucia } from '../services/auth';
 import { useTranslation } from '@intlify/hono';
 import { createMiddleware } from 'hono/factory';
 import { setCookie, getCookie } from 'hono/cookie';
+import { initializeLucia } from '../services/auth';
+import { HTTPException } from 'hono/http-exception';
 
 export const handleAuth = createMiddleware<Env>(async (c, next) => {
   const lucia = initializeLucia(c);
@@ -33,7 +34,8 @@ export const handleAuth = createMiddleware<Env>(async (c, next) => {
 export const verifyAuth = createMiddleware<Env>(async (c, next) => {
   const t = useTranslation(c);
   const session = c.get('session');
-  if (!session) return c.json({ error: t('errors.unauthorized') }, 401);
+  if (!session)
+    throw new HTTPException(401, { message: t('errors.unauthorized') });
 
   return next();
 });
