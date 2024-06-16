@@ -5,6 +5,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
 import { logger } from 'hono/logger';
+import { HTTPException } from 'hono/http-exception';
 
 import auth from './routes/auth';
 import user from './routes/user';
@@ -47,5 +48,12 @@ api.route('/auth', auth);
 api.route('/user', user);
 
 app.route('/', api);
+
+app.onError((err, c) => {
+  if (err instanceof HTTPException) {
+    return c.json({ error: err.message }, err.status);
+  }
+  return c.json({ error: err.message }, 500);
+});
 
 export default app;
