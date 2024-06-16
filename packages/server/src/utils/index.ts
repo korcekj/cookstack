@@ -1,3 +1,5 @@
+import type { Context } from 'hono';
+
 export const isURL = (value: string) => {
   let url: URL;
 
@@ -33,3 +35,7 @@ export const parseOrigin = (origin: string) => {
     topLevelDomain,
   };
 };
+
+export const getIp = (c: Context) => c.req.header('cf-connecting-ip');
+
+export const getCountry = (c: Context) => c.req.raw.cf?.country as string;
