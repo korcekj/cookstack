@@ -4,7 +4,7 @@ compatibility_date = "2023-12-01"
 [env.dev]
 vars = { ENV='dev', BASE_URL='http://localhost:8787', GOOGLE_REDIRECT_URL='http://localhost:8787/api/auth/signin/google/callback' }
 d1_databases = [
-  { binding="DB", database_name='cookstack', database_id='20f0177f-fc0e-430c-bf27-82ecd954e8f6' }
+  { binding="DB", database_name='cookstack', database_id='22ec2f35-8298-49db-b1d6-78947a921ed0' }
 ]
 unsafe.bindings = [
   { name="RATE_LIMITER", type="ratelimit", namespace_id="999", simple = { limit=10, period=60 } }
@@ -13,7 +13,7 @@ unsafe.bindings = [
 [env.production]
 vars = { ENV='production', BASE_URL='https://cookstack.korcek.com', GOOGLE_REDIRECT_URL='https://cookstack.korcek.com/api/auth/signin/google/callback' }
 d1_databases = [
-  { binding="DB", database_name='cookstack', database_id='20f0177f-fc0e-430c-bf27-82ecd954e8f6' }
+  { binding="DB", database_name='cookstack', database_id='22ec2f35-8298-49db-b1d6-78947a921ed0' }
 ]
 routes = [
   { pattern='cookstack.korcek.com', custom_domain=true }
