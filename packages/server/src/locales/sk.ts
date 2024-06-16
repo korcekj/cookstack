@@ -15,6 +15,7 @@ export default {
     existsEmail: 'Zvolený email nie je možné použiť',
     notSamePassword: 'Heslá sa nezhodujú',
     tryAgainInMinutes: 'Skúste to znovu o niekoľko minút',
+    tooManyRequests: 'Príliš veľa požiadaviek',
   },
   emails: {
     verificationCode: {

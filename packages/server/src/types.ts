@@ -9,6 +9,9 @@ export type Bindings = {
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
   GOOGLE_REDIRECT_URL: string;
+  RATE_LIMITER: {
+    limit: (v: { key: string }) => Promise<{ success: boolean }>;
+  };
 };
 
 export type Variables = {

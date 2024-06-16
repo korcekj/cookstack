@@ -6,6 +6,9 @@ vars = { ENV='dev', BASE_URL='http://localhost:8787', GOOGLE_REDIRECT_URL='http:
 d1_databases = [
   { binding="DB", database_name='cookstack', database_id='20f0177f-fc0e-430c-bf27-82ecd954e8f6' }
 ]
+unsafe.bindings = [
+  { name="RATE_LIMITER", type="ratelimit", namespace_id="999", simple = { limit=10, period=60 } }
+]
 
 [env.production]
 vars = { ENV='production', BASE_URL='https://cookstack.korcek.com', GOOGLE_REDIRECT_URL='https://cookstack.korcek.com/api/auth/signin/google/callback' }
@@ -14,4 +17,7 @@ d1_databases = [
 ]
 routes = [
   { pattern='cookstack.korcek.com', custom_domain=true }
+]
+unsafe.bindings = [
+  { name="RATE_LIMITER", type="ratelimit", namespace_id="999", simple = { limit=10, period=60 } }
 ]

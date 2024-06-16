@@ -15,6 +15,7 @@ export default {
     existsEmail: 'Email cannot be used',
     notSamePassword: 'Passwords do not match',
     tryAgainInMinutes: 'Try again in a few minutes',
+    tooManyRequests: 'Too many requests',
   },
   emails: {
     verificationCode: {

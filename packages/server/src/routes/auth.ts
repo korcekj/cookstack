@@ -26,6 +26,7 @@ import { zValidator } from '@hono/zod-validator';
 import { verifyAuth } from '../middlewares/auth';
 import { generateIdFromEntropySize } from 'lucia';
 import { setCookie, getCookie } from 'hono/cookie';
+import { rateLimit } from '../middlewares/rate-limit';
 import { generateState, generateCodeVerifier } from 'arctic';
 import { users, oauthAccounts, passwordResetTokens } from '../db/schema';
 
@@ -191,6 +192,7 @@ signIn.post(
       return c.json({ error }, 400);
     }
   }),
+  rateLimit,
   async (c) => {
     const t = useTranslation(c);
     const { email, password } = c.req.valid('json');
@@ -220,6 +222,7 @@ signIn.post(
   }
 );
 
+signUp.use(rateLimit);
 signUp.post(
   '/',
   zValidator('json', signUpSchema, (result, c) => {
@@ -274,7 +277,8 @@ signUp.post(
   }
 );
 
-signOut.use('*', verifyAuth);
+signOut.use(rateLimit);
+signOut.use(verifyAuth);
 signOut.post('/', async (c) => {
   const session = c.get('session');
 
@@ -287,6 +291,7 @@ signOut.post('/', async (c) => {
   return c.json({ user: null });
 });
 
+verifyEmail.use(rateLimit);
 verifyEmail.use(verifyAuth);
 verifyEmail.post('/', async (c) => {
   const t = useTranslation(c);
