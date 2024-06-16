@@ -357,6 +357,7 @@ verifyEmail.post(
   }
 );
 
+resetPassword.use(rateLimit);
 resetPassword.post(
   '/',
   zValidator('query', forgotPasswordSchema, (result, c) => {
