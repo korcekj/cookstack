@@ -13,6 +13,7 @@ export default {
     invalidReturnType: 'Invalid function value returned',
     invalidDate: 'Invalid date',
     custom: 'Invalid value',
+    notSamePassword: 'Passwords do not match',
     invalidIntersectionTypes: 'Intersection results could not be merged',
     notMultipleOf: 'The number must be a multiple of {multipleOf}',
     notFinite: 'The number must be finite',

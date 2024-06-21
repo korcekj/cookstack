@@ -17,7 +17,6 @@ export default {
     invalidToken: 'Neplatný token',
     unverifiedEmail: 'Neoverený email',
     existsEmail: 'Zvolený email nie je možné použiť',
-    notSamePassword: 'Heslá sa nezhodujú',
   },
   recipe: {
     duplicate: 'Recept už existuje',

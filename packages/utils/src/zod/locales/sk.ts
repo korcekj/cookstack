@@ -14,6 +14,7 @@ export default {
     invalidReturnType: 'Invalid function value returned',
     invalidDate: 'Neplatný dátum',
     custom: 'Neplatná hodnota',
+    notSamePassword: 'Heslá sa nezhodujú',
     invalidIntersectionTypes: 'Intersection results could not be merged',
     notMultipleOf: 'The number must be a multiple of {multipleOf}',
     notFinite: 'The number must be finite',

@@ -17,7 +17,6 @@ export default {
     invalidToken: 'Invalid token',
     unverifiedEmail: 'Unverified email',
     existsEmail: 'Email cannot be used',
-    notSamePassword: 'Passwords do not match',
   },
   recipe: {
     duplicate: 'Recipe already exists',
