@@ -9,7 +9,7 @@ export default {
     invalidUnionDiscriminator:
       'Invalid discriminator value. Expected {options}',
     invalidEnumValue: 'Invalid option. Expected: {options}',
-    invalidArguments: 'Invalid funciont parameters',
+    invalidArguments: 'Invalid function parameters',
     invalidReturnType: 'Invalid function value returned',
     invalidDate: 'Invalid date',
     custom: 'Invalid value',

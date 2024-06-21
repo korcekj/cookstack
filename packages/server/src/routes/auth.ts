@@ -123,7 +123,7 @@ signIn.get(
 
       const user = (await response.json()) as GoogleUser;
       if (!user?.email_verified) {
-        return c.json({ error: t('errors.unverifiedEmail') }, 400);
+        return c.json({ error: t('auth.unverifiedEmail') }, 400);
       }
 
       const db = initializeDB(c.env.DB);
@@ -177,9 +177,9 @@ signIn.get(
       return c.redirect('/', 301);
     } catch (err) {
       if (err instanceof OAuth2RequestError) {
-        return c.json({ error: t('invalidCode') }, 400);
+        return c.json({ error: t('auth.invalidCode') }, 400);
       }
-      return c.json({ error: t('internalServerError') }, 500);
+      return c.json({ error: t('errors.internalServerError') }, 500);
     }
   }
 );
@@ -203,12 +203,12 @@ signIn.post(
     });
 
     if (!user || !user.hashedPassword) {
-      return c.json({ error: t('errors.invalidEmailPassword') }, 400);
+      return c.json({ error: t('auth.invalidEmailPassword') }, 400);
     }
 
     const hashedPassword = hashArgon2id(password, c.env.SALT);
     if (user.hashedPassword !== hashedPassword) {
-      return c.json({ error: t('errors.invalidEmailPassword') }, 400);
+      return c.json({ error: t('auth.invalidEmailPassword') }, 400);
     }
 
     const lucia = initializeLucia(c);
@@ -241,8 +241,7 @@ signUp.post(
       columns: { email: true },
     });
 
-    if (exists)
-      return c.json({ error: { email: t('errors.existsEmail') } }, 400);
+    if (exists) return c.json({ error: { email: t('auth.existsEmail') } }, 400);
 
     const hashedPassword = hashArgon2id(password, c.env.SALT);
     const [{ id: userId }] = await db
@@ -336,7 +335,7 @@ verifyEmail.post(
       email,
       code,
     });
-    if (!validCode) return c.json({ error: t('errors.invalidCode') }, 400);
+    if (!validCode) return c.json({ error: t('auth.invalidCode') }, 400);
 
     const lucia = initializeLucia(c);
     const db = initializeDB(c.env.DB);
@@ -382,7 +381,7 @@ resetPassword.post(
       where: (table, { eq }) => eq(table.email, email),
     });
     if (!user || !user.hashedPassword || !user.emailVerified) {
-      return c.json({ error: t('errors.invalidEmail') }, 400);
+      return c.json({ error: t('auth.invalidEmail') }, 400);
     }
 
     const token = await generatePasswordResetToken(c.env.DB, {
@@ -434,7 +433,7 @@ resetPassword.post(
     }
 
     if (!validToken || !isWithinExpirationDate(validToken.expiresAt)) {
-      return c.json({ error: t('errors.invalidToken') }, 400);
+      return c.json({ error: t('auth.invalidToken') }, 400);
     }
 
     const lucia = initializeLucia(c);

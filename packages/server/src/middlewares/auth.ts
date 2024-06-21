@@ -35,7 +35,7 @@ export const verifyAuth = createMiddleware<Env>(async (c, next) => {
   const t = useTranslation(c);
   const session = c.get('session');
   if (!session)
-    throw new HTTPException(401, { message: t('errors.unauthorized') });
+    throw new HTTPException(401, { message: t('auth.unauthorized') });
 
   return next();
 });

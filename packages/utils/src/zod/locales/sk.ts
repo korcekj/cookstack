@@ -1,7 +1,7 @@
 export default {
   errors: {
     invalidType:
-      'Hodnota musí byť {{expected}}, ale bola obdržaná typ {{received}}',
+      'Hodnota musí byť {expected}, ale bola obdržaná typ {received}',
     invalidTypeReceivedUndefined: 'Povinné',
     invalidTypeReceivedNull: 'Povinné',
     invalidLiteral: 'Invalid value, expected {expected}',

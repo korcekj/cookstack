@@ -4,18 +4,23 @@ export default {
   ...en,
   errors: {
     ...en.errors,
+    internalServerError: 'Internal server error',
+    badRequest: 'Bad request',
+    tryAgainInMinutes: 'Try again in a few minutes',
+    tooManyRequests: 'Too many requests',
+  },
+  auth: {
     unauthorized: 'Unauthorized',
     invalidEmail: 'Invalid email',
     invalidEmailPassword: 'Invalid email or password',
     invalidCode: 'Invalid code',
     invalidToken: 'Invalid token',
-    internalServerError: 'Internal server error',
     unverifiedEmail: 'Unverified email',
-    badRequest: 'Bad request',
     existsEmail: 'Email cannot be used',
     notSamePassword: 'Passwords do not match',
-    tryAgainInMinutes: 'Try again in a few minutes',
-    tooManyRequests: 'Too many requests',
+  },
+  recipe: {
+    duplicate: 'Recipe already exists',
   },
   emails: {
     verificationCode: {
