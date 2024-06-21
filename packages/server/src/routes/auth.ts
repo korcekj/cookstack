@@ -16,8 +16,8 @@ import {
 } from '../services/email';
 import { Hono } from 'hono';
 import { eq } from 'drizzle-orm';
-import { Provider } from '../types';
 import { isURL } from '../utils';
+import { Provider } from '../types';
 import { initializeDB } from '../db';
 import { OAuth2RequestError } from 'arctic';
 import { isWithinExpirationDate } from 'oslo';
