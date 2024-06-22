@@ -11,6 +11,7 @@ export default {
   },
   auth: {
     unauthorized: 'Unauthorized',
+    forbidden: 'Forbidden',
     invalidEmail: 'Invalid email',
     invalidEmailPassword: 'Invalid email or password',
     invalidCode: 'Invalid code',

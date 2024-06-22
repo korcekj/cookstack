@@ -34,8 +34,20 @@ export const handleAuth = createMiddleware<Env>(async (c, next) => {
 export const verifyAuth = createMiddleware<Env>(async (c, next) => {
   const t = useTranslation(c);
   const session = c.get('session');
-  if (!session)
+  if (!session) {
     throw new HTTPException(401, { message: t('auth.unauthorized') });
+  }
+
+  return next();
+});
+
+export const admin = createMiddleware<Env>(async (c, next) => {
+  const t = useTranslation(c);
+  const user = c.get('user');
+  if (!user) throw new HTTPException(401, { message: t('auth.unauthorized') });
+  if (user.role !== 'admin') {
+    throw new HTTPException(403, { message: t('auth.forbidden') });
+  }
 
   return next();
 });

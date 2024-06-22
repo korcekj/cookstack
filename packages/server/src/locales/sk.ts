@@ -11,6 +11,7 @@ export default {
   },
   auth: {
     unauthorized: 'Neoprávnený',
+    forbidden: 'Zakázaný',
     invalidEmail: 'Neplatný email',
     invalidEmailPassword: 'Neplatný email alebo heslo',
     invalidCode: 'Neplatný kód',
