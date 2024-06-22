@@ -41,13 +41,34 @@ export const verifyAuth = createMiddleware<Env>(async (c, next) => {
   return next();
 });
 
-export const admin = createMiddleware<Env>(async (c, next) => {
+export const verifyAuthor = createMiddleware<Env>(async (c, next) => {
   const t = useTranslation(c);
-  const user = c.get('user');
-  if (!user) throw new HTTPException(401, { message: t('auth.unauthorized') });
-  if (user.role !== 'admin') {
-    throw new HTTPException(403, { message: t('auth.forbidden') });
+
+  await verifyAuth(c, () => {
+    const user = c.get('user')!;
+    if (user.role !== 'author') {
+      throw new HTTPException(403, { message: t('auth.forbidden') });
+    }
+
+    return next();
+  });
+});
+
+export const makeAuthor = createMiddleware<Env>(async (c, next) => {
+  const t = useTranslation(c);
+
+  // TODO: Make this safer
+  const author = c.req.header('x-author');
+  if (!author) {
+    throw new HTTPException(400, { message: t('errors.badRequest') });
   }
 
-  return next();
+  await verifyAuth(c, () => {
+    const user = c.get('user')!;
+    if (user.role === 'author') {
+      throw new HTTPException(400, { message: t('auth.existsAuthor') });
+    }
+
+    return next();
+  });
 });

@@ -18,9 +18,13 @@ export default {
     invalidToken: 'Invalid token',
     unverifiedEmail: 'Unverified email',
     existsEmail: 'Email cannot be used',
+    existsAuthor: 'Author already exists',
   },
   recipe: {
     duplicate: 'Recipe already exists',
+  },
+  category: {
+    notFound: 'Category not found',
   },
   emails: {
     verificationCode: {

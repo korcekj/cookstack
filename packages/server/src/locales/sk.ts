@@ -18,9 +18,13 @@ export default {
     invalidToken: 'Neplatný token',
     unverifiedEmail: 'Neoverený email',
     existsEmail: 'Zvolený email nie je možné použiť',
+    existsAuthor: 'Autor už existuje',
   },
   recipe: {
     duplicate: 'Recept už existuje',
+  },
+  category: {
+    notFound: 'Kategória nebola nájdená',
   },
   emails: {
     verificationCode: {
