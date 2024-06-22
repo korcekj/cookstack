@@ -186,13 +186,13 @@ signIn.get(
 
 signIn.post(
   '/',
+  rateLimit,
   zValidator('json', signInSchema, (result, c) => {
     if (!result.success) {
       const error = parseError(result.error);
       return c.json({ error }, 400);
     }
   }),
-  rateLimit,
   async (c) => {
     const t = useTranslation(c);
     const { email, password } = c.req.valid('json');
@@ -279,10 +279,10 @@ signUp.post(
 signOut.use(rateLimit);
 signOut.use(verifyAuth);
 signOut.post('/', async (c) => {
-  const session = c.get('session');
+  const session = c.get('session')!;
 
   const lucia = initializeLucia(c);
-  await lucia.invalidateSession(session!.id);
+  await lucia.invalidateSession(session.id);
   const cookie = lucia.createBlankSessionCookie();
 
   setCookie(c, cookie.name, cookie.value, cookie.attributes);
