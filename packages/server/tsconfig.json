@@ -15,6 +15,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "paths": {
+      "@cs/utils": ["../utils/src"],
       "@cs/utils/*": ["../utils/src/*"]
     }
   },
