@@ -1,20 +1,19 @@
 import type { NamedValue } from './types';
 import type { ZodErrorMap, ZodError } from 'zod';
 
+import { set } from 'lodash';
 import { z, defaultErrorMap, ZodIssueCode, ZodParsedType } from 'zod';
 
 export * from './auth';
+export * from './recipe';
 
 export const parseError = (error: ZodError<any>) => {
-  const { formErrors, fieldErrors } = error.flatten();
-  if (formErrors.length) return formErrors[0];
-  return Object.entries(fieldErrors).reduce(
-    (acc, [key, value]) => ({
-      ...acc,
-      [key]: value[0],
-    }),
-    {} as Record<keyof typeof fieldErrors, string>
-  );
+  const { issues } = error;
+  if (!issues[0].path.length) return issues[0].message;
+  return issues.reduce((acc, issue) => {
+    set(acc, issue.path.join('.'), issue.message);
+    return acc;
+  }, {});
 };
 
 export const makeZodI18nMap =
