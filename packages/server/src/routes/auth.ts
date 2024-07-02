@@ -13,8 +13,8 @@ import {
   generateResetPasswordTokenSchema,
 } from '@cs/utils/zod';
 import {
-  hashSHA256,
-  hashScrypt,
+  sha256,
+  scrypt,
   initializeLucia,
   initializeGoogle,
   generatePasswordResetToken,
@@ -205,8 +205,8 @@ signIn.post(
       return c.json({ error: t('auth.invalidEmailPassword') }, 400);
     }
 
-    const hashedPassword = hashScrypt(password, c.env.SALT);
-    if (user.hashedPassword !== hashedPassword) {
+    const isValid = scrypt.verify(user.hashedPassword, password);
+    if (!isValid) {
       return c.json({ error: t('auth.invalidEmailPassword') }, 400);
     }
 
@@ -242,7 +242,7 @@ signUp.post(
 
     if (exists) return c.json({ error: { email: t('auth.existsEmail') } }, 400);
 
-    const hashedPassword = hashScrypt(password, c.env.SALT);
+    const hashedPassword = scrypt.hash(password);
     const [{ id: userId }] = await db
       .insert(users)
       .values({
@@ -421,7 +421,7 @@ resetPassword.post(
     const { password } = c.req.valid('json');
 
     const db = initializeDB(c.env.DB);
-    const hashedToken = hashSHA256(token);
+    const hashedToken = sha256(token);
     const validToken = await db.query.passwordResetTokens.findFirst({
       where: (table, { eq }) => eq(table.hashedToken, hashedToken),
     });
@@ -438,7 +438,7 @@ resetPassword.post(
     const lucia = initializeLucia(c);
     await lucia.invalidateUserSessions(validToken.userId);
 
-    const hashedPassword = hashScrypt(password, c.env.SALT);
+    const hashedPassword = scrypt.hash(password);
     await db
       .update(users)
       .set({ hashedPassword })

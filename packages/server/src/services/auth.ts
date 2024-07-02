@@ -7,11 +7,11 @@ import { omit } from 'lodash';
 import { Google } from 'arctic';
 import { eq } from 'drizzle-orm';
 import { initializeDB } from '../db';
-import { sha256 } from '@noble/hashes/sha256';
-import { scrypt } from '@noble/hashes/scrypt';
-import { bytesToHex } from '@noble/hashes/utils';
+import { sha256 as sha256_ } from '@noble/hashes/sha256';
+import { scrypt as scrypt_ } from '@noble/hashes/scrypt';
 import { Lucia, generateIdFromEntropySize } from 'lucia';
 import { generateRandomString, alphabet } from 'oslo/crypto';
+import { bytesToHex, randomBytes } from '@noble/hashes/utils';
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
 import { TimeSpan, createDate, isWithinExpirationDate } from 'oslo';
 
@@ -101,7 +101,7 @@ export const generatePasswordResetToken = async (
     .delete(passwordResetTokens)
     .where(eq(passwordResetTokens.userId, userId));
   const token = generateIdFromEntropySize(25);
-  const hashedToken = hashSHA256(token);
+  const hashedToken = sha256(token);
   await db.insert(passwordResetTokens).values({
     hashedToken,
     userId,
@@ -110,15 +110,27 @@ export const generatePasswordResetToken = async (
   return token;
 };
 
-export const hashSHA256 = (value: string | Uint8Array) => {
-  return bytesToHex(sha256(value));
+export const sha256 = (value: string | Uint8Array) => {
+  return bytesToHex(sha256_(value));
 };
 
-export const hashScrypt = (
-  value: string | Uint8Array,
-  salt: string | Uint8Array,
-  options?: ScryptOpts
-) => {
-  const { N = 16384, r = 16, p = 1, dkLen = 64 } = options ?? {};
-  return bytesToHex(scrypt(value, salt, { N, r, p, dkLen }));
+export const scrypt = {
+  key: (
+    value: string | Uint8Array,
+    salt: string | Uint8Array,
+    options?: ScryptOpts
+  ) => {
+    const { N = 16384, r = 16, p = 1, dkLen = 64 } = options ?? {};
+    return bytesToHex(scrypt_(value, salt, { N, r, p, dkLen }));
+  },
+  hash: (value: string | Uint8Array) => {
+    const salt = bytesToHex(randomBytes(32));
+    const key = scrypt.key(value, salt);
+    return `${salt}:${key}`;
+  },
+  verify: (hash: string, value: string | Uint8Array) => {
+    const [salt, key] = hash.split(':');
+    const targetKey = scrypt.key(value, salt);
+    return targetKey === key;
+  },
 };
