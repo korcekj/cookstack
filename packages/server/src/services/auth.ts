@@ -1,14 +1,14 @@
 import type { Context } from 'hono';
 import type { Env } from '../types';
 import type { User } from '../db/schema';
-import type { ArgonOpts } from '@noble/hashes/argon2';
+import type { ScryptOpts } from '@noble/hashes/scrypt';
 
 import { omit } from 'lodash';
 import { Google } from 'arctic';
 import { eq } from 'drizzle-orm';
 import { initializeDB } from '../db';
 import { sha256 } from '@noble/hashes/sha256';
-import { argon2id } from '@noble/hashes/argon2';
+import { scrypt } from '@noble/hashes/scrypt';
 import { bytesToHex } from '@noble/hashes/utils';
 import { Lucia, generateIdFromEntropySize } from 'lucia';
 import { generateRandomString, alphabet } from 'oslo/crypto';
@@ -114,11 +114,11 @@ export const hashSHA256 = (value: string | Uint8Array) => {
   return bytesToHex(sha256(value));
 };
 
-export const hashArgon2id = (
+export const hashScrypt = (
   value: string | Uint8Array,
   salt: string | Uint8Array,
-  options?: ArgonOpts
+  options?: ScryptOpts
 ) => {
-  const { t = 2, m = 19456, p = 1, dkLen = 32 } = options ?? {};
-  return bytesToHex(argon2id(value, salt, { t, m, p, dkLen }));
+  const { N = 16384, r = 16, p = 1, dkLen = 64 } = options ?? {};
+  return bytesToHex(scrypt(value, salt, { N, r, p, dkLen }));
 };

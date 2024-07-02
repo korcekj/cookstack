@@ -14,7 +14,7 @@ import {
 } from '@cs/utils/zod';
 import {
   hashSHA256,
-  hashArgon2id,
+  hashScrypt,
   initializeLucia,
   initializeGoogle,
   generatePasswordResetToken,
@@ -205,7 +205,7 @@ signIn.post(
       return c.json({ error: t('auth.invalidEmailPassword') }, 400);
     }
 
-    const hashedPassword = hashArgon2id(password, c.env.SALT);
+    const hashedPassword = hashScrypt(password, c.env.SALT);
     if (user.hashedPassword !== hashedPassword) {
       return c.json({ error: t('auth.invalidEmailPassword') }, 400);
     }
@@ -242,7 +242,7 @@ signUp.post(
 
     if (exists) return c.json({ error: { email: t('auth.existsEmail') } }, 400);
 
-    const hashedPassword = hashArgon2id(password, c.env.SALT);
+    const hashedPassword = hashScrypt(password, c.env.SALT);
     const [{ id: userId }] = await db
       .insert(users)
       .values({
@@ -438,7 +438,7 @@ resetPassword.post(
     const lucia = initializeLucia(c);
     await lucia.invalidateUserSessions(validToken.userId);
 
-    const hashedPassword = hashArgon2id(password, c.env.SALT);
+    const hashedPassword = hashScrypt(password, c.env.SALT);
     await db
       .update(users)
       .set({ hashedPassword })
