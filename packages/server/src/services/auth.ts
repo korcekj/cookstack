@@ -1,19 +1,16 @@
 import type { Context } from 'hono';
 import type { Env } from '../types';
 import type { User } from '../db/schema';
-import type { ScryptOpts } from '@noble/hashes/scrypt';
 
 import { omit } from 'lodash';
 import { Google } from 'arctic';
 import { eq } from 'drizzle-orm';
 import { initializeDB } from '../db';
-import { sha256 as sha256_ } from '@noble/hashes/sha256';
-import { scrypt as scrypt_ } from '@noble/hashes/scrypt';
 import { Lucia, generateIdFromEntropySize } from 'lucia';
 import { generateRandomString, alphabet } from 'oslo/crypto';
-import { bytesToHex, randomBytes } from '@noble/hashes/utils';
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
 import { TimeSpan, createDate, isWithinExpirationDate } from 'oslo';
+import { pbkdf2 as pbkdf2_, createHash, randomBytes } from 'node:crypto';
 
 import {
   users,
@@ -111,26 +108,31 @@ export const generatePasswordResetToken = async (
 };
 
 export const sha256 = (value: string | Uint8Array) => {
-  return bytesToHex(sha256_(value));
+  return createHash('sha256').update(value).digest('hex');
 };
 
-export const scrypt = {
+export const pbkdf2 = {
   key: (
     value: string | Uint8Array,
     salt: string | Uint8Array,
-    options?: ScryptOpts
+    options?: { c: number; dkLen: number; digest: 'sha256' | 'sha512' }
   ) => {
-    const { N = 16384, r = 16, p = 1, dkLen = 64 } = options ?? {};
-    return bytesToHex(scrypt_(value, salt, { N, r, p, dkLen }));
+    const { c = 100_000, dkLen = 64, digest = 'sha512' } = options ?? {};
+    return new Promise<string>((resolve, reject) => {
+      pbkdf2_(value, salt, c, dkLen, digest, (err, key) => {
+        if (err) reject(err);
+        else resolve(key.toString('hex'));
+      });
+    });
   },
-  hash: (value: string | Uint8Array) => {
-    const salt = bytesToHex(randomBytes(32));
-    const key = scrypt.key(value, salt);
+  hash: async (value: string | Uint8Array) => {
+    const salt = randomBytes(16).toString('hex');
+    const key = await pbkdf2.key(value, salt);
     return `${salt}:${key}`;
   },
-  verify: (hash: string, value: string | Uint8Array) => {
+  verify: async (hash: string, value: string | Uint8Array) => {
     const [salt, key] = hash.split(':');
-    const targetKey = scrypt.key(value, salt);
+    const targetKey = await pbkdf2.key(value, salt);
     return targetKey === key;
   },
 };

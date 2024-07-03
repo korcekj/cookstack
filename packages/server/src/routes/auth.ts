@@ -14,7 +14,7 @@ import {
 } from '@cs/utils/zod';
 import {
   sha256,
-  scrypt,
+  pbkdf2,
   initializeLucia,
   initializeGoogle,
   generatePasswordResetToken,
@@ -205,7 +205,7 @@ signIn.post(
       return c.json({ error: t('auth.invalidEmailPassword') }, 400);
     }
 
-    const isValid = scrypt.verify(user.hashedPassword, password);
+    const isValid = await pbkdf2.verify(user.hashedPassword, password);
     if (!isValid) {
       return c.json({ error: t('auth.invalidEmailPassword') }, 400);
     }
@@ -242,7 +242,7 @@ signUp.post(
 
     if (exists) return c.json({ error: { email: t('auth.existsEmail') } }, 400);
 
-    const hashedPassword = scrypt.hash(password);
+    const hashedPassword = await pbkdf2.hash(password);
     const [{ id: userId }] = await db
       .insert(users)
       .values({
@@ -438,7 +438,7 @@ resetPassword.post(
     const lucia = initializeLucia(c);
     await lucia.invalidateUserSessions(validToken.userId);
 
-    const hashedPassword = scrypt.hash(password);
+    const hashedPassword = await pbkdf2.hash(password);
     await db
       .update(users)
       .set({ hashedPassword })
