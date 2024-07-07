@@ -1,7 +1,6 @@
 import type { Env, GoogleUser } from '../types';
 
 import {
-  parseError,
   signInSchema,
   signUpSchema,
   verifyEmailSchema,
@@ -34,10 +33,10 @@ import { initializeDB } from '../db';
 import { OAuth2RequestError } from 'arctic';
 import { isWithinExpirationDate } from 'oslo';
 import { useTranslation } from '@intlify/hono';
-import { zValidator } from '@hono/zod-validator';
 import { verifyAuth } from '../middlewares/auth';
 import { generateIdFromEntropySize } from 'lucia';
 import { setCookie, getCookie } from 'hono/cookie';
+import { validator } from '../middlewares/validation';
 import { rateLimit } from '../middlewares/rate-limit';
 import { generateState, generateCodeVerifier } from 'arctic';
 import { users, oauthAccounts, passwordResetTokens } from '../db/schema';
@@ -49,46 +48,32 @@ const signOut = new Hono<Env>();
 const verifyEmail = new Hono<Env>();
 const resetPassword = new Hono<Env>();
 
-signIn.get(
-  '/google',
-  zValidator('query', signInGoogleSchema, (result, c) => {
-    if (!result.success) {
-      const error = parseError(result.error);
-      return c.json({ error }, 400);
-    }
-  }),
-  async (c) => {
-    const { redirectUrl } = c.req.valid('query');
-    const state = redirectUrl ?? generateState();
-    const code = generateCodeVerifier();
-    const url = await initializeGoogle(c).createAuthorizationURL(state, code, {
-      scopes: ['openid', 'profile', 'email'],
-    });
+signIn.get('/google', validator('query', signInGoogleSchema), async (c) => {
+  const { redirectUrl } = c.req.valid('query');
+  const state = redirectUrl ?? generateState();
+  const code = generateCodeVerifier();
+  const url = await initializeGoogle(c).createAuthorizationURL(state, code, {
+    scopes: ['openid', 'profile', 'email'],
+  });
 
-    setCookie(c, 'google_oauth_state', state, {
-      secure: c.env.ENV === 'production',
-      httpOnly: true,
-      maxAge: 60 * 10,
-    });
+  setCookie(c, 'google_oauth_state', state, {
+    secure: c.env.ENV === 'production',
+    httpOnly: true,
+    maxAge: 60 * 10,
+  });
 
-    setCookie(c, 'google_oauth_code', code, {
-      secure: c.env.ENV === 'production',
-      httpOnly: true,
-      maxAge: 60 * 10,
-    });
+  setCookie(c, 'google_oauth_code', code, {
+    secure: c.env.ENV === 'production',
+    httpOnly: true,
+    maxAge: 60 * 10,
+  });
 
-    return c.redirect(url.toString());
-  }
-);
+  return c.redirect(url.toString());
+});
 
 signIn.get(
   '/google/callback',
-  zValidator('query', signInGoogleCallbackSchema, (result, c) => {
-    if (!result.success) {
-      const error = parseError(result.error);
-      return c.json({ error }, 400);
-    }
-  }),
+  validator('query', signInGoogleCallbackSchema),
   async (c) => {
     const t = useTranslation(c);
     const { state, code } = c.req.valid('query');
@@ -183,97 +168,78 @@ signIn.get(
   }
 );
 
-signIn.post(
-  '/',
-  rateLimit,
-  zValidator('json', signInSchema, (result, c) => {
-    if (!result.success) {
-      const error = parseError(result.error);
-      return c.json({ error }, 400);
-    }
-  }),
-  async (c) => {
-    const t = useTranslation(c);
-    const { email, password } = c.req.valid('json');
+signIn.post('/', rateLimit, validator('json', signInSchema), async (c) => {
+  const t = useTranslation(c);
+  const { email, password } = c.req.valid('json');
 
-    const db = initializeDB(c.env.DB);
-    const user = await db.query.users.findFirst({
-      where: (table, { eq }) => eq(table.email, email),
-    });
+  const db = initializeDB(c.env.DB);
+  const user = await db.query.users.findFirst({
+    where: (table, { eq }) => eq(table.email, email),
+  });
 
-    if (!user || !user.hashedPassword) {
-      return c.json({ error: t('auth.invalidEmailPassword') }, 400);
-    }
-
-    const isValid = await pbkdf2.verify(user.hashedPassword, password);
-    if (!isValid) {
-      return c.json({ error: t('auth.invalidEmailPassword') }, 400);
-    }
-
-    const lucia = initializeLucia(c);
-    const session = await lucia.createSession(user.id, {});
-    const cookie = lucia.createSessionCookie(session.id);
-
-    setCookie(c, cookie.name, cookie.value, cookie.attributes);
-
-    const { user: luciaUser } = await lucia.validateSession(session.id);
-    return c.json({ user: luciaUser });
+  if (!user || !user.hashedPassword) {
+    return c.json({ error: t('auth.invalidEmailPassword') }, 400);
   }
-);
+
+  const isValid = await pbkdf2.verify(user.hashedPassword, password);
+  if (!isValid) {
+    return c.json({ error: t('auth.invalidEmailPassword') }, 400);
+  }
+
+  const lucia = initializeLucia(c);
+  const session = await lucia.createSession(user.id, {});
+  const cookie = lucia.createSessionCookie(session.id);
+
+  setCookie(c, cookie.name, cookie.value, cookie.attributes);
+
+  const { user: luciaUser } = await lucia.validateSession(session.id);
+  return c.json({ user: luciaUser });
+});
 
 signUp.use(rateLimit);
-signUp.post(
-  '/',
-  zValidator('json', signUpSchema, (result, c) => {
-    if (!result.success) {
-      const error = parseError(result.error);
-      return c.json({ error }, 400);
-    }
-  }),
-  async (c) => {
-    const t = useTranslation(c);
-    const { firstName, lastName, email, password } = c.req.valid('json');
+signUp.post('/', validator('json', signUpSchema), async (c) => {
+  const t = useTranslation(c);
+  const { firstName, lastName, email, password } = c.req.valid('json');
 
-    const db = initializeDB(c.env.DB);
-    const exists = await db.query.users.findFirst({
-      where: (table, { eq }) => eq(table.email, email),
-      columns: { email: true },
-    });
+  const db = initializeDB(c.env.DB);
+  const exists = await db.query.users.findFirst({
+    where: (table, { eq }) => eq(table.email, email),
+    columns: { email: true },
+  });
 
-    if (exists) return c.json({ error: { email: t('auth.existsEmail') } }, 400);
+  if (exists) return c.json({ error: { email: t('auth.existsEmail') } }, 400);
 
-    const hashedPassword = await pbkdf2.hash(password);
-    const [{ id: userId }] = await db
-      .insert(users)
-      .values({
-        id: generateIdFromEntropySize(10),
-        email,
-        hashedPassword,
-        firstName,
-        lastName,
-      })
-      .returning({ id: users.id });
-
-    const code = await generateEmailVerificationCode(c.env.DB, {
-      userId,
+  const hashedPassword = await pbkdf2.hash(password);
+  const [{ id: userId }] = await db
+    .insert(users)
+    .values({
+      id: generateIdFromEntropySize(10),
       email,
-    });
-    await sendEmail(c, {
-      to: email,
-      subject: t('emails.verificationCode.subject'),
-      html: verificationCodeTemplate(c, { code }),
-    });
+      hashedPassword,
+      firstName,
+      lastName,
+    })
+    .returning({ id: users.id });
 
-    const lucia = initializeLucia(c);
-    const session = await lucia.createSession(userId, {});
-    const cookie = lucia.createSessionCookie(session.id);
+  const code = await generateEmailVerificationCode(c.env.DB, {
+    userId,
+    email,
+  });
+  await sendEmail(c, {
+    to: email,
+    subject: t('emails.verificationCode.subject'),
+    html: verificationCodeTemplate(c, { code }),
+  });
 
-    setCookie(c, cookie.name, cookie.value, cookie.attributes);
+  const lucia = initializeLucia(c);
+  const session = await lucia.createSession(userId, {});
+  const cookie = lucia.createSessionCookie(session.id);
 
-    const { user: luciaUser } = await lucia.validateSession(session.id);
-    return c.json({ user: luciaUser }, 201);
-  }
-);
+  setCookie(c, cookie.name, cookie.value, cookie.attributes);
+
+  const { user: luciaUser } = await lucia.validateSession(session.id);
+  return c.json({ user: luciaUser }, 201);
+});
 
 signOut.use(rateLimit);
 signOut.use(verifyAuth);
@@ -316,60 +282,41 @@ verifyEmail.post('/', async (c) => {
   return c.body(null, 204);
 });
 
-verifyEmail.post(
-  '/:code',
-  zValidator('param', verifyEmailSchema, (result, c) => {
-    if (!result.success) {
-      const error = parseError(result.error);
-      return c.json({ error }, 400);
-    }
-  }),
-  async (c) => {
-    const t = useTranslation(c);
-    const { code } = c.req.valid('param');
-    const { id: userId, email } = c.get('user')!;
+verifyEmail.post('/:code', validator('param', verifyEmailSchema), async (c) => {
+  const t = useTranslation(c);
+  const { code } = c.req.valid('param');
+  const { id: userId, email } = c.get('user')!;
 
-    const validCode = await verifyEmailVerificationCode(c.env.DB, {
-      userId,
-      email,
-      code,
-    });
-    if (!validCode) return c.json({ error: t('auth.invalidCode') }, 400);
+  const validCode = await verifyEmailVerificationCode(c.env.DB, {
+    userId,
+    email,
+    code,
+  });
+  if (!validCode) return c.json({ error: t('auth.invalidCode') }, 400);
 
-    const lucia = initializeLucia(c);
-    const db = initializeDB(c.env.DB);
+  const lucia = initializeLucia(c);
+  const db = initializeDB(c.env.DB);
 
-    await lucia.invalidateUserSessions(userId);
-    await db
-      .update(users)
-      .set({ emailVerified: true })
-      .where(eq(users.id, userId));
+  await lucia.invalidateUserSessions(userId);
+  await db
+    .update(users)
+    .set({ emailVerified: true })
+    .where(eq(users.id, userId));
 
-    const session = await lucia.createSession(userId, {});
-    const cookie = lucia.createSessionCookie(session.id);
+  const session = await lucia.createSession(userId, {});
+  const cookie = lucia.createSessionCookie(session.id);
 
-    setCookie(c, cookie.name, cookie.value, cookie.attributes);
+  setCookie(c, cookie.name, cookie.value, cookie.attributes);
 
-    const { user: luciaUser } = await lucia.validateSession(session.id);
-    return c.json({ user: luciaUser });
-  }
-);
+  const { user: luciaUser } = await lucia.validateSession(session.id);
+  return c.json({ user: luciaUser });
+});
 
 resetPassword.use(rateLimit);
 resetPassword.post(
   '/',
-  zValidator('query', forgotPasswordSchema, (result, c) => {
-    if (!result.success) {
-      const error = parseError(result.error);
-      return c.json({ error }, 400);
-    }
-  }),
-  zValidator('json', generateResetPasswordTokenSchema, (result, c) => {
-    if (!result.success) {
-      const error = parseError(result.error);
-      return c.json({ error }, 400);
-    }
-  }),
+  validator('query', forgotPasswordSchema),
+  validator('json', generateResetPasswordTokenSchema),
   async (c) => {
     const t = useTranslation(c);
     const { email } = c.req.valid('json');
@@ -403,18 +350,8 @@ resetPassword.post(
 
 resetPassword.post(
   '/:token',
-  zValidator('param', resetPasswordTokenSchema, (result, c) => {
-    if (!result.success) {
-      const error = parseError(result.error);
-      return c.json({ error }, 400);
-    }
-  }),
-  zValidator('json', resetPasswordSchema, (result, c) => {
-    if (!result.success) {
-      const error = parseError(result.error);
-      return c.json({ error }, 400);
-    }
-  }),
+  validator('param', resetPasswordTokenSchema),
+  validator('json', resetPasswordSchema),
   async (c) => {
     const t = useTranslation(c);
     const { token } = c.req.valid('param');
