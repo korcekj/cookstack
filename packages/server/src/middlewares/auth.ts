@@ -65,6 +65,9 @@ export const makeAuthor = createMiddleware<Env>(async (c, next) => {
 
   await verifyAuth(c, () => {
     const user = c.get('user')!;
+    if (!user.emailVerified) {
+      throw new HTTPException(400, { message: t('auth.unverifiedEmail') });
+    }
     if (user.role === 'author') {
       throw new HTTPException(400, { message: t('auth.existsAuthor') });
     }
