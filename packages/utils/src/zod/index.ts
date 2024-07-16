@@ -2,10 +2,12 @@ import type { NamedValue } from './types';
 import type { ZodErrorMap, ZodError } from 'zod';
 
 import { set } from 'lodash';
+import { joinValues } from '../index';
 import { z, defaultErrorMap, ZodIssueCode, ZodParsedType } from 'zod';
 
 export * from './auth';
 export * from './recipe';
+export * from './category';
 
 export const parseError = (error: ZodError<any>) => {
   const { issues } = error;
@@ -16,6 +18,7 @@ export const parseError = (error: ZodError<any>) => {
   }, {});
 };
 
+// https://github.com/volverjs/zod-vue-i18n/blob/develop/src/index.ts
 export const makeZodI18nMap =
   (
     t: (k: string, nv?: NamedValue) => string,
@@ -87,6 +90,13 @@ export const makeZodI18nMap =
         }`;
         options = {
           maximum: issue.maximum,
+        };
+        break;
+      case ZodIssueCode.invalid_enum_value:
+        message = 'invalidEnumValue';
+        options = {
+          options: joinValues(issue.options),
+          received: issue.received,
         };
         break;
       case ZodIssueCode.custom:

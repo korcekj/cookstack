@@ -39,3 +39,8 @@ export const parseOrigin = (origin: string) => {
 export const slugify = (value: string, separator = '-') => {
   return deburr(value).toLowerCase().replace(/ +/g, separator);
 };
+
+export const joinValues = <T extends unknown[]>(array: T, separator = ' | ') =>
+  array
+    .map((val) => (typeof val === 'string' ? `'${val}'` : val))
+    .join(separator);

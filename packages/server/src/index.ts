@@ -5,10 +5,13 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
 import { logger } from 'hono/logger';
+import { useTranslation } from '@intlify/hono';
 import { HTTPException } from 'hono/http-exception';
 
 import auth from './routes/auth';
 import user from './routes/user';
+import recipes from './routes/recipes';
+import categories from './routes/categories';
 import { handleAuth } from './middlewares/auth';
 import { i18n, i18nZod } from './middlewares/i18n';
 
@@ -46,14 +49,20 @@ const api = app.basePath('/api');
 api.use('*', handleAuth);
 api.route('/auth', auth);
 api.route('/user', user);
+api.route('/recipes', recipes);
+api.route('/categories', categories);
 
 app.route('/', api);
 
 app.onError((err, c) => {
+  const t = useTranslation(c);
+
   if (err instanceof HTTPException) {
     return c.json({ error: err.message }, err.status);
   }
-  return c.json({ error: err.message }, 500);
+
+  console.error(err);
+  return c.json({ error: t('errors.internalServerError') }, 500);
 });
 
 export default app;
