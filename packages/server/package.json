@@ -20,7 +20,7 @@
     "@upstash/redis": "^1.31.5",
     "arctic": "^1.8.1",
     "drizzle-orm": "^0.32.0",
-    "hono": "^4.3.4",
+    "hono": "^4.5.0",
     "lucia": "^3.2.0",
     "resend": "^3.2.0"
   },
