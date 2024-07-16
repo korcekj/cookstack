@@ -1,5 +1,6 @@
 import type { Env } from '../types';
 
+import { every } from 'hono/combine';
 import { useTranslation } from '@intlify/hono';
 import { createMiddleware } from 'hono/factory';
 import { setCookie, getCookie } from 'hono/cookie';
@@ -41,29 +42,31 @@ export const verifyAuth = createMiddleware<Env>(async (c, next) => {
   return next();
 });
 
-export const verifyAuthor = createMiddleware<Env>(async (c, next) => {
-  const t = useTranslation(c);
+export const verifyAuthor = every(
+  verifyAuth,
+  createMiddleware<Env>(async (c, next) => {
+    const t = useTranslation(c);
 
-  await verifyAuth(c, () => {
     const user = c.get('user')!;
     if (user.role !== 'author') {
       throw new HTTPException(403, { message: t('auth.forbidden') });
     }
 
     return next();
-  });
-});
+  })
+);
 
-export const makeAuthor = createMiddleware<Env>(async (c, next) => {
-  const t = useTranslation(c);
+export const makeAuthor = every(
+  verifyAuth,
+  createMiddleware<Env>(async (c, next) => {
+    const t = useTranslation(c);
 
-  // TODO: Make this safer
-  const author = c.req.header('x-author');
-  if (!author) {
-    throw new HTTPException(400, { message: t('errors.badRequest') });
-  }
+    // TODO: Make this safer
+    const author = c.req.header('x-author');
+    if (!author) {
+      throw new HTTPException(400, { message: t('errors.badRequest') });
+    }
 
-  await verifyAuth(c, () => {
     const user = c.get('user')!;
     if (!user.emailVerified) {
       throw new HTTPException(400, { message: t('auth.unverifiedEmail') });
@@ -73,5 +76,5 @@ export const makeAuthor = createMiddleware<Env>(async (c, next) => {
     }
 
     return next();
-  });
-});
+  })
+);
