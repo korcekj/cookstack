@@ -24,6 +24,7 @@ export default {
     duplicate: 'Recept už existuje',
   },
   category: {
+    duplicate: 'Kategória už existuje',
     notFound: 'Kategória nebola nájdená',
   },
   emails: {

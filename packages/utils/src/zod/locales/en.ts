@@ -1,3 +1,4 @@
+// https://github.com/aiji42/zod-i18n/blob/main/packages/core/locales/en/zod.json
 export default {
   errors: {
     invalidType: 'Expected {expected}, received {received}',
@@ -8,7 +9,7 @@ export default {
     invalidUnion: 'Invalid value',
     invalidUnionDiscriminator:
       'Invalid discriminator value. Expected {options}',
-    invalidEnumValue: 'Invalid option. Expected: {options}',
+    invalidEnumValue: 'Invalid value. Expected: {options}',
     invalidArguments: 'Invalid function parameters',
     invalidReturnType: 'Invalid function value returned',
     invalidDate: 'Invalid date',

@@ -1,3 +1,4 @@
+// https://github.com/aiji42/zod-i18n/blob/main/packages/core/locales/sk/zod.json
 export default {
   errors: {
     invalidType:
@@ -9,7 +10,7 @@ export default {
     invalidUnion: 'Invalid value',
     invalidUnionDiscriminator:
       'Invalid discriminator value. Expected {options}',
-    invalidEnumValue: 'Invalid option. Expected: {options}',
+    invalidEnumValue: 'Neplatná hodnota. Očakáva sa: {options}',
     invalidArguments: 'Invalid funciont parameters',
     invalidReturnType: 'Invalid function value returned',
     invalidDate: 'Neplatný dátum',

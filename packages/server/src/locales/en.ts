@@ -24,6 +24,7 @@ export default {
     duplicate: 'Recipe already exists',
   },
   category: {
+    duplicate: 'Category already exists',
     notFound: 'Category not found',
   },
   emails: {
