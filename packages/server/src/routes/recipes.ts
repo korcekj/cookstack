@@ -149,8 +149,8 @@ recipes.get('/', validator('query', getRecipesSchema), async (c) => {
 
 recipes.get('/:slug', validator('param', getRecipeSchema), async (c) => {
   const t = useTranslation(c);
-  const { slug } = c.req.valid('param');
-  const { recipes } = await getRecipes(c, { slug });
+  const options = c.req.valid('param');
+  const { recipes } = await getRecipes(c, options);
   if (!recipes.length) return c.json({ error: t('recipe.notFound') }, 404);
 
   return c.json({ recipe: recipes });
