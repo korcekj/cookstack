@@ -137,9 +137,10 @@ recipes.post(
 );
 
 recipes.get('/', validator('query', getRecipesSchema), async (c) => {
-  const { limit, offset, orderBy } = c.req.valid('query');
+  const options = c.req.valid('query');
+  const { limit, offset } = options;
 
-  const { recipes, total } = await getRecipes(c, { limit, offset, orderBy });
+  const { recipes, total } = await getRecipes(c, options);
   const page = Math.floor(offset / limit) + 1;
   const pages = Math.ceil(total / limit);
 
