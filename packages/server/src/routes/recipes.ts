@@ -1,6 +1,7 @@
+import type { Context } from 'hono';
 import type { BatchItem } from 'drizzle-orm/batch';
-import type { RecipesOrderByColumns } from '@cs/utils/zod';
 import type { RecipeTranslation, CategoryTranslation } from '../db/schema';
+import type { RecipesOrderByColumns, GetRecipesInput } from '@cs/utils/zod';
 import type { Env, Recipe, Section, Ingredient, Instruction } from '../types';
 
 import {
@@ -128,11 +129,19 @@ recipes.post(
 );
 
 recipes.get('/', validator('query', getRecipesSchema), async (c) => {
-  const locale = getLocale(c);
-
   const { limit, offset, orderBy } = c.req.valid('query');
 
+  const { recipes, total } = await getRecipes(c, { limit, offset, orderBy });
+  const page = Math.floor(offset / limit) + 1;
+  const pages = Math.ceil(total / limit);
+
+  return c.json({ recipes, total, page, pages });
+});
+
+const getRecipes = async (c: Context<Env>, options: GetRecipesInput) => {
+  const locale = getLocale(c);
   const db = initializeDB(c.env.DB);
+  const { limit, offset, orderBy } = options;
 
   const orderByClauses = getOrderByClauses<RecipesOrderByColumns>(
     orderBy,
@@ -264,12 +273,11 @@ recipes.get('/', validator('query', getRecipesSchema), async (c) => {
       ),
   ]);
 
-  const results = aggregate([recipes, sections, ingredients, instructions]);
-  const page = Math.floor(offset / limit) + 1;
-  const pages = Math.ceil(total / limit);
-
-  return c.json({ recipes: results, total, page, pages });
-});
+  return {
+    recipes: aggregate([recipes, sections, ingredients, instructions]),
+    total,
+  };
+};
 
 const aggregate = ([recipes, sections, ingredients, instructions]: [
   Recipe[],

@@ -91,3 +91,5 @@ export const getRecipesSchema = z.object({
       }
     ),
 });
+
+export type GetRecipesInput = z.infer<typeof getRecipesSchema>;
