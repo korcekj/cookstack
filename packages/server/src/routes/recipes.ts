@@ -153,7 +153,7 @@ recipes.get('/:slug', validator('param', getRecipeSchema), async (c) => {
   const { recipes } = await getRecipes(c, options);
   if (!recipes.length) return c.json({ error: t('recipe.notFound') }, 404);
 
-  return c.json({ recipe: recipes });
+  return c.json({ recipe: recipes[0] });
 });
 
 const getRecipes = async (
