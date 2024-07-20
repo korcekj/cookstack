@@ -10,6 +10,12 @@ export const createCategorySchema = z.object({
   ),
 });
 
+export const getCategorySchema = z.object({
+  slug: z.string(),
+});
+
+export type GetCategoryInput = z.infer<typeof getCategorySchema>;
+
 export const categoriesOrderBySchema = z.enum(['name', '-name']);
 
 export type CategoriesOrderByInput = z.infer<typeof categoriesOrderBySchema>;
@@ -42,3 +48,5 @@ export const getCategoriesSchema = z.object({
       }
     ),
 });
+
+export type GetCategoriesInput = z.infer<typeof getCategoriesSchema>;

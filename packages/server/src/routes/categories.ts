@@ -1,5 +1,10 @@
+import type {
+  GetCategoryInput,
+  GetCategoriesInput,
+  CategoriesOrderByColumns,
+} from '@cs/utils/zod';
+import type { Context } from 'hono';
 import type { Env } from '../types';
-import type { CategoriesOrderByColumns } from '@cs/utils/zod';
 
 import {
   categories as categoriesTable,
@@ -15,7 +20,11 @@ import { verifyAuthor } from '../middlewares/auth';
 import { validator } from '../middlewares/validation';
 import { rateLimit } from '../middlewares/rate-limit';
 import { getOrderByClauses, getLocale } from '../utils';
-import { createCategorySchema, getCategoriesSchema } from '@cs/utils/zod';
+import {
+  createCategorySchema,
+  getCategoriesSchema,
+  getCategorySchema,
+} from '@cs/utils/zod';
 
 const categories = new Hono<Env>();
 
@@ -61,47 +70,76 @@ categories.post(
 );
 
 categories.get('/', validator('query', getCategoriesSchema), async (c) => {
-  const locale = getLocale(c);
-  const { limit, offset, orderBy } = c.req.valid('query');
+  const options = c.req.valid('query');
+  const { limit, offset } = options;
 
-  const db = initializeDB(c.env.DB);
-
-  const orderByClauses = getOrderByClauses<CategoriesOrderByColumns>(
-    orderBy,
-    (value) => {
-      switch (value) {
-        case 'name':
-          return categoriesTranslations.name;
-        default:
-          throw new Error(`Invalid column name: ${value}`);
-      }
-    }
-  );
-
-  const [categories, [{ count: total }]] = await db.batch([
-    db
-      .select({
-        id: categoriesTable.id,
-        name: categoriesTranslations.name,
-        slug: categoriesTranslations.slug,
-      })
-      .from(categoriesTable)
-      .innerJoin(
-        categoriesTranslations,
-        and(
-          eq(categoriesTranslations.categoryId, categoriesTable.id),
-          eq(categoriesTranslations.language, locale)
-        )
-      )
-      .orderBy(...orderByClauses)
-      .limit(limit)
-      .offset(offset),
-    db.select({ count: count() }).from(categoriesTable),
-  ]);
+  const { categories, total } = await getCategories(c, options);
   const page = Math.floor(offset / limit) + 1;
   const pages = Math.ceil(total / limit);
 
   return c.json({ categories, total, page, pages });
 });
+
+categories.get('/:slug', validator('param', getCategorySchema), async (c) => {
+  const t = useTranslation(c);
+  const options = c.req.param();
+  const { categories } = await getCategories(c, options);
+  if (!categories.length) return c.json({ error: t('category.notFound') }, 404);
+
+  return c.json({ category: categories[0] });
+});
+
+const getCategories = async (
+  c: Context<Env>,
+  options: GetCategoryInput | GetCategoriesInput
+) => {
+  const locale = getLocale(c);
+  const db = initializeDB(c.env.DB);
+
+  const query = db
+    .select({
+      id: categoriesTable.id,
+      name: categoriesTranslations.name,
+      slug: categoriesTranslations.slug,
+    })
+    .from(categoriesTable)
+    .innerJoin(
+      categoriesTranslations,
+      and(
+        eq(categoriesTranslations.categoryId, categoriesTable.id),
+        eq(categoriesTranslations.language, locale)
+      )
+    );
+
+  if ('slug' in options) {
+    query.$dynamic().where(eq(categoriesTranslations.slug, options.slug));
+  }
+
+  if ('orderBy' in options) {
+    const orderByClauses = getOrderByClauses<CategoriesOrderByColumns>(
+      options.orderBy,
+      (value) => {
+        switch (value) {
+          case 'name':
+            return categoriesTranslations.name;
+          default:
+            throw new Error(`Invalid column name: ${value}`);
+        }
+      }
+    );
+    query.$dynamic().orderBy(...orderByClauses);
+  }
+
+  if ('limit' in options && 'offset' in options) {
+    query.$dynamic().limit(options.limit).offset(options.offset);
+  }
+
+  const [categories, [{ count: total }]] = await db.batch([
+    query,
+    db.select({ count: count() }).from(categoriesTable),
+  ]);
+
+  return { categories, total };
+};
 
 export default categories;
