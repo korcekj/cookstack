@@ -22,6 +22,7 @@ export default {
   },
   recipe: {
     duplicate: 'Recipe already exists',
+    notFound: 'Recipe not found',
   },
   category: {
     duplicate: 'Category already exists',

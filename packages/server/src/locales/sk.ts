@@ -22,6 +22,7 @@ export default {
   },
   recipe: {
     duplicate: 'Recept už existuje',
+    notFound: 'Recept nebol nájdený',
   },
   category: {
     duplicate: 'Kategória už existuje',

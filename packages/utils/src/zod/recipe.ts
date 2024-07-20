@@ -50,6 +50,12 @@ export const createRecipeSchema = z.object({
   ),
 });
 
+export const getRecipeSchema = z.object({
+  slug: z.string(),
+});
+
+export type GetRecipeInput = z.infer<typeof getRecipeSchema>;
+
 export const recipesOrderBySchema = z.enum([
   'name',
   '-name',

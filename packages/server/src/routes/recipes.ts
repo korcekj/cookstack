@@ -1,8 +1,12 @@
 import type { Context } from 'hono';
 import type { BatchItem } from 'drizzle-orm/batch';
 import type { RecipeTranslation, CategoryTranslation } from '../db/schema';
-import type { RecipesOrderByColumns, GetRecipesInput } from '@cs/utils/zod';
 import type { Env, Recipe, Section, Ingredient, Instruction } from '../types';
+import type {
+  RecipesOrderByColumns,
+  GetRecipesInput,
+  GetRecipeInput,
+} from '@cs/utils/zod';
 
 import {
   recipes as recipesTable,
@@ -15,6 +19,11 @@ import {
   instructionsTranslations,
   categoriesTranslations,
 } from '../db/schema';
+import {
+  getRecipeSchema,
+  getRecipesSchema,
+  createRecipeSchema,
+} from '@cs/utils/zod';
 import { Hono } from 'hono';
 import { slugify } from '@cs/utils';
 import { initializeDB } from '../db';
@@ -25,7 +34,6 @@ import { validator } from '../middlewares/validation';
 import { rateLimit } from '../middlewares/rate-limit';
 import { getLocale, getOrderByClauses } from '../utils';
 import { sql, count, eq, and, inArray } from 'drizzle-orm';
-import { createRecipeSchema, getRecipesSchema } from '@cs/utils/zod';
 
 const recipes = new Hono<Env>();
 
@@ -138,76 +146,100 @@ recipes.get('/', validator('query', getRecipesSchema), async (c) => {
   return c.json({ recipes, total, page, pages });
 });
 
-const getRecipes = async (c: Context<Env>, options: GetRecipesInput) => {
+recipes.get('/:slug', validator('param', getRecipeSchema), async (c) => {
+  const t = useTranslation(c);
+  const { slug } = c.req.valid('param');
+  const { recipes } = await getRecipes(c, { slug });
+  if (!recipes.length) return c.json({ error: t('recipe.notFound') }, 404);
+
+  return c.json({ recipe: recipes });
+});
+
+const getRecipes = async (
+  c: Context<Env>,
+  options: GetRecipeInput | GetRecipesInput
+) => {
   const locale = getLocale(c);
   const db = initializeDB(c.env.DB);
-  const { limit, offset, orderBy } = options;
 
-  const orderByClauses = getOrderByClauses<RecipesOrderByColumns>(
-    orderBy,
-    (value) => {
-      switch (value) {
-        case 'name':
-          return recipesTranslations.name;
-        case 'createdAt':
-          return recipesTable.createdAt;
-        case 'updatedAt':
-          return recipesTable.updatedAt;
-        case 'yield':
-          return recipesTable.yield;
-        case 'total':
-          return recipesTable.total;
-        default:
-          throw new Error(`Invalid column name: ${value}`);
+  const query = db
+    .select({
+      id: recipesTable.id,
+      image: recipesTable.imageUrl,
+      preparation: recipesTable.preparation,
+      cook: recipesTable.cook,
+      total: recipesTable.total,
+      yield: recipesTable.yield,
+      name: sql<RecipeTranslation['name']>`${recipesTranslations.name}`.as(
+        'rc_name'
+      ),
+      slug: sql<RecipeTranslation['slug']>`${recipesTranslations.slug}`.as(
+        'rc_slug'
+      ),
+      description: recipesTranslations.description,
+      category: {
+        name: sql<
+          CategoryTranslation['name']
+        >`${categoriesTranslations.name}`.as('ct_name'),
+        slug: sql<
+          CategoryTranslation['slug']
+        >`${categoriesTranslations.slug}`.as('ct_slug'),
+      },
+    })
+    .from(recipesTable)
+    .innerJoin(
+      recipesTranslations,
+      and(
+        eq(recipesTranslations.recipeId, recipesTable.id),
+        eq(recipesTranslations.language, locale)
+      )
+    )
+    .innerJoin(
+      categoriesTranslations,
+      and(
+        eq(categoriesTranslations.categoryId, recipesTable.categoryId),
+        eq(categoriesTranslations.language, locale)
+      )
+    );
+
+  if ('slug' in options) {
+    query.$dynamic().where(eq(recipesTranslations.slug, options.slug));
+  }
+
+  if ('orderBy' in options) {
+    const orderByClauses = getOrderByClauses<RecipesOrderByColumns>(
+      options.orderBy,
+      (value) => {
+        switch (value) {
+          case 'name':
+            return recipesTranslations.name;
+          case 'createdAt':
+            return recipesTable.createdAt;
+          case 'updatedAt':
+            return recipesTable.updatedAt;
+          case 'yield':
+            return recipesTable.yield;
+          case 'total':
+            return recipesTable.total;
+          default:
+            throw new Error(`Invalid column name: ${value}`);
+        }
       }
-    }
-  );
+    );
+
+    query.$dynamic().orderBy(...orderByClauses);
+  }
+
+  if ('limit' in options && 'offset' in options) {
+    query.$dynamic().limit(options.limit).offset(options.offset);
+  }
 
   const [recipes, [{ count: total }]] = await db.batch([
-    db
-      .select({
-        id: recipesTable.id,
-        image: recipesTable.imageUrl,
-        preparation: recipesTable.preparation,
-        cook: recipesTable.cook,
-        total: recipesTable.total,
-        yield: recipesTable.yield,
-        name: sql<RecipeTranslation['name']>`${recipesTranslations.name}`.as(
-          'rc_name'
-        ),
-        slug: sql<RecipeTranslation['slug']>`${recipesTranslations.slug}`.as(
-          'rc_slug'
-        ),
-        description: recipesTranslations.description,
-        category: {
-          name: sql<
-            CategoryTranslation['name']
-          >`${categoriesTranslations.name}`.as('ct_name'),
-          slug: sql<
-            CategoryTranslation['slug']
-          >`${categoriesTranslations.slug}`.as('ct_slug'),
-        },
-      })
-      .from(recipesTable)
-      .innerJoin(
-        recipesTranslations,
-        and(
-          eq(recipesTranslations.recipeId, recipesTable.id),
-          eq(recipesTranslations.language, locale)
-        )
-      )
-      .innerJoin(
-        categoriesTranslations,
-        and(
-          eq(categoriesTranslations.categoryId, recipesTable.categoryId),
-          eq(categoriesTranslations.language, locale)
-        )
-      )
-      .orderBy(...orderByClauses)
-      .limit(limit)
-      .offset(offset),
+    query,
     db.select({ count: count() }).from(recipesTable),
   ]);
+
+  if (!recipes.length) return { recipes: [], total };
 
   const sections = await db
     .select({
