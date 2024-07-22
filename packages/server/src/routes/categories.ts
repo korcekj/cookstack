@@ -19,14 +19,14 @@ import {
 } from '@cs/utils/zod';
 import { Hono } from 'hono';
 import { slugify } from '@cs/utils';
-import { initializeDB } from '../db';
-import { count, eq, and } from 'drizzle-orm';
+import { getLocale } from '../utils';
 import { useTranslation } from '@intlify/hono';
+import { sql, count, eq, and } from 'drizzle-orm';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { validator } from '../middlewares/validation';
 import { rateLimit } from '../middlewares/rate-limit';
-import { getOrderByClauses, getLocale } from '../utils';
+import { initializeDB, getOrderByClauses } from '../db';
 
 const categories = new Hono<Env>();
 
@@ -71,7 +71,7 @@ categories.post(
   }
 );
 
-categories.patch(
+categories.put(
   '/:id',
   verifyAuthor,
   validator('param', getCategorySchema),
@@ -83,38 +83,35 @@ categories.patch(
 
     const db = initializeDB(c.env.DB);
 
-    const batches: [BatchItem<'sqlite'>, ...BatchItem<'sqlite'>[]] = [
-      db
-        .update(categoriesTranslations)
-        .set({ ...translations[0], slug: slugify(translations[0].name) })
-        .where(
-          and(
-            eq(categoriesTranslations.categoryId, id),
-            eq(categoriesTranslations.language, translations[0].language)
-          )
-        ),
-    ];
-
-    for (const translation of translations.slice(1)) {
-      batches.push(
-        db
-          .update(categoriesTranslations)
-          .set({ ...translation, slug: slugify(translation.name) })
-          .where(
-            and(
-              eq(categoriesTranslations.categoryId, id),
-              eq(categoriesTranslations.language, translation.language)
-            )
-          )
-      );
-    }
-
     try {
-      await db.batch(batches);
+      await db.batch([
+        db
+          .update(categoriesTable)
+          .set({ updatedAt: new Date() })
+          .where(eq(categoriesTable.id, id)),
+        db
+          .insert(categoriesTranslations)
+          .values(
+            translations.map((v) => ({
+              ...v,
+              categoryId: id,
+              slug: slugify(v.name),
+            }))
+          )
+          .onConflictDoUpdate({
+            target: [
+              categoriesTranslations.language,
+              categoriesTranslations.categoryId,
+            ],
+            set: { name: sql`excluded.name`, slug: sql`excluded.slug` },
+          }),
+      ]);
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {
           return c.json({ error: t('category.duplicate') }, 409);
+        } else if (err.message.includes('D1_ERROR: FOREIGN KEY')) {
+          return c.json({ error: t('category.notFound') }, 404);
         }
       }
 
@@ -157,6 +154,8 @@ const getCategories = async (
       id: categoriesTable.id,
       name: categoriesTranslations.name,
       slug: categoriesTranslations.slug,
+      createdAt: categoriesTable.createdAt,
+      updatedAt: categoriesTable.updatedAt,
     })
     .from(categoriesTable)
     .innerJoin(

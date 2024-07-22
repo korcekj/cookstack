@@ -26,13 +26,13 @@ import {
 } from '@cs/utils/zod';
 import { Hono } from 'hono';
 import { slugify } from '@cs/utils';
-import { initializeDB } from '../db';
+import { getLocale } from '../utils';
 import { useTranslation } from '@intlify/hono';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { validator } from '../middlewares/validation';
 import { rateLimit } from '../middlewares/rate-limit';
-import { getLocale, getOrderByClauses } from '../utils';
+import { initializeDB, getOrderByClauses } from '../db';
 import { sql, count, eq, and, inArray } from 'drizzle-orm';
 
 const recipes = new Hono<Env>();
@@ -186,6 +186,8 @@ const getRecipes = async (
           CategoryTranslation['slug']
         >`${categoriesTranslations.slug}`.as('ct_slug'),
       },
+      createdAt: recipesTable.createdAt,
+      updatedAt: recipesTable.updatedAt,
     })
     .from(recipesTable)
     .innerJoin(
