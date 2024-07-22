@@ -31,9 +31,9 @@ export default {
     },
     tooSmall: {
       array: {
-        exact: 'Insert {minimum} elements',
-        inclusive: 'Insert at least {minimum} elements',
-        notInclusive: 'Insert more of {minimum} elements',
+        exact: 'Pole musí obsahovať presne {minimum} prvky',
+        inclusive: 'Pole musí obsahovať aspoň {minimum} prvky',
+        notInclusive: 'Pole musí obsahovať viac ako {minimum} prvky',
       },
       string: {
         exact: 'Dĺžka musí mať presne {minimum} znak(y)',

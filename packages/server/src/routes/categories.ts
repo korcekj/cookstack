@@ -5,6 +5,7 @@ import type {
 } from '@cs/utils/zod';
 import type { Context } from 'hono';
 import type { Env } from '../types';
+import type { BatchItem } from 'drizzle-orm/batch';
 
 import {
   categories as categoriesTable,
@@ -67,6 +68,60 @@ categories.post(
     }
 
     return c.json({ category: { id: categoryId } }, 201);
+  }
+);
+
+categories.patch(
+  '/:id',
+  verifyAuthor,
+  validator('param', getCategorySchema),
+  validator('json', updateCategorySchema),
+  async (c) => {
+    const t = useTranslation(c);
+    const { id } = c.req.valid('param');
+    const { translations } = c.req.valid('json');
+
+    const db = initializeDB(c.env.DB);
+
+    const batches: [BatchItem<'sqlite'>, ...BatchItem<'sqlite'>[]] = [
+      db
+        .update(categoriesTranslations)
+        .set({ ...translations[0], slug: slugify(translations[0].name) })
+        .where(
+          and(
+            eq(categoriesTranslations.categoryId, id),
+            eq(categoriesTranslations.language, translations[0].language)
+          )
+        ),
+    ];
+
+    for (const translation of translations.slice(1)) {
+      batches.push(
+        db
+          .update(categoriesTranslations)
+          .set({ ...translation, slug: slugify(translation.name) })
+          .where(
+            and(
+              eq(categoriesTranslations.categoryId, id),
+              eq(categoriesTranslations.language, translation.language)
+            )
+          )
+      );
+    }
+
+    try {
+      await db.batch(batches);
+    } catch (err) {
+      if (err instanceof Error) {
+        if (err.message.includes('D1_ERROR: UNIQUE')) {
+          return c.json({ error: t('category.duplicate') }, 409);
+        }
+      }
+
+      throw err;
+    }
+
+    return c.body(null, 204);
   }
 );
 

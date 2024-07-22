@@ -10,6 +10,17 @@ export const createCategorySchema = z.object({
   ),
 });
 
+export const updateCategorySchema = z.object({
+  translations: z
+    .array(
+      z.object({
+        name: z.string().max(128),
+        language: z.string().length(2),
+      })
+    )
+    .min(1),
+});
+
 export const getCategorySchema = z.object({
   id: z.string().length(16),
 });
