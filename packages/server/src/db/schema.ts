@@ -169,12 +169,6 @@ export const sections = sqliteTable('sections', {
   recipeId: text('recipe_id')
     .notNull()
     .references(() => recipes.id, { onDelete: 'cascade' }),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(
-    sql`(strftime('%s', 'now'))`
-  ),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-    sql`(strftime('%s', 'now'))`
-  ),
 });
 
 export type Section = typeof sections.$inferSelect;
@@ -200,12 +194,6 @@ export const ingredients = sqliteTable('ingredients', {
   sectionId: text('section_id')
     .notNull()
     .references(() => sections.id, { onDelete: 'cascade' }),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(
-    sql`(strftime('%s', 'now'))`
-  ),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-    sql`(strftime('%s', 'now'))`
-  ),
 });
 
 export type Ingredient = typeof ingredients.$inferSelect;
@@ -233,12 +221,6 @@ export const instructions = sqliteTable('instructions', {
   sectionId: text('section_id')
     .notNull()
     .references(() => sections.id, { onDelete: 'cascade' }),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(
-    sql`(strftime('%s', 'now'))`
-  ),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-    sql`(strftime('%s', 'now'))`
-  ),
 });
 
 export type Instruction = typeof instructions.$inferSelect;
