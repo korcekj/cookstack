@@ -7,6 +7,11 @@ import type { Context } from 'hono';
 import type { Env } from '../types';
 
 import {
+  initializeDB,
+  getOrderByClauses,
+  getConflictUpdateSetter,
+} from '../db';
+import {
   categories as categoriesTable,
   categoriesTranslations,
 } from '../db/schema';
@@ -19,13 +24,12 @@ import {
 import { Hono } from 'hono';
 import { slugify } from '@cs/utils';
 import { getLocale } from '../utils';
+import { count, eq, and } from 'drizzle-orm';
 import { useTranslation } from '@intlify/hono';
-import { sql, count, eq, and } from 'drizzle-orm';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { validator } from '../middlewares/validation';
 import { rateLimit } from '../middlewares/rate-limit';
-import { initializeDB, getOrderByClauses } from '../db';
 
 const categories = new Hono<Env>();
 
@@ -102,7 +106,10 @@ categories.put(
               categoriesTranslations.language,
               categoriesTranslations.categoryId,
             ],
-            set: { name: sql`excluded.name`, slug: sql`excluded.slug` },
+            set: getConflictUpdateSetter(categoriesTranslations, [
+              'name',
+              'slug',
+            ]),
           }),
       ]);
     } catch (err) {
@@ -116,6 +123,26 @@ categories.put(
 
       throw err;
     }
+
+    return c.body(null, 204);
+  }
+);
+
+categories.delete(
+  '/:id',
+  verifyAuthor,
+  validator('param', getCategorySchema),
+  async (c) => {
+    const t = useTranslation(c);
+    const { id } = c.req.valid('param');
+
+    const db = initializeDB(c.env.DB);
+    const result = await db
+      .delete(categoriesTable)
+      .where(eq(categoriesTable.id, id))
+      .returning({ id: categoriesTable.id });
+
+    if (!result.length) return c.json({ error: t('category.notFound') }, 404);
 
     return c.body(null, 204);
   }
