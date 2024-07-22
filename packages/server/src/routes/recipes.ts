@@ -147,7 +147,7 @@ recipes.get('/', validator('query', getRecipesSchema), async (c) => {
   return c.json({ recipes, total, page, pages });
 });
 
-recipes.get('/:slug', validator('param', getRecipeSchema), async (c) => {
+recipes.get('/:id', validator('param', getRecipeSchema), async (c) => {
   const t = useTranslation(c);
   const options = c.req.valid('param');
   const { recipes } = await getRecipes(c, options);
@@ -203,8 +203,8 @@ const getRecipes = async (
       )
     );
 
-  if ('slug' in options) {
-    query.$dynamic().where(eq(recipesTranslations.slug, options.slug));
+  if ('id' in options) {
+    query.$dynamic().where(eq(recipesTable.id, options.id));
   }
 
   if ('orderBy' in options) {

@@ -10,6 +10,12 @@ import {
   categories as categoriesTable,
   categoriesTranslations,
 } from '../db/schema';
+import {
+  createCategorySchema,
+  updateCategorySchema,
+  getCategoriesSchema,
+  getCategorySchema,
+} from '@cs/utils/zod';
 import { Hono } from 'hono';
 import { slugify } from '@cs/utils';
 import { initializeDB } from '../db';
@@ -20,11 +26,6 @@ import { verifyAuthor } from '../middlewares/auth';
 import { validator } from '../middlewares/validation';
 import { rateLimit } from '../middlewares/rate-limit';
 import { getOrderByClauses, getLocale } from '../utils';
-import {
-  createCategorySchema,
-  getCategoriesSchema,
-  getCategorySchema,
-} from '@cs/utils/zod';
 
 const categories = new Hono<Env>();
 
@@ -80,9 +81,9 @@ categories.get('/', validator('query', getCategoriesSchema), async (c) => {
   return c.json({ categories, total, page, pages });
 });
 
-categories.get('/:slug', validator('param', getCategorySchema), async (c) => {
+categories.get('/:id', validator('param', getCategorySchema), async (c) => {
   const t = useTranslation(c);
-  const options = c.req.param();
+  const options = c.req.valid('param');
   const { categories } = await getCategories(c, options);
   if (!categories.length) return c.json({ error: t('category.notFound') }, 404);
 
@@ -111,8 +112,8 @@ const getCategories = async (
       )
     );
 
-  if ('slug' in options) {
-    query.$dynamic().where(eq(categoriesTranslations.slug, options.slug));
+  if ('id' in options) {
+    query.$dynamic().where(eq(categoriesTable.id, options.id));
   }
 
   if ('orderBy' in options) {

@@ -51,7 +51,7 @@ export const createRecipeSchema = z.object({
 });
 
 export const getRecipeSchema = z.object({
-  slug: z.string(),
+  id: z.string().length(16),
 });
 
 export type GetRecipeInput = z.infer<typeof getRecipeSchema>;

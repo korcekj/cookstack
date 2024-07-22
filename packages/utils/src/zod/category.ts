@@ -11,7 +11,7 @@ export const createCategorySchema = z.object({
 });
 
 export const getCategorySchema = z.object({
-  slug: z.string(),
+  id: z.string().length(16),
 });
 
 export type GetCategoryInput = z.infer<typeof getCategorySchema>;
