@@ -53,15 +53,15 @@ recipes.post(
     const recipeId = generateIdFromEntropySize(10);
     const batches: [BatchItem<'sqlite'>, ...BatchItem<'sqlite'>[]] = [
       db.insert(recipesTable).values({
+        ...recipe,
         id: recipeId,
         userId,
-        ...recipe,
       }),
       db.insert(recipesTranslations).values(
         translations.map((v) => ({
+          ...v,
           recipeId,
           slug: slugify(v.name),
-          ...v,
         }))
       ),
     ];
@@ -77,8 +77,8 @@ recipes.post(
       batches.push(
         db.insert(sectionsTranslations).values(
           translations.map((v) => ({
-            sectionId,
             ...v,
+            sectionId,
           }))
         )
       );
@@ -93,8 +93,8 @@ recipes.post(
         batches.push(
           db.insert(ingredientsTranslations).values(
             translations.map((v) => ({
-              ingredientId,
               ...v,
+              ingredientId,
             }))
           )
         );
@@ -110,8 +110,8 @@ recipes.post(
         batches.push(
           db.insert(instructionsTranslations).values(
             translations.map((v) => ({
-              instructionId,
               ...v,
+              instructionId,
             }))
           )
         );
