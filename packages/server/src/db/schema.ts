@@ -7,6 +7,7 @@ import {
   index,
   integer,
   primaryKey,
+  uniqueIndex,
   sqliteTable,
 } from 'drizzle-orm/sqlite-core';
 
@@ -80,6 +81,36 @@ export const passwordResetTokens = sqliteTable(
   })
 );
 
+export const categories = sqliteTable('categories', {
+  id: text('id').notNull().primaryKey(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(
+    sql`(strftime('%s', 'now'))`
+  ),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
+    sql`(strftime('%s', 'now'))`
+  ),
+});
+
+export type Category = typeof categories.$inferSelect;
+
+export const categoriesTranslations = sqliteTable(
+  'categories_translations',
+  {
+    name: text('name').notNull(),
+    slug: text('slug').notNull(),
+    categoryId: text('category_id')
+      .notNull()
+      .references(() => categories.id, { onDelete: 'cascade' }),
+    language: text('language', { length: 2 }).notNull(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.categoryId, t.language] }),
+    unq: uniqueIndex('categories_translations_unq').on(t.slug, t.language),
+  })
+);
+
+export type CategoryTranslation = typeof categoriesTranslations.$inferSelect;
+
 export const recipes = sqliteTable(
   'recipes',
   {
@@ -125,7 +156,8 @@ export const recipesTranslations = sqliteTable(
     language: text('language', { length: 2 }).notNull(),
   },
   (t) => ({
-    pk: primaryKey({ columns: [t.slug, t.language] }),
+    pk: primaryKey({ columns: [t.recipeId, t.language] }),
+    unq: uniqueIndex('recipes_translations_unq').on(t.slug, t.language),
     nameIdx: index('recipes_translations_name_idx').on(t.name),
   })
 );
@@ -162,35 +194,6 @@ export const sectionsTranslations = sqliteTable(
 );
 
 export type SectionTranslation = typeof sectionsTranslations.$inferSelect;
-
-export const categories = sqliteTable('categories', {
-  id: text('id').notNull().primaryKey(),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(
-    sql`(strftime('%s', 'now'))`
-  ),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-    sql`(strftime('%s', 'now'))`
-  ),
-});
-
-export type Category = typeof categories.$inferSelect;
-
-export const categoriesTranslations = sqliteTable(
-  'categories_translations',
-  {
-    name: text('name').notNull(),
-    slug: text('slug').notNull(),
-    categoryId: text('category_id')
-      .notNull()
-      .references(() => categories.id, { onDelete: 'cascade' }),
-    language: text('language', { length: 2 }).notNull(),
-  },
-  (t) => ({
-    pk: primaryKey({ columns: [t.slug, t.language] }),
-  })
-);
-
-export type CategoryTranslation = typeof categoriesTranslations.$inferSelect;
 
 export const ingredients = sqliteTable('ingredients', {
   id: text('id').notNull().primaryKey(),
