@@ -1,9 +1,9 @@
 import type { SQL } from 'drizzle-orm';
-import type { SQLiteColumn } from 'drizzle-orm/sqlite-core';
+import type { SQLiteColumn, SQLiteTable } from 'drizzle-orm/sqlite-core';
 
 import * as schema from './schema';
-import { asc, desc } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
+import { sql, asc, desc, getTableColumns } from 'drizzle-orm';
 
 export const initializeDB = (D1: D1Database) => {
   return drizzle(D1, { schema });
@@ -21,4 +21,19 @@ export const getOrderByClauses = <T extends string>(
       return isAsc ? asc(column) : desc(column);
     }) ?? []
   );
+};
+
+export const getConflictUpdateSetter = <
+  T extends SQLiteTable,
+  Q extends keyof T['_']['columns']
+>(
+  table: T,
+  columns: Q[]
+) => {
+  const tableColumns = getTableColumns(table);
+  return columns.reduce((acc, column) => {
+    const columnName = tableColumns[column].name;
+    acc[column] = sql.raw(`excluded.${columnName}`);
+    return acc;
+  }, {} as Record<Q, SQL>);
 };
