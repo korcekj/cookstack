@@ -5,7 +5,6 @@ import type {
 } from '@cs/utils/zod';
 import type { Context } from 'hono';
 import type { Env } from '../types';
-import type { BatchItem } from 'drizzle-orm/batch';
 
 import {
   categories as categoriesTable,
