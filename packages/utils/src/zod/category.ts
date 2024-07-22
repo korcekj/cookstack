@@ -2,12 +2,14 @@ import { z } from './index';
 import { joinValues } from '../index';
 
 export const createCategorySchema = z.object({
-  translations: z.array(
-    z.object({
-      name: z.string().max(128),
-      language: z.string().length(2),
-    })
-  ),
+  translations: z
+    .array(
+      z.object({
+        name: z.string().max(128),
+        language: z.string().length(2),
+      })
+    )
+    .min(1),
 });
 
 export const updateCategorySchema = z.object({

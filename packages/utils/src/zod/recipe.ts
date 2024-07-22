@@ -9,13 +9,15 @@ export const createRecipeSchema = z.object({
     yield: z.number().positive(),
     categoryId: z.string(),
   }),
-  translations: z.array(
-    z.object({
-      name: z.string().max(128),
-      description: z.string().max(1024).optional(),
-      language: z.string().length(2),
-    })
-  ),
+  translations: z
+    .array(
+      z.object({
+        name: z.string().max(128),
+        description: z.string().max(1024).optional(),
+        language: z.string().length(2),
+      })
+    )
+    .min(1),
   sections: z.array(
     z.object({
       translations: z.array(
@@ -26,24 +28,28 @@ export const createRecipeSchema = z.object({
       ),
       ingredients: z.array(
         z.object({
-          translations: z.array(
-            z.object({
-              name: z.string().max(128),
-              unit: z.string().max(128),
-              amount: z.number().nonnegative(),
-              language: z.string().length(2),
-            })
-          ),
+          translations: z
+            .array(
+              z.object({
+                name: z.string().max(128),
+                unit: z.string().max(128),
+                amount: z.number().nonnegative(),
+                language: z.string().length(2),
+              })
+            )
+            .min(1),
         })
       ),
       instructions: z.array(
         z.object({
-          translations: z.array(
-            z.object({
-              text: z.string().max(1024),
-              language: z.string().length(2),
-            })
-          ),
+          translations: z
+            .array(
+              z.object({
+                text: z.string().max(1024),
+                language: z.string().length(2),
+              })
+            )
+            .min(1),
         })
       ),
     })
