@@ -137,6 +137,7 @@ categories.delete(
     const { id } = c.req.valid('param');
 
     const db = initializeDB(c.env.DB);
+
     const result = await db
       .delete(categoriesTable)
       .where(eq(categoriesTable.id, id))
@@ -173,6 +174,7 @@ const getCategories = async (
   options: GetCategoryInput | GetCategoriesInput
 ) => {
   const locale = getLocale(c);
+
   const db = initializeDB(c.env.DB);
 
   const query = db
