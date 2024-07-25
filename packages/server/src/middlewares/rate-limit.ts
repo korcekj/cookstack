@@ -18,6 +18,8 @@ const identifier = (c: Context<Env>) => {
 };
 
 export const rateLimit = createMiddleware<Env>(async (c, next) => {
+  if (c.env.ENV === 'dev') return next();
+
   const key = identifier(c);
   const t = useTranslation(c);
 
