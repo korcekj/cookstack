@@ -74,7 +74,7 @@ categories.post(
   }
 );
 
-categories.put(
+categories.patch(
   '/:id',
   verifyAuthor,
   validator('param', getCategorySchema),
