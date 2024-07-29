@@ -75,13 +75,13 @@ categories.post(
 );
 
 categories.patch(
-  '/:id',
+  '/:categoryId',
   verifyAuthor,
   validator('param', getCategorySchema),
   validator('json', updateCategorySchema),
   async (c) => {
     const t = useTranslation(c);
-    const { id } = c.req.valid('param');
+    const { categoryId } = c.req.valid('param');
     const { translations } = c.req.valid('json');
 
     const db = initializeDB(c.env.DB);
@@ -91,13 +91,13 @@ categories.patch(
         db
           .update(categoriesTable)
           .set({ updatedAt: new Date() })
-          .where(eq(categoriesTable.id, id)),
+          .where(eq(categoriesTable.id, categoryId)),
         db
           .insert(categoriesTranslations)
           .values(
             translations.map((v) => ({
               ...v,
-              categoryId: id,
+              categoryId,
               slug: slugify(v.name),
             }))
           )
@@ -129,18 +129,18 @@ categories.patch(
 );
 
 categories.delete(
-  '/:id',
+  '/:categoryId',
   verifyAuthor,
   validator('param', getCategorySchema),
   async (c) => {
     const t = useTranslation(c);
-    const { id } = c.req.valid('param');
+    const { categoryId } = c.req.valid('param');
 
     const db = initializeDB(c.env.DB);
 
     const result = await db
       .delete(categoriesTable)
-      .where(eq(categoriesTable.id, id))
+      .where(eq(categoriesTable.id, categoryId))
       .returning({ id: categoriesTable.id });
 
     if (!result.length) return c.json({ error: t('category.notFound') }, 404);
@@ -160,14 +160,19 @@ categories.get('/', validator('query', getCategoriesSchema), async (c) => {
   return c.json({ categories, total, page, pages });
 });
 
-categories.get('/:id', validator('param', getCategorySchema), async (c) => {
-  const t = useTranslation(c);
-  const options = c.req.valid('param');
-  const { categories } = await getCategories(c, options);
-  if (!categories.length) return c.json({ error: t('category.notFound') }, 404);
+categories.get(
+  '/:categoryId',
+  validator('param', getCategorySchema),
+  async (c) => {
+    const t = useTranslation(c);
+    const options = c.req.valid('param');
+    const { categories } = await getCategories(c, options);
+    if (!categories.length)
+      return c.json({ error: t('category.notFound') }, 404);
 
-  return c.json({ category: categories[0] });
-});
+    return c.json({ category: categories[0] });
+  }
+);
 
 const getCategories = async (
   c: Context<Env>,
@@ -194,8 +199,8 @@ const getCategories = async (
       )
     );
 
-  if ('id' in options) {
-    query.$dynamic().where(eq(categoriesTable.id, options.id));
+  if ('categoryId' in options) {
+    query.$dynamic().where(eq(categoriesTable.id, options.categoryId));
   }
 
   if ('orderBy' in options) {
