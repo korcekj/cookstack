@@ -24,6 +24,17 @@ const recipes = new Hono<Env>();
 
 recipes.use(rateLimit);
 
+recipes.get('/', validator('query', getRecipesSchema), async (c) => {
+  const options = c.req.valid('query');
+  const { limit, offset } = options;
+
+  const { recipes, total } = await useRecipes(c, options);
+  const page = Math.floor(offset / limit) + 1;
+  const pages = Math.ceil(total / limit);
+
+  return c.json({ recipes, total, page, pages });
+});
+
 recipes.post(
   '/',
   verifyAuthor,
@@ -65,6 +76,17 @@ recipes.post(
     }
 
     return c.json({ recipe: { id: recipeId } }, 201);
+  }
+);
+
+recipes.get(
+  '/:recipeId',
+  validator('param', getRecipeSchema),
+  validateRecipe,
+  async (c) => {
+    const options = c.req.valid('param');
+    const { recipes } = await useRecipes(c, options);
+    return c.json({ recipe: recipes[0] });
   }
 );
 
@@ -125,28 +147,6 @@ recipes.patch(
     }
 
     return c.body(null, 204);
-  }
-);
-
-recipes.get('/', validator('query', getRecipesSchema), async (c) => {
-  const options = c.req.valid('query');
-  const { limit, offset } = options;
-
-  const { recipes, total } = await useRecipes(c, options);
-  const page = Math.floor(offset / limit) + 1;
-  const pages = Math.ceil(total / limit);
-
-  return c.json({ recipes, total, page, pages });
-});
-
-recipes.get(
-  '/:recipeId',
-  validator('param', getRecipeSchema),
-  validateRecipe,
-  async (c) => {
-    const options = c.req.valid('param');
-    const { recipes } = await useRecipes(c, options);
-    return c.json({ recipe: recipes[0] });
   }
 );
 
