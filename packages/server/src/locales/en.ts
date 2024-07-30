@@ -24,6 +24,10 @@ export default {
     duplicate: 'Recipe already exists',
     notFound: 'Recipe not found',
   },
+  section: {
+    duplicate: 'Section already exists',
+    notFound: 'Section not found',
+  },
   category: {
     duplicate: 'Category already exists',
     notFound: 'Category not found',

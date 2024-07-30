@@ -164,12 +164,25 @@ export const recipesTranslations = sqliteTable(
 
 export type RecipeTranslation = typeof recipesTranslations.$inferSelect;
 
-export const sections = sqliteTable('sections', {
-  id: text('id').notNull().primaryKey(),
-  recipeId: text('recipe_id')
-    .notNull()
-    .references(() => recipes.id, { onDelete: 'cascade' }),
-});
+export const sections = sqliteTable(
+  'sections',
+  {
+    id: text('id').notNull().primaryKey(),
+    order: integer('order').default(0).notNull(),
+    recipeId: text('recipe_id')
+      .notNull()
+      .references(() => recipes.id, { onDelete: 'cascade' }),
+    createdAt: integer('created_at', { mode: 'timestamp' }).default(
+      sql`(strftime('%s', 'now'))`
+    ),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
+      sql`(strftime('%s', 'now'))`
+    ),
+  },
+  (t) => ({
+    unq: uniqueIndex('sections_unq').on(t.recipeId, t.order),
+  })
+);
 
 export type Section = typeof sections.$inferSelect;
 
@@ -189,12 +202,25 @@ export const sectionsTranslations = sqliteTable(
 
 export type SectionTranslation = typeof sectionsTranslations.$inferSelect;
 
-export const ingredients = sqliteTable('ingredients', {
-  id: text('id').notNull().primaryKey(),
-  sectionId: text('section_id')
-    .notNull()
-    .references(() => sections.id, { onDelete: 'cascade' }),
-});
+export const ingredients = sqliteTable(
+  'ingredients',
+  {
+    id: text('id').notNull().primaryKey(),
+    order: integer('order').default(0).notNull(),
+    sectionId: text('section_id')
+      .notNull()
+      .references(() => sections.id, { onDelete: 'cascade' }),
+    createdAt: integer('created_at', { mode: 'timestamp' }).default(
+      sql`(strftime('%s', 'now'))`
+    ),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
+      sql`(strftime('%s', 'now'))`
+    ),
+  },
+  (t) => ({
+    unq: uniqueIndex('ingredients_unq').on(t.sectionId, t.order),
+  })
+);
 
 export type Ingredient = typeof ingredients.$inferSelect;
 
@@ -216,12 +242,25 @@ export const ingredientsTranslations = sqliteTable(
 
 export type IngredientTranslation = typeof ingredientsTranslations.$inferSelect;
 
-export const instructions = sqliteTable('instructions', {
-  id: text('id').notNull().primaryKey(),
-  sectionId: text('section_id')
-    .notNull()
-    .references(() => sections.id, { onDelete: 'cascade' }),
-});
+export const instructions = sqliteTable(
+  'instructions',
+  {
+    id: text('id').notNull().primaryKey(),
+    order: integer('order').default(0).notNull(),
+    sectionId: text('section_id')
+      .notNull()
+      .references(() => sections.id, { onDelete: 'cascade' }),
+    createdAt: integer('created_at', { mode: 'timestamp' }).default(
+      sql`(strftime('%s', 'now'))`
+    ),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
+      sql`(strftime('%s', 'now'))`
+    ),
+  },
+  (t) => ({
+    unq: uniqueIndex('instructions_unq').on(t.sectionId, t.order),
+  })
+);
 
 export type Instruction = typeof instructions.$inferSelect;
 

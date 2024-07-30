@@ -1,16 +1,4 @@
 import type { User, Session } from 'lucia';
-import type {
-  Recipe as R,
-  RecipeTranslation as RT,
-  Category as C,
-  CategoryTranslation as CT,
-  Section as S,
-  SectionTranslation as ST,
-  Ingredient as I1,
-  IngredientTranslation as I1T,
-  Instruction as I2,
-  InstructionTranslation as I2T,
-} from './db/schema';
 
 export type Bindings = {
   DB: D1Database;
@@ -54,33 +42,4 @@ export type Email = {
   cc?: string | string[];
   bcc?: string | string[];
   headers?: Record<string, string>;
-};
-
-export type Recipe = Partial<R> & {
-  name: RT['name'];
-  slug: RT['slug'];
-  category: Category;
-};
-
-export type Category = Partial<C> & {
-  name: CT['name'];
-  slug: CT['slug'];
-};
-
-export type Section = Partial<S> & {
-  id: S['id'];
-  name: ST['name'];
-  recipeId: S['recipeId'];
-};
-
-export type Ingredient = Partial<I1> & {
-  sectionId: I1['sectionId'];
-  name: I1T['name'];
-  unit: I1T['unit'];
-  amount: I1T['amount'];
-};
-
-export type Instruction = Partial<I2> & {
-  sectionId: I2['sectionId'];
-  text: I2T['text'];
 };

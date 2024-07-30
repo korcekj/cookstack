@@ -7,6 +7,7 @@ import { z, defaultErrorMap, ZodIssueCode, ZodParsedType } from 'zod';
 
 export * from './auth';
 export * from './recipe';
+export * from './section';
 export * from './category';
 
 export const parseError = (error: ZodError<any>) => {
@@ -26,6 +27,7 @@ export const makeZodI18nMap =
     ns = 'errors'
   ): ZodErrorMap =>
   (issue, _ctx) => {
+    // TODO: remove
     console.log(issue);
 
     let options = {} as NamedValue;

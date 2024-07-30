@@ -24,6 +24,10 @@ export default {
     duplicate: 'Recept už existuje',
     notFound: 'Recept nebol nájdený',
   },
+  section: {
+    duplicate: 'Sekcia už existuje',
+    notFound: 'Sekcia nebola nájdená',
+  },
   category: {
     duplicate: 'Kategória už existuje',
     notFound: 'Kategória nebola nájdená',

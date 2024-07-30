@@ -2,13 +2,11 @@ import { z } from './index';
 import { joinValues } from '../index';
 
 export const createRecipeSchema = z.object({
-  recipe: z.object({
-    imageUrl: z.string().url().optional(),
-    preparation: z.number().nonnegative(),
-    cook: z.number().nonnegative(),
-    yield: z.number().positive(),
-    categoryId: z.string(),
-  }),
+  imageUrl: z.string().url().optional(),
+  preparation: z.number().nonnegative(),
+  cook: z.number().nonnegative(),
+  yield: z.number().positive(),
+  categoryId: z.string(),
   translations: z
     .array(
       z.object({
@@ -18,46 +16,67 @@ export const createRecipeSchema = z.object({
       })
     )
     .min(1),
-  sections: z.array(
-    z.object({
-      translations: z.array(
-        z.object({
-          name: z.string().max(128),
-          language: z.string().length(2),
-        })
-      ),
-      ingredients: z.array(
-        z.object({
-          translations: z
-            .array(
-              z.object({
-                name: z.string().max(128),
-                unit: z.string().max(128),
-                amount: z.number().nonnegative(),
-                language: z.string().length(2),
-              })
-            )
-            .min(1),
-        })
-      ),
-      instructions: z.array(
-        z.object({
-          translations: z
-            .array(
-              z.object({
-                text: z.string().max(1024),
-                language: z.string().length(2),
-              })
-            )
-            .min(1),
-        })
-      ),
-    })
-  ),
+  // sections: z.array(
+  //   z.object({
+  //     translations: z
+  //       .array(
+  //         z.object({
+  //           name: z.string().max(128),
+  //           language: z.string().length(2),
+  //         })
+  //       )
+  //       .min(1),
+  //     ingredients: z.array(
+  //       z.object({
+  //         translations: z
+  //           .array(
+  //             z.object({
+  //               name: z.string().max(128),
+  //               unit: z.string().max(128),
+  //               amount: z.number().nonnegative(),
+  //               language: z.string().length(2),
+  //             })
+  //           )
+  //           .min(1),
+  //       })
+  //     ),
+  //     instructions: z.array(
+  //       z.object({
+  //         translations: z
+  //           .array(
+  //             z.object({
+  //               text: z.string().max(1024),
+  //               language: z.string().length(2),
+  //             })
+  //           )
+  //           .min(1),
+  //       })
+  //     ),
+  //   })
+  // ),
 });
 
+export const updateRecipeSchema = z
+  .object({
+    imageUrl: z.string().url(),
+    preparation: z.number().nonnegative(),
+    cook: z.number().nonnegative(),
+    yield: z.number().positive(),
+    categoryId: z.string(),
+    translations: z
+      .array(
+        z.object({
+          name: z.string().max(128),
+          description: z.string().max(1024).optional(),
+          language: z.string().length(2),
+        })
+      )
+      .min(1),
+  })
+  .partial();
+
 export const getRecipeSchema = z.object({
-  id: z.string().length(16),
+  recipeId: z.string(),
 });
 
 export type GetRecipeInput = z.infer<typeof getRecipeSchema>;
