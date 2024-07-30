@@ -1,6 +1,11 @@
+import type {
+  z,
+  GetRecipeInput,
+  GetSectionInput,
+  GetCategoryInput,
+} from '@cs/utils/zod';
 import type { Env } from '../types';
 import type { ValidationTargets } from 'hono';
-import type { z, GetRecipeInput, GetSectionInput } from '@cs/utils/zod';
 
 import { initializeDB } from '../db';
 import { parseError } from '@cs/utils/zod';
@@ -19,6 +24,23 @@ export const validator = <T extends z.ZodType<any, z.ZodTypeDef, any>>(
       return c.json({ error }, 400);
     }
   });
+
+export const validateCategory = createMiddleware<Env>(async (c, next) => {
+  const t = useTranslation(c);
+  const { categoryId } = c.req.param() as GetCategoryInput;
+
+  const db = initializeDB(c.env.DB);
+
+  const category = await db.query.categories.findFirst({
+    columns: { id: true },
+    where: (t, { eq }) => eq(t.id, categoryId),
+  });
+  if (!category) {
+    throw new HTTPException(404, { message: t('category.notFound') });
+  }
+
+  return next();
+});
 
 export const validateRecipe = createMiddleware<Env>(async (c, next) => {
   const t = useTranslation(c);
