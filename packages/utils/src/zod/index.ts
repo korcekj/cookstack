@@ -1,4 +1,3 @@
-import type { NamedValue } from './types';
 import type { ZodErrorMap, ZodError } from 'zod';
 
 import { set } from 'lodash';
@@ -9,6 +8,8 @@ export * from './auth';
 export * from './recipe';
 export * from './section';
 export * from './category';
+
+type NamedValue<T = {}> = T & Record<string, unknown>;
 
 export const parseError = (error: ZodError<any>) => {
   const { issues } = error;
