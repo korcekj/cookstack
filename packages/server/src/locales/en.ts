@@ -31,6 +31,7 @@ export default {
   category: {
     duplicate: 'Category already exists',
     notFound: 'Category not found',
+    containsRecipe: 'Category contains recipe',
   },
   emails: {
     verificationCode: {

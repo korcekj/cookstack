@@ -31,6 +31,7 @@ export default {
   category: {
     duplicate: 'Kategória už existuje',
     notFound: 'Kategória nebola nájdená',
+    containsRecipe: 'Kategória obsahuje recept',
   },
   emails: {
     verificationCode: {

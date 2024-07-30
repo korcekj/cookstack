@@ -128,12 +128,22 @@ categories.delete(
 
     const db = initializeDB(c.env.DB);
 
-    const result = await db
-      .delete(categoriesTable)
-      .where(eq(categoriesTable.id, categoryId))
-      .returning({ id: categoriesTable.id });
+    try {
+      const result = await db
+        .delete(categoriesTable)
+        .where(eq(categoriesTable.id, categoryId))
+        .returning({ id: categoriesTable.id });
 
-    if (!result.length) return c.json({ error: t('category.notFound') }, 404);
+      if (!result.length) return c.json({ error: t('category.notFound') }, 404);
+    } catch (err) {
+      if (err instanceof Error) {
+        if (err.message.includes('D1_ERROR: FOREIGN KEY')) {
+          return c.json({ error: t('category.containsRecipes') }, 404);
+        }
+      }
+
+      throw err;
+    }
 
     return c.body(null, 204);
   }
