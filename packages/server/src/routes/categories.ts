@@ -5,19 +5,20 @@ import {
   categoriesTranslations,
 } from '../db/schema';
 import {
+  getRecipesSchema,
+  getCategorySchema,
+  getCategoriesSchema,
   createCategorySchema,
   updateCategorySchema,
-  getCategoriesSchema,
-  getCategorySchema,
 } from '@cs/utils/zod';
 import { Hono } from 'hono';
 import { eq } from 'drizzle-orm';
 import { slugify } from '@cs/utils';
-import { useCategories } from '../db/query';
 import { useTranslation } from '@intlify/hono';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { rateLimit } from '../middlewares/rate-limit';
+import { useCategories, useRecipes } from '../db/query';
 import { initializeDB, getConflictUpdateSetter } from '../db';
 import { validator, validateCategory } from '../middlewares/validation';
 
@@ -80,12 +81,29 @@ categories.get(
   validator('param', getCategorySchema),
   validateCategory,
   async (c) => {
-    const t = useTranslation(c);
     const options = c.req.valid('param');
 
     const { categories } = await useCategories(c, options);
 
     return c.json({ category: categories[0] });
+  }
+);
+
+categories.get(
+  '/:categoryId/recipes',
+  validator('param', getCategorySchema),
+  validateCategory,
+  validator('query', getRecipesSchema),
+  async (c) => {
+    const param = c.req.valid('param');
+    const query = c.req.valid('query');
+    const { limit, offset } = query;
+
+    const { recipes, total } = await useRecipes(c, { ...query, ...param });
+    const page = Math.floor(offset / limit) + 1;
+    const pages = Math.ceil(total / limit);
+
+    return c.json({ recipes, total, page, pages });
   }
 );
 
