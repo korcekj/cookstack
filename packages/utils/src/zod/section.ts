@@ -1,7 +1,7 @@
 import { z } from './index';
 
 export const createSectionSchema = z.object({
-  order: z.number().nonnegative(),
+  position: z.number().nonnegative(),
   translations: z
     .array(
       z.object({
@@ -14,7 +14,7 @@ export const createSectionSchema = z.object({
 
 export const updateSectionSchema = z
   .object({
-    order: z.number().nonnegative(),
+    position: z.number().nonnegative(),
     translations: z
       .array(
         z.object({

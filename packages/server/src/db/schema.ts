@@ -168,7 +168,7 @@ export const sections = sqliteTable(
   'sections',
   {
     id: text('id').notNull().primaryKey(),
-    order: integer('order').default(0).notNull(),
+    position: integer('position').default(0).notNull(),
     recipeId: text('recipe_id')
       .notNull()
       .references(() => recipes.id, { onDelete: 'cascade' }),
@@ -180,7 +180,7 @@ export const sections = sqliteTable(
     ),
   },
   (t) => ({
-    unq: uniqueIndex('sections_unq').on(t.recipeId, t.order),
+    unq: uniqueIndex('sections_unq').on(t.recipeId, t.position),
   })
 );
 
@@ -206,7 +206,7 @@ export const ingredients = sqliteTable(
   'ingredients',
   {
     id: text('id').notNull().primaryKey(),
-    order: integer('order').default(0).notNull(),
+    position: integer('position').default(0).notNull(),
     sectionId: text('section_id')
       .notNull()
       .references(() => sections.id, { onDelete: 'cascade' }),
@@ -218,7 +218,7 @@ export const ingredients = sqliteTable(
     ),
   },
   (t) => ({
-    unq: uniqueIndex('ingredients_unq').on(t.sectionId, t.order),
+    unq: uniqueIndex('ingredients_unq').on(t.sectionId, t.position),
   })
 );
 
@@ -246,7 +246,7 @@ export const instructions = sqliteTable(
   'instructions',
   {
     id: text('id').notNull().primaryKey(),
-    order: integer('order').default(0).notNull(),
+    position: integer('position').default(0).notNull(),
     sectionId: text('section_id')
       .notNull()
       .references(() => sections.id, { onDelete: 'cascade' }),
@@ -258,7 +258,7 @@ export const instructions = sqliteTable(
     ),
   },
   (t) => ({
-    unq: uniqueIndex('instructions_unq').on(t.sectionId, t.order),
+    unq: uniqueIndex('instructions_unq').on(t.sectionId, t.position),
   })
 );
 
