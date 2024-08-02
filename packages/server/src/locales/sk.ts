@@ -28,6 +28,10 @@ export default {
     duplicate: 'Sekcia už existuje',
     notFound: 'Sekcia nebola nájdená',
   },
+  ingredient: {
+    duplicate: 'Ingrediencia už existuje',
+    notFound: 'Ingrediencia nebola nájdená',
+  },
   category: {
     duplicate: 'Kategória už existuje',
     notFound: 'Kategória nebola nájdená',

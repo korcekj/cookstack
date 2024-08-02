@@ -8,6 +8,7 @@ export * from './auth';
 export * from './recipe';
 export * from './section';
 export * from './category';
+export * from './ingredient';
 
 type NamedValue<T = {}> = T & Record<string, unknown>;
 

@@ -3,6 +3,7 @@ import type {
   GetRecipeInput,
   GetSectionInput,
   GetCategoryInput,
+  GetIngredientInput,
 } from '@cs/utils/zod';
 import type { Env } from '../types';
 import type { ValidationTargets } from 'hono';
@@ -70,6 +71,24 @@ export const validateSection = createMiddleware<Env>(async (c, next) => {
   });
   if (!section) {
     throw new HTTPException(404, { message: t('section.notFound') });
+  }
+
+  return next();
+});
+
+export const validateIngredient = createMiddleware<Env>(async (c, next) => {
+  const t = useTranslation(c);
+  const { sectionId, ingredientId } = c.req.param() as GetIngredientInput;
+
+  const db = initializeDB(c.env.DB);
+
+  const ingredient = await db.query.ingredients.findFirst({
+    columns: { id: true },
+    where: (t, { and, eq }) =>
+      and(eq(t.id, ingredientId), eq(t.sectionId, sectionId)),
+  });
+  if (!ingredient) {
+    throw new HTTPException(404, { message: t('ingredient.notFound') });
   }
 
   return next();

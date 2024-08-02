@@ -28,6 +28,10 @@ export default {
     duplicate: 'Section already exists',
     notFound: 'Section not found',
   },
+  ingredient: {
+    duplicate: 'Ingredient already exists',
+    notFound: 'Ingredient not found',
+  },
   category: {
     duplicate: 'Category already exists',
     notFound: 'Category not found',
