@@ -13,13 +13,16 @@ import {
   validateSection,
 } from '../middlewares/validation';
 import { getLocale } from '../utils';
+import { initializeDB } from '../db';
 import { eq, and, asc } from 'drizzle-orm';
+import { useTotalCount } from '../db/query';
 import { useTranslation } from '@intlify/hono';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { rateLimit } from '../middlewares/rate-limit';
-import { initializeDB, getConflictUpdateSetter } from '../db';
 import { sectionsTranslations, sections as sectionsTable } from '../db/schema';
+
+import ingredients from './ingredients';
 
 const sections = new Hono<Env>();
 
@@ -39,7 +42,7 @@ sections.get(
       .select({
         id: sectionsTable.id,
         name: sectionsTranslations.name,
-        order: sectionsTable.order,
+        position: sectionsTable.position,
         createAt: sectionsTable.createdAt,
         updatedAt: sectionsTable.updatedAt,
       })
@@ -52,7 +55,7 @@ sections.get(
         )
       )
       .where(eq(sectionsTable.recipeId, recipeId))
-      .orderBy(asc(sectionsTable.order));
+      .orderBy(asc(sectionsTable.position));
 
     return c.json({ sections });
   }
@@ -74,10 +77,11 @@ sections.post(
     const sectionId = generateIdFromEntropySize(10);
 
     try {
+      const position = await useTotalCount(c, sectionsTable);
       await db.batch([
         db
           .insert(sectionsTable)
-          .values({ ...section, id: sectionId, recipeId }),
+          .values({ ...section, id: sectionId, recipeId, position }),
         db.insert(sectionsTranslations).values(
           translations.map((v) => ({
             ...v,
@@ -120,24 +124,12 @@ sections.patch(
           .where(eq(sectionsTable.id, sectionId)),
         ...(translations
           ? [
-              db
-                .insert(sectionsTranslations)
-                .values(
-                  translations.map((v) => ({
-                    ...v,
-                    sectionId,
-                  }))
-                )
-                .onConflictDoUpdate({
-                  target: [
-                    sectionsTranslations.language,
-                    sectionsTranslations.sectionId,
-                  ],
-                  set: getConflictUpdateSetter(sectionsTranslations, [
-                    'name',
-                    'language',
-                  ]),
-                }),
+              db.insert(sectionsTranslations).values(
+                translations.map((v) => ({
+                  ...v,
+                  sectionId,
+                }))
+              ),
             ]
           : []),
       ]);
@@ -170,5 +162,7 @@ sections.delete(
     return c.body(null, 204);
   }
 );
+
+sections.route('/:sectionId/ingredients', ingredients);
 
 export default sections;
