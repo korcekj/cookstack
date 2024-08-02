@@ -13,6 +13,7 @@ import type {
 } from '@cs/utils/zod';
 import type { Context } from 'hono';
 import type { Env } from '../types';
+import type { SQLiteTable } from 'drizzle-orm/sqlite-core';
 
 import {
   recipesTranslations,
@@ -23,6 +24,14 @@ import {
 import { getLocale } from '../utils';
 import { sql, count, eq, and } from 'drizzle-orm';
 import { initializeDB, getOrderByClauses } from '../db';
+
+export const useTotalCount = async (c: Context<Env>, table: SQLiteTable) => {
+  const db = initializeDB(c.env.DB);
+
+  const [{ count: total }] = await db.select({ count: count() }).from(table);
+
+  return total;
+};
 
 export const useCategories = async (
   c: Context<Env>,
