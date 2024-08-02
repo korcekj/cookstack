@@ -43,8 +43,6 @@ sections.get(
         id: sectionsTable.id,
         name: sectionsTranslations.name,
         position: sectionsTable.position,
-        createAt: sectionsTable.createdAt,
-        updatedAt: sectionsTable.updatedAt,
       })
       .from(sectionsTable)
       .innerJoin(

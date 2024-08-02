@@ -172,12 +172,6 @@ export const sections = sqliteTable(
     recipeId: text('recipe_id')
       .notNull()
       .references(() => recipes.id, { onDelete: 'cascade' }),
-    createdAt: integer('created_at', { mode: 'timestamp' }).default(
-      sql`(strftime('%s', 'now'))`
-    ),
-    updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-      sql`(strftime('%s', 'now'))`
-    ),
   },
   (t) => ({
     unq: uniqueIndex('sections_unq').on(t.recipeId, t.position),
@@ -210,12 +204,6 @@ export const ingredients = sqliteTable(
     sectionId: text('section_id')
       .notNull()
       .references(() => sections.id, { onDelete: 'cascade' }),
-    createdAt: integer('created_at', { mode: 'timestamp' }).default(
-      sql`(strftime('%s', 'now'))`
-    ),
-    updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-      sql`(strftime('%s', 'now'))`
-    ),
   },
   (t) => ({
     unq: uniqueIndex('ingredients_unq').on(t.sectionId, t.position),
@@ -250,12 +238,6 @@ export const instructions = sqliteTable(
     sectionId: text('section_id')
       .notNull()
       .references(() => sections.id, { onDelete: 'cascade' }),
-    createdAt: integer('created_at', { mode: 'timestamp' }).default(
-      sql`(strftime('%s', 'now'))`
-    ),
-    updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-      sql`(strftime('%s', 'now'))`
-    ),
   },
   (t) => ({
     unq: uniqueIndex('instructions_unq').on(t.sectionId, t.position),

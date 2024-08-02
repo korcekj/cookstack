@@ -91,8 +91,6 @@ ingredients.get(
         unit: ingredientsTranslations.unit,
         amount: ingredientsTranslations.amount,
         position: ingredientsTable.position,
-        createAt: ingredientsTable.createdAt,
-        updatedAt: ingredientsTable.updatedAt,
       })
       .from(ingredientsTable)
       .innerJoin(
