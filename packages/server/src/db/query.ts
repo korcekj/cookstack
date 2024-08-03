@@ -48,7 +48,7 @@ export const useCategories = async (
         eq(categoriesTranslations.language, locale)
       )
     );
-  const totalQuery = db.select({ count: count() }).from(categoriesTable);
+  const totalQuery = db.select({ total: count() }).from(categoriesTable);
 
   if ('categoryId' in options) {
     categoriesQuery
@@ -76,7 +76,7 @@ export const useCategories = async (
     categoriesQuery.$dynamic().limit(options.limit).offset(options.offset);
   }
 
-  const [categories, [{ count: total }]] = await db.batch([
+  const [categories, [{ total }]] = await db.batch([
     categoriesQuery,
     totalQuery,
   ]);
@@ -136,7 +136,7 @@ export const useRecipes = async (
         eq(categoriesTranslations.language, locale)
       )
     );
-  const totalQuery = db.select({ count: count() }).from(recipesTable);
+  const totalQuery = db.select({ total: count() }).from(recipesTable);
 
   if ('recipeId' in options) {
     recipesQuery.$dynamic().where(eq(recipesTable.id, options.recipeId));
@@ -180,7 +180,7 @@ export const useRecipes = async (
     recipesQuery.$dynamic().limit(options.limit).offset(options.offset);
   }
 
-  const [recipes, [{ count: total }]] = await db.batch([
+  const [recipes, [{ total: total }]] = await db.batch([
     recipesQuery,
     totalQuery,
   ]);
