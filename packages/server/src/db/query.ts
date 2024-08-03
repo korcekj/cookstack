@@ -13,8 +13,6 @@ import type {
 } from '@cs/utils/zod';
 import type { Context } from 'hono';
 import type { Env } from '../types';
-import type { SQL } from 'drizzle-orm';
-import type { SQLiteTable } from 'drizzle-orm/sqlite-core';
 
 import {
   recipesTranslations,
