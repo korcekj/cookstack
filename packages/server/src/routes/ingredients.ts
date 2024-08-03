@@ -18,12 +18,11 @@ import {
 } from '../middlewares/validation';
 import { initializeDB } from '../db';
 import { getLocale } from '../utils';
-import { useTotalCount } from '../db/query';
 import { useTranslation } from '@intlify/hono';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { rateLimit } from '../middlewares/rate-limit';
-import { eq, and, asc, inArray } from 'drizzle-orm';
+import { eq, and, asc, count, inArray } from 'drizzle-orm';
 
 const ingredients = new Hono<Env>();
 
@@ -45,7 +44,10 @@ ingredients.post(
     const ingredientId = generateIdFromEntropySize(10);
 
     try {
-      const position = await useTotalCount(c, ingredientsTable);
+      const [{ count: position }] = await db
+        .select({ count: count() })
+        .from(ingredientsTable)
+        .where(eq(ingredientsTable.sectionId, sectionId));
       await db.batch([
         db.insert(ingredientsTable).values({
           ...ingredient,
@@ -161,6 +163,7 @@ ingredients.put(
       throw err;
     }
 
+    // TODO: return 200 and list all ingredients with their statuses (201 - created/200 - updated)
     return c.body(null, 204);
   }
 );

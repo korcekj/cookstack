@@ -14,12 +14,11 @@ import {
 } from '../middlewares/validation';
 import { getLocale } from '../utils';
 import { initializeDB } from '../db';
-import { useTotalCount } from '../db/query';
 import { useTranslation } from '@intlify/hono';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
-import { eq, and, asc, inArray } from 'drizzle-orm';
 import { rateLimit } from '../middlewares/rate-limit';
+import { eq, and, asc, count, inArray } from 'drizzle-orm';
 import { sectionsTranslations, sections as sectionsTable } from '../db/schema';
 
 import ingredients from './ingredients';
@@ -75,7 +74,10 @@ sections.post(
     const sectionId = generateIdFromEntropySize(10);
 
     try {
-      const position = await useTotalCount(c, sectionsTable);
+      const [{ count: position }] = await db
+        .select({ count: count() })
+        .from(sectionsTable)
+        .where(eq(sectionsTable.recipeId, recipeId));
       await db.batch([
         db
           .insert(sectionsTable)
@@ -153,6 +155,7 @@ sections.put(
       throw err;
     }
 
+    // TODO: return 200 and list all sections with their statuses (201 - created/200 - updated)
     return c.body(null, 204);
   }
 );

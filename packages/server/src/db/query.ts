@@ -13,6 +13,7 @@ import type {
 } from '@cs/utils/zod';
 import type { Context } from 'hono';
 import type { Env } from '../types';
+import type { SQL } from 'drizzle-orm';
 import type { SQLiteTable } from 'drizzle-orm/sqlite-core';
 
 import {
@@ -25,14 +26,6 @@ import { getLocale } from '../utils';
 import { sql, count, eq, and } from 'drizzle-orm';
 import { initializeDB, getOrderByClauses } from '../db';
 
-export const useTotalCount = async (c: Context<Env>, table: SQLiteTable) => {
-  const db = initializeDB(c.env.DB);
-
-  const [{ count: total }] = await db.select({ count: count() }).from(table);
-
-  return total;
-};
-
 export const useCategories = async (
   c: Context<Env>,
   options: GetCategoryInput | GetCategoriesInput
@@ -41,7 +34,7 @@ export const useCategories = async (
 
   const db = initializeDB(c.env.DB);
 
-  const query = db
+  const categoriesQuery = db
     .select({
       id: categoriesTable.id,
       name: categoriesTranslations.name,
@@ -57,9 +50,13 @@ export const useCategories = async (
         eq(categoriesTranslations.language, locale)
       )
     );
+  const totalQuery = db.select({ count: count() }).from(categoriesTable);
 
   if ('categoryId' in options) {
-    query.$dynamic().where(eq(categoriesTable.id, options.categoryId));
+    categoriesQuery
+      .$dynamic()
+      .where(eq(categoriesTable.id, options.categoryId));
+    totalQuery.$dynamic().where(eq(categoriesTable.id, options.categoryId));
   }
 
   if ('orderBy' in options) {
@@ -74,16 +71,16 @@ export const useCategories = async (
         }
       }
     );
-    query.$dynamic().orderBy(...orderByClauses);
+    categoriesQuery.$dynamic().orderBy(...orderByClauses);
   }
 
   if ('limit' in options && 'offset' in options) {
-    query.$dynamic().limit(options.limit).offset(options.offset);
+    categoriesQuery.$dynamic().limit(options.limit).offset(options.offset);
   }
 
   const [categories, [{ count: total }]] = await db.batch([
-    query,
-    db.select({ count: count() }).from(categoriesTable),
+    categoriesQuery,
+    totalQuery,
   ]);
 
   return { categories, total };
@@ -97,7 +94,7 @@ export const useRecipes = async (
 
   const db = initializeDB(c.env.DB);
 
-  const query = db
+  const recipesQuery = db
     .select({
       id: sql<RecipeTable['id']>`${recipesTable.id}`.as('r_id'),
       image: recipesTable.imageUrl,
@@ -141,13 +138,20 @@ export const useRecipes = async (
         eq(categoriesTranslations.language, locale)
       )
     );
+  const totalQuery = db.select({ count: count() }).from(recipesTable);
 
   if ('recipeId' in options) {
-    query.$dynamic().where(eq(recipesTable.id, options.recipeId));
+    recipesQuery.$dynamic().where(eq(recipesTable.id, options.recipeId));
+    totalQuery.$dynamic().where(eq(recipesTable.id, options.recipeId));
   }
 
   if ('categoryId' in options) {
-    query.$dynamic().where(eq(recipesTable.categoryId, options.categoryId));
+    recipesQuery
+      .$dynamic()
+      .where(eq(recipesTable.categoryId, options.categoryId));
+    totalQuery
+      .$dynamic()
+      .where(eq(recipesTable.categoryId, options.categoryId));
   }
 
   if ('orderBy' in options) {
@@ -171,16 +175,16 @@ export const useRecipes = async (
       }
     );
 
-    query.$dynamic().orderBy(...orderByClauses);
+    recipesQuery.$dynamic().orderBy(...orderByClauses);
   }
 
   if ('limit' in options && 'offset' in options) {
-    query.$dynamic().limit(options.limit).offset(options.offset);
+    recipesQuery.$dynamic().limit(options.limit).offset(options.offset);
   }
 
   const [recipes, [{ count: total }]] = await db.batch([
-    query,
-    db.select({ count: count() }).from(recipesTable),
+    recipesQuery,
+    totalQuery,
   ]);
 
   return { recipes, total };
