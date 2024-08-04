@@ -6,6 +6,7 @@ import type {
 import type {
   GetRecipeInput,
   GetRecipesInput,
+  GetSectionInput,
   GetCategoryInput,
   GetCategoriesInput,
   RecipesOrderByColumns,
@@ -16,12 +17,16 @@ import type { Env } from '../types';
 
 import {
   recipesTranslations,
+  sectionsTranslations,
   categoriesTranslations,
+  ingredientsTranslations,
   recipes as recipesTable,
+  sections as sectionsTable,
   categories as categoriesTable,
+  ingredients as ingredientsTable,
 } from '../db/schema';
 import { getLocale } from '../utils';
-import { sql, count, eq, and } from 'drizzle-orm';
+import { sql, count, eq, and, asc } from 'drizzle-orm';
 import { initializeDB, getOrderByClauses } from '../db';
 
 export const useCategories = async (
@@ -186,4 +191,52 @@ export const useRecipes = async (
   ]);
 
   return { recipes, total };
+};
+
+export const useSections = (c: Context<Env>, options: GetRecipeInput) => {
+  const locale = getLocale(c);
+
+  const db = initializeDB(c.env.DB);
+
+  return db
+    .select({
+      id: sectionsTable.id,
+      name: sectionsTranslations.name,
+      position: sectionsTable.position,
+    })
+    .from(sectionsTable)
+    .innerJoin(
+      sectionsTranslations,
+      and(
+        eq(sectionsTranslations.sectionId, sectionsTable.id),
+        eq(sectionsTranslations.language, locale)
+      )
+    )
+    .where(eq(sectionsTable.recipeId, options.recipeId))
+    .orderBy(asc(sectionsTable.position));
+};
+
+export const useIngredients = (c: Context<Env>, options: GetSectionInput) => {
+  const locale = getLocale(c);
+
+  const db = initializeDB(c.env.DB);
+
+  return db
+    .select({
+      id: ingredientsTable.id,
+      name: ingredientsTranslations.name,
+      unit: ingredientsTranslations.unit,
+      amount: ingredientsTranslations.amount,
+      position: ingredientsTable.position,
+    })
+    .from(ingredientsTable)
+    .innerJoin(
+      ingredientsTranslations,
+      and(
+        eq(ingredientsTranslations.ingredientId, ingredientsTable.id),
+        eq(ingredientsTranslations.language, locale)
+      )
+    )
+    .where(eq(ingredientsTable.sectionId, options.sectionId))
+    .orderBy(asc(ingredientsTable.position));
 };

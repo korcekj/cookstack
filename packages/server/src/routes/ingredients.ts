@@ -17,12 +17,12 @@ import {
   validateIngredient,
 } from '../middlewares/validation';
 import { initializeDB } from '../db';
-import { getLocale } from '../utils';
+import { useIngredients } from '../db/query';
 import { useTranslation } from '@intlify/hono';
+import { eq, count, inArray } from 'drizzle-orm';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { rateLimit } from '../middlewares/rate-limit';
-import { eq, and, asc, count, inArray } from 'drizzle-orm';
 
 const ingredients = new Hono<Env>();
 
@@ -81,29 +81,9 @@ ingredients.get(
   validator('param', getSectionSchema),
   validateSection,
   async (c) => {
-    const locale = getLocale(c);
-    const { sectionId } = c.req.valid('param');
+    const options = c.req.valid('param');
 
-    const db = initializeDB(c.env.DB);
-
-    const ingredients = await db
-      .select({
-        id: ingredientsTable.id,
-        name: ingredientsTranslations.name,
-        unit: ingredientsTranslations.unit,
-        amount: ingredientsTranslations.amount,
-        position: ingredientsTable.position,
-      })
-      .from(ingredientsTable)
-      .innerJoin(
-        ingredientsTranslations,
-        and(
-          eq(ingredientsTranslations.ingredientId, ingredientsTable.id),
-          eq(ingredientsTranslations.language, locale)
-        )
-      )
-      .where(eq(ingredientsTable.sectionId, sectionId))
-      .orderBy(asc(ingredientsTable.position));
+    const ingredients = await useIngredients(c, options);
 
     return c.json({ ingredients });
   }
@@ -117,8 +97,9 @@ ingredients.put(
   validator('json', updateIngredientSchema),
   async (c) => {
     const t = useTranslation(c);
-    const { sectionId } = c.req.valid('param');
     const body = c.req.valid('json');
+    const options = c.req.valid('param');
+    const { sectionId } = options;
 
     const db = initializeDB(c.env.DB);
 
@@ -139,7 +120,7 @@ ingredients.put(
         .select({ total: count() })
         .from(ingredientsTable)
         .where(eq(ingredientsTable.sectionId, sectionId));
-      await db.batch([
+      const [_1, _2, _3, results] = await db.batch([
         db.delete(ingredientsTable).where(
           inArray(
             ingredientsTable.id,
@@ -156,7 +137,10 @@ ingredients.put(
         ...(translations.length
           ? [db.insert(ingredientsTranslations).values(translations)]
           : []),
+        useIngredients(c, options),
       ]);
+
+      return c.json({ ingredients: results });
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {
@@ -166,9 +150,6 @@ ingredients.put(
 
       throw err;
     }
-
-    // TODO: return 200 and list all ingredients with their statuses (201 - created/200 - updated)
-    return c.body(null, 204);
   }
 );
 

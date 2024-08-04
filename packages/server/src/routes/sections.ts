@@ -12,13 +12,13 @@ import {
   validateRecipe,
   validateSection,
 } from '../middlewares/validation';
-import { getLocale } from '../utils';
 import { initializeDB } from '../db';
+import { useSections } from '../db/query';
 import { useTranslation } from '@intlify/hono';
+import { eq, count, inArray } from 'drizzle-orm';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { rateLimit } from '../middlewares/rate-limit';
-import { eq, and, asc, count, inArray } from 'drizzle-orm';
 import { sectionsTranslations, sections as sectionsTable } from '../db/schema';
 
 import ingredients from './ingredients';
@@ -32,27 +32,9 @@ sections.get(
   validator('param', getRecipeSchema),
   validateRecipe,
   async (c) => {
-    const locale = getLocale(c);
-    const { recipeId } = c.req.valid('param');
+    const options = c.req.valid('param');
 
-    const db = initializeDB(c.env.DB);
-
-    const sections = await db
-      .select({
-        id: sectionsTable.id,
-        name: sectionsTranslations.name,
-        position: sectionsTable.position,
-      })
-      .from(sectionsTable)
-      .innerJoin(
-        sectionsTranslations,
-        and(
-          eq(sectionsTranslations.sectionId, sectionsTable.id),
-          eq(sectionsTranslations.language, locale)
-        )
-      )
-      .where(eq(sectionsTable.recipeId, recipeId))
-      .orderBy(asc(sectionsTable.position));
+    const sections = await useSections(c, options);
 
     return c.json({ sections });
   }
@@ -111,8 +93,9 @@ sections.put(
   validator('json', updateSectionSchema),
   async (c) => {
     const t = useTranslation(c);
-    const { recipeId } = c.req.valid('param');
     const body = c.req.valid('json');
+    const options = c.req.valid('param');
+    const { recipeId } = options;
 
     const db = initializeDB(c.env.DB);
 
@@ -133,7 +116,7 @@ sections.put(
         .select({ total: count() })
         .from(sectionsTable)
         .where(eq(sectionsTable.recipeId, recipeId));
-      await db.batch([
+      const [_1, _2, _3, results] = await db.batch([
         db.delete(sectionsTable).where(
           inArray(
             sectionsTable.id,
@@ -150,7 +133,10 @@ sections.put(
         ...(translations.length
           ? [db.insert(sectionsTranslations).values(translations)]
           : []),
+        useSections(c, options),
       ]);
+
+      return c.json({ sections: results });
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {
@@ -160,9 +146,6 @@ sections.put(
 
       throw err;
     }
-
-    // TODO: return 200 and list all sections with their statuses (201 - created/200 - updated)
-    return c.body(null, 204);
   }
 );
 
