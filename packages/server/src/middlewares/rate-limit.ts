@@ -28,7 +28,7 @@ export const rateLimit = createMiddleware<Env>(async (c, next) => {
     redis,
     analytics: true,
     ephemeralCache: cache,
-    limiter: Ratelimit.slidingWindow(10, '1 m'),
+    limiter: Ratelimit.slidingWindow(10, '10 s'),
   });
 
   const ip = getIp(c);
