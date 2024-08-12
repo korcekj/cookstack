@@ -72,7 +72,7 @@ ingredients.post(
       throw err;
     }
 
-    return c.json({ ingredient: { id: ingredientId } });
+    return c.json({ ingredient: { id: ingredientId } }, 201);
   }
 );
 
