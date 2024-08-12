@@ -16,44 +16,6 @@ export const createRecipeSchema = z.object({
       })
     )
     .min(1),
-  // sections: z.array(
-  //   z.object({
-  //     translations: z
-  //       .array(
-  //         z.object({
-  //           name: z.string().max(128),
-  //           language: z.string().length(2),
-  //         })
-  //       )
-  //       .min(1),
-  //     ingredients: z.array(
-  //       z.object({
-  //         translations: z
-  //           .array(
-  //             z.object({
-  //               name: z.string().max(128),
-  //               unit: z.string().max(128),
-  //               amount: z.number().nonnegative(),
-  //               language: z.string().length(2),
-  //             })
-  //           )
-  //           .min(1),
-  //       })
-  //     ),
-  //     instructions: z.array(
-  //       z.object({
-  //         translations: z
-  //           .array(
-  //             z.object({
-  //               text: z.string().max(1024),
-  //               language: z.string().length(2),
-  //             })
-  //           )
-  //           .min(1),
-  //       })
-  //     ),
-  //   })
-  // ),
 });
 
 export const updateRecipeSchema = z
