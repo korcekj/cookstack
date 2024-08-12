@@ -20,10 +20,12 @@ import {
   sectionsTranslations,
   categoriesTranslations,
   ingredientsTranslations,
+  instructionsTranslations,
   recipes as recipesTable,
   sections as sectionsTable,
   categories as categoriesTable,
   ingredients as ingredientsTable,
+  instructions as instructionsTable,
 } from '../db/schema';
 import { getLocale } from '../utils';
 import { sql, count, eq, and, asc } from 'drizzle-orm';
@@ -239,4 +241,27 @@ export const useIngredients = (c: Context<Env>, options: GetSectionInput) => {
     )
     .where(eq(ingredientsTable.sectionId, options.sectionId))
     .orderBy(asc(ingredientsTable.position));
+};
+
+export const useInstructions = (c: Context<Env>, options: GetSectionInput) => {
+  const locale = getLocale(c);
+
+  const db = initializeDB(c.env.DB);
+
+  return db
+    .select({
+      id: instructionsTable.id,
+      text: instructionsTranslations.text,
+      position: instructionsTable.position,
+    })
+    .from(instructionsTable)
+    .innerJoin(
+      instructionsTranslations,
+      and(
+        eq(instructionsTranslations.instructionId, instructionsTable.id),
+        eq(instructionsTranslations.language, locale)
+      )
+    )
+    .where(eq(instructionsTable.sectionId, options.sectionId))
+    .orderBy(asc(instructionsTable.position));
 };

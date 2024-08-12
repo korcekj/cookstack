@@ -32,6 +32,10 @@ export default {
     duplicate: 'Ingrediencia už existuje',
     notFound: 'Ingrediencia nebola nájdená',
   },
+  instruction: {
+    duplicate: 'Inštrukcia už existuje',
+    notFound: 'Inštrukcia nebola nájdená',
+  },
   category: {
     duplicate: 'Kategória už existuje',
     notFound: 'Kategória nebola nájdená',

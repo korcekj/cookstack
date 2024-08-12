@@ -22,6 +22,7 @@ import { rateLimit } from '../middlewares/rate-limit';
 import { sectionsTranslations, sections as sectionsTable } from '../db/schema';
 
 import ingredients from './ingredients';
+import instructions from './instructions';
 
 const sections = new Hono<Env>();
 
@@ -166,5 +167,6 @@ sections.delete(
 );
 
 sections.route('/:sectionId/ingredients', ingredients);
+sections.route('/:sectionId/instructions', instructions);
 
 export default sections;

@@ -32,6 +32,10 @@ export default {
     duplicate: 'Ingredient already exists',
     notFound: 'Ingredient not found',
   },
+  instruction: {
+    duplicate: 'Instruction already exists',
+    notFound: 'Instruction not found',
+  },
   category: {
     duplicate: 'Category already exists',
     notFound: 'Category not found',

@@ -4,6 +4,7 @@ import type {
   GetSectionInput,
   GetCategoryInput,
   GetIngredientInput,
+  GetInstructionInput,
 } from '@cs/utils/zod';
 import type { Env } from '../types';
 import type { ValidationTargets } from 'hono';
@@ -89,6 +90,24 @@ export const validateIngredient = createMiddleware<Env>(async (c, next) => {
   });
   if (!ingredient) {
     throw new HTTPException(404, { message: t('ingredient.notFound') });
+  }
+
+  return next();
+});
+
+export const validateInstruction = createMiddleware<Env>(async (c, next) => {
+  const t = useTranslation(c);
+  const { sectionId, instructionId } = c.req.param() as GetInstructionInput;
+
+  const db = initializeDB(c.env.DB);
+
+  const instruction = await db.query.instructions.findFirst({
+    columns: { id: true },
+    where: (t, { and, eq }) =>
+      and(eq(t.id, instructionId), eq(t.sectionId, sectionId)),
+  });
+  if (!instruction) {
+    throw new HTTPException(404, { message: t('instruction.notFound') });
   }
 
   return next();
