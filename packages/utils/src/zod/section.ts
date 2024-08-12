@@ -15,7 +15,7 @@ export const updateSectionSchema = z
   .array(
     z
       .object({
-        id: z.string(),
+        id: z.string().length(16),
         position: z.number().nonnegative(),
         translations: z
           .array(
@@ -31,8 +31,8 @@ export const updateSectionSchema = z
   .min(1);
 
 export const getSectionSchema = z.object({
-  recipeId: z.string(),
-  sectionId: z.string(),
+  recipeId: z.string().length(16),
+  sectionId: z.string().length(16),
 });
 
 export type GetSectionInput = z.infer<typeof getSectionSchema>;

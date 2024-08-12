@@ -15,7 +15,7 @@ export const updateInstructionSchema = z
   .array(
     z
       .object({
-        id: z.string(),
+        id: z.string().length(16),
         position: z.number().nonnegative(),
         translations: z
           .array(
@@ -31,9 +31,9 @@ export const updateInstructionSchema = z
   .min(1);
 
 export const getInstructionSchema = z.object({
-  recipeId: z.string(),
-  sectionId: z.string(),
-  instructionId: z.string(),
+  recipeId: z.string().length(16),
+  sectionId: z.string().length(16),
+  instructionId: z.string().length(16),
 });
 
 export type GetInstructionInput = z.infer<typeof getInstructionSchema>;

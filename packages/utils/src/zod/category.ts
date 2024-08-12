@@ -24,7 +24,7 @@ export const updateCategorySchema = z.object({
 });
 
 export const getCategorySchema = z.object({
-  categoryId: z.string(),
+  categoryId: z.string().length(16),
 });
 
 export type GetCategoryInput = z.infer<typeof getCategorySchema>;

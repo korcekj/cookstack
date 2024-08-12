@@ -6,7 +6,7 @@ export const createRecipeSchema = z.object({
   preparation: z.number().nonnegative(),
   cook: z.number().nonnegative(),
   yield: z.number().positive(),
-  categoryId: z.string(),
+  categoryId: z.string().length(16),
   translations: z
     .array(
       z.object({
@@ -24,7 +24,7 @@ export const updateRecipeSchema = z
     preparation: z.number().nonnegative(),
     cook: z.number().nonnegative(),
     yield: z.number().positive(),
-    categoryId: z.string(),
+    categoryId: z.string().length(16),
     translations: z
       .array(
         z.object({
@@ -38,7 +38,7 @@ export const updateRecipeSchema = z
   .partial();
 
 export const getRecipeSchema = z.object({
-  recipeId: z.string(),
+  recipeId: z.string().length(16),
 });
 
 export type GetRecipeInput = z.infer<typeof getRecipeSchema>;

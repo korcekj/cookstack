@@ -17,7 +17,7 @@ export const updateIngredientSchema = z
   .array(
     z
       .object({
-        id: z.string(),
+        id: z.string().length(16),
         position: z.number().nonnegative(),
         translations: z
           .array(
@@ -35,9 +35,9 @@ export const updateIngredientSchema = z
   .min(1);
 
 export const getIngredientSchema = z.object({
-  recipeId: z.string(),
-  sectionId: z.string(),
-  ingredientId: z.string(),
+  recipeId: z.string().length(16),
+  sectionId: z.string().length(16),
+  ingredientId: z.string().length(16),
 });
 
 export type GetIngredientInput = z.infer<typeof getIngredientSchema>;
