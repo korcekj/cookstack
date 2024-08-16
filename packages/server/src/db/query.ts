@@ -102,7 +102,7 @@ export const useRecipes = async (
   const recipesQuery = db
     .select({
       id: sql<RecipeTable['id']>`${recipesTable.id}`.as('r_id'),
-      image: recipesTable.imageUrl,
+      imageUrl: recipesTable.imageUrl,
       preparation: recipesTable.preparation,
       cook: recipesTable.cook,
       total: recipesTable.total,
