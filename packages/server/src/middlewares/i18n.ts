@@ -1,3 +1,4 @@
+import type { Context } from 'hono';
 import type { Env } from '../types';
 
 import {
@@ -8,6 +9,7 @@ import {
 import { get } from 'lodash';
 import { createMiddleware } from 'hono/factory';
 import { z, makeZodI18nMap } from '@cs/utils/zod';
+import { DEFAULT_LOCALE, LOCALES } from '../utils/constants';
 
 import en from '../locales/en';
 import sk from '../locales/sk';
@@ -18,7 +20,11 @@ declare module '@intlify/hono' {
 }
 
 export const i18n = defineI18nMiddleware({
-  locale: detectLocaleFromAcceptLanguageHeader,
+  locale: (ctx: Context) => {
+    const locale = detectLocaleFromAcceptLanguageHeader(ctx);
+    if (!LOCALES.includes(locale)) return DEFAULT_LOCALE;
+    return locale;
+  },
   messages: {
     en,
     sk,
