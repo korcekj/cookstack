@@ -5,6 +5,7 @@ import {
   getRecipesSchema,
   createRecipeSchema,
   updateRecipeSchema,
+  updateRecipeImageSchema,
 } from '@cs/utils/zod';
 import { Hono } from 'hono';
 import { eq } from 'drizzle-orm';
@@ -145,6 +146,32 @@ recipes.patch(
 
       throw err;
     }
+
+    return c.body(null, 204);
+  }
+);
+
+recipes.put(
+  '/:recipeId/image',
+  verifyAuthor,
+  validator('param', getRecipeSchema),
+  validateRecipe,
+  validator('form', updateRecipeImageSchema),
+  async (c) => {
+    const { image } = c.req.valid('form');
+    const { recipeId } = c.req.valid('param');
+
+    const db = initializeDB(c.env.DB);
+
+    const imageId = generateIdFromEntropySize(10);
+    const imageUrl = new URL(`/images/${imageId}`, c.env.BASE_URL).toString();
+
+    await c.env.BUCKET.put(imageId, image);
+
+    await db
+      .update(recipesTable)
+      .set({ imageUrl, updatedAt: new Date() })
+      .where(eq(recipesTable.id, recipeId));
 
     return c.body(null, 204);
   }

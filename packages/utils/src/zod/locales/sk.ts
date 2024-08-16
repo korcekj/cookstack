@@ -16,6 +16,8 @@ export default {
     invalidDate: 'Neplatný dátum',
     custom: 'Neplatná hodnota',
     notSamePassword: 'Heslá sa nezhodujú',
+    invalidFileSize: 'Veľkosť súboru musí byť menej ako {maximum}MB',
+    invalidFileType: 'Typ súboru nie je povolený',
     invalidIntersectionTypes: 'Intersection results could not be merged',
     notMultipleOf: 'The number must be a multiple of {multipleOf}',
     notFinite: 'The number must be finite',

@@ -37,6 +37,26 @@ export const updateRecipeSchema = z
   })
   .partial();
 
+export const updateRecipeImageSchema = z.object({
+  image: z
+    .any()
+    .refine((file) => file?.size <= 5 * 1024 * 1024, {
+      params: {
+        i18n: {
+          key: 'invalidFileSize',
+          options: {
+            maximum: 5,
+          },
+        },
+      },
+    })
+    .refine((file) => file?.type.startsWith('image/'), {
+      params: {
+        i18n: 'invalidFileType',
+      },
+    }),
+});
+
 export const getRecipeSchema = z.object({
   recipeId: z.string().length(16),
 });

@@ -15,6 +15,8 @@ export default {
     invalidDate: 'Invalid date',
     custom: 'Invalid value',
     notSamePassword: 'Passwords do not match',
+    invalidFileSize: 'File size must be less than {maximum}MB',
+    invalidFileType: 'File type is not allowed',
     invalidIntersectionTypes: 'Intersection results could not be merged',
     notMultipleOf: 'The number must be a multiple of {multipleOf}',
     notFinite: 'The number must be finite',

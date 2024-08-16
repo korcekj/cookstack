@@ -2,6 +2,7 @@ import type { User, Session } from 'lucia';
 
 export type Bindings = {
   DB: D1Database;
+  BUCKET: R2Bucket;
   ENV: string;
   BASE_URL: string;
   SALT: string;
