@@ -5,6 +5,7 @@ import { joinValues } from '../index';
 import { z, defaultErrorMap, ZodIssueCode, ZodParsedType } from 'zod';
 
 export * from './auth';
+export * from './image';
 export * from './recipe';
 export * from './section';
 export * from './category';

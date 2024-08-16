@@ -41,6 +41,9 @@ export default {
     notFound: 'Kategória nebola nájdená',
     containsRecipe: 'Kategória obsahuje recept',
   },
+  image: {
+    notFound: 'Obrázok nebol nájdený',
+  },
   emails: {
     verificationCode: {
       subject: 'Verifikačný kód',

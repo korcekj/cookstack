@@ -39,8 +39,8 @@ export const updateRecipeSchema = z
 
 export const updateRecipeImageSchema = z.object({
   image: z
-    .any()
-    .refine((file) => file?.size <= 5 * 1024 * 1024, {
+    .instanceof(File)
+    .refine((file) => file.size <= 5 * 1024 * 1024, {
       params: {
         i18n: {
           key: 'invalidFileSize',
@@ -50,7 +50,7 @@ export const updateRecipeImageSchema = z.object({
         },
       },
     })
-    .refine((file) => file?.type.startsWith('image/'), {
+    .refine((file) => file.type.startsWith('image/'), {
       params: {
         i18n: 'invalidFileType',
       },

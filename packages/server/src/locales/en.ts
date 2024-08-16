@@ -41,6 +41,9 @@ export default {
     notFound: 'Category not found',
     containsRecipe: 'Category contains recipe',
   },
+  image: {
+    notFound: 'Image not found',
+  },
   emails: {
     verificationCode: {
       subject: 'Verification code',

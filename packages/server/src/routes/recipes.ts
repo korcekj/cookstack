@@ -166,14 +166,16 @@ recipes.put(
     const imageId = generateIdFromEntropySize(10);
     const imageUrl = new URL(`/images/${imageId}`, c.env.BASE_URL).toString();
 
-    await c.env.BUCKET.put(imageId, image);
+    await c.env.BUCKET.put(imageId, image, {
+      httpMetadata: { contentType: image.type },
+    });
 
     await db
       .update(recipesTable)
       .set({ imageUrl, updatedAt: new Date() })
       .where(eq(recipesTable.id, recipeId));
 
-    return c.body(null, 204);
+    return c.json({ image: { id: imageId, url: imageUrl } });
   }
 );
 
