@@ -3,9 +3,8 @@ import type { Env } from '../types';
 import { Hono } from 'hono';
 import { cache } from 'hono/cache';
 import { initializeDB } from '../db';
-import { useTranslation } from '@intlify/hono';
-import { validator, validateImage } from '../middlewares/validation';
 import { initializeCloudinary } from '../services/image';
+import { validator, validateImage } from '../middlewares/validation';
 import { getImageParamSchema, getImageQuerySchema } from '@cs/utils/zod';
 
 const images = new Hono<Env>();
@@ -20,9 +19,7 @@ images.get(
   validateImage,
   validator('query', getImageQuerySchema),
   async (c) => {
-    const t = useTranslation(c);
-    // TODO: transform image
-    const { w, q } = c.req.valid('query');
+    const query = c.req.valid('query');
     const { imageId } = c.req.valid('param');
 
     const db = initializeDB(c.env.DB);
@@ -32,7 +29,7 @@ images.get(
       where: (t, { eq }) => eq(t.id, imageId),
     });
 
-    const { body, headers } = await cloudinary.fetch(image!.url);
+    const { body, headers } = await cloudinary.fetch(image!.url, query);
 
     c.header('content-type', headers.get('content-type')!);
     c.header('etag', headers.get('etag')!);

@@ -91,3 +91,14 @@ export type CloudinaryResponse = {
     secure_url: string;
   }[];
 };
+
+export type CloudinaryTransformation = {
+  t?: string;
+  w?: number | 'auto';
+  h?: number;
+  q?: number | 'auto';
+  c?: string;
+  f?: string;
+  o?: number;
+  g?: string;
+};

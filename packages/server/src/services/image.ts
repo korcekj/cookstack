@@ -3,11 +3,12 @@ import type {
   CloudinaryConfig,
   CloudinaryOptions,
   CloudinaryResponse,
+  CloudinaryTransformation,
 } from '../types';
 import { Context } from 'hono';
 
-import { sha256 } from '../utils';
 import { snakeCaseifyKeys } from '@cs/utils';
+import { sha256, combineEntries } from '../utils';
 
 export const cloudinary = {
   uploadUrl: 'https://api.cloudinary.com',
@@ -25,15 +26,12 @@ export const cloudinary = {
     };
     return this;
   },
-  async fetch(imageUrl: string | URL) {
+  async fetch(imageUrl: string | URL, options: CloudinaryTransformation = {}) {
     const { cloudName, resourceType } = this.config;
 
-    const url = new URL(
-      `/${cloudName}/${resourceType}/fetch/${imageUrl}`,
-      this.fetchUrl
-    );
-
-    console.log({ url });
+    const transformations = combineEntries(Object.entries(options), '_', ',');
+    const pathname = `/${cloudName}/${resourceType}/fetch/${transformations}/${imageUrl}`;
+    const url = new URL(pathname.replaceAll('//', '/'), this.fetchUrl);
 
     const response = await fetch(url);
     if (!response.ok) throw new Error(response.statusText);
@@ -82,9 +80,7 @@ export const cloudinary = {
   },
   combine<T extends object>(obj: T) {
     const snakeCasefied = snakeCaseifyKeys(obj);
-    return Object.entries(snakeCasefied)
-      .map(([key, value]) => `${key}=${value}`)
-      .join('&');
+    return combineEntries(Object.entries(snakeCasefied), '=', '&');
   },
   sort<T extends object>(obj: T) {
     return Object.keys(obj)
