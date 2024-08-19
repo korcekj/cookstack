@@ -5,11 +5,10 @@ export default {
       'Hodnota musí byť {expected}, ale bola obdržaná typ {received}',
     invalidTypeReceivedUndefined: 'Povinné',
     invalidTypeReceivedNull: 'Povinné',
-    invalidLiteral: 'Invalid value, expected {expected}',
-    unrecognizedKeys: "'Keys doesn't recognized {keys}'",
-    invalidUnion: 'Invalid value',
-    invalidUnionDiscriminator:
-      'Invalid discriminator value. Expected {options}',
+    invalidLiteral: 'Neplatná hodnota. Očakáva sa: {expected}',
+    unrecognizedKeys: "Keys doesn't recognized {keys}",
+    invalidUnion: 'Neplatný vstup',
+    invalidUnionDiscriminator: 'Neplatný vstup. Očakáva sa: {options}',
     invalidEnumValue: 'Neplatná hodnota. Očakáva sa: {options}',
     invalidArguments: 'Invalid funciont parameters',
     invalidReturnType: 'Invalid function value returned',
@@ -43,9 +42,9 @@ export default {
         notInclusive: 'Vložte viac ako {minimum} znak(y)',
       },
       number: {
-        exact: 'The value must be {minimum}',
-        inclusive: 'Insert a value greater or equal to {minimum}',
-        notInclusive: 'Insert a value greater than {minimum}',
+        exact: 'Číslo musí byť presne {minimum}',
+        inclusive: 'Číslo musí byť väčšie alebo rovné {minimum}',
+        notInclusive: 'Číslo musí byť väčšie než {minimum}',
       },
       set: {
         exact: 'Invalid value',
@@ -70,9 +69,9 @@ export default {
         notInclusive: 'Vložte menej ako {maximum} znak(y)',
       },
       number: {
-        exact: 'The value must be {maximum}',
-        inclusive: 'Insert a value less or equal to {maximum}',
-        notInclusive: 'Insert a value less than {maximum}',
+        exact: 'Číslo musí byť presne {maximum}',
+        inclusive: 'Číslo musí byť menšie alebo rovné {maximum}',
+        notInclusive: 'Číslo musí byť menšie než {maximum}',
       },
       set: {
         exact: 'Invalid value',

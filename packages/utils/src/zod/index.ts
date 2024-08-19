@@ -81,6 +81,12 @@ export const makeZodI18nMap =
           message = `invalidString.${issue.validation}`;
         }
         break;
+      case ZodIssueCode.invalid_literal:
+        message = 'invalidLiteral';
+        options = {
+          expected: issue.expected,
+        };
+        break;
       case ZodIssueCode.too_small:
         message = `tooSmall.${issue.type}.${
           issue.exact ? 'exact' : issue.inclusive ? 'inclusive' : 'notInclusive'
