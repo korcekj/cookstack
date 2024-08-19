@@ -1,4 +1,4 @@
-import { deburr } from 'lodash';
+import { deburr, snakeCase } from 'lodash';
 
 export const isURL = (value: string) => {
   let url: URL;
@@ -38,6 +38,16 @@ export const parseOrigin = (origin: string) => {
 
 export const slugify = (value: string, separator = '-') => {
   return deburr(value).toLowerCase().replace(/ +/g, separator);
+};
+
+export const snakeCaseifyKeys = <T extends object>(obj: T) => {
+  return Object.keys(obj).reduce(
+    (reducer, acc) => ({
+      ...reducer,
+      [snakeCase(acc)]: obj[acc],
+    }),
+    {} as T
+  );
 };
 
 export const joinValues = <T extends unknown[]>(array: T, separator = ' | ') =>
