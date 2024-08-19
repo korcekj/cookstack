@@ -176,6 +176,7 @@ recipes.put(
       eager: [{ secure_url: imageUrl }],
     } = await cloudinary.upload(image, {
       publicId: imageId,
+      folder: `cookstack/${c.env.ENV}`,
       uploadPreset: 'cookstack',
     });
 

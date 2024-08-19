@@ -30,8 +30,8 @@ export const cloudinary = {
     const { cloudName, resourceType } = this.config;
 
     const transformations = combineEntries(Object.entries(options), '_', ',');
-    const pathname = `/${cloudName}/${resourceType}/fetch/${transformations}/${imageUrl}`;
-    const url = new URL(pathname.replaceAll('//', '/'), this.fetchUrl);
+    const paths = [cloudName, resourceType, 'fetch', transformations, imageUrl];
+    const url = new URL(paths.filter(Boolean).join('/'), this.fetchUrl);
 
     const response = await fetch(url);
     if (!response.ok) throw new Error(response.statusText);
@@ -39,11 +39,11 @@ export const cloudinary = {
     return response.clone();
   },
   async upload(file: File, options: CloudinaryOptions) {
-    const { publicId, uploadPreset, eager } = options;
     const { cloudName, resourceType, apiKey } = this.config;
+    const { publicId, folder, uploadPreset, eager } = options;
 
     const url = new URL(
-      `/v1_1/${cloudName}/${resourceType}/upload`,
+      `v1_1/${cloudName}/${resourceType}/upload`,
       this.uploadUrl
     );
 
@@ -56,6 +56,7 @@ export const cloudinary = {
     formData.append('timestamp', timestamp);
     formData.append('signature', hash);
     if (eager) formData.append('eager', eager);
+    if (folder) formData.append('folder', folder);
     if (uploadPreset) formData.append('upload_preset', uploadPreset);
 
     const response = await fetch(url, {

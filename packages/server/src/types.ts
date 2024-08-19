@@ -56,8 +56,9 @@ export type CloudinaryConfig = {
 
 export type CloudinaryOptions = {
   publicId: string;
-  uploadPreset?: string;
+  folder?: string;
   eager?: string;
+  uploadPreset?: string;
 };
 
 export type CloudinaryResponse = {
