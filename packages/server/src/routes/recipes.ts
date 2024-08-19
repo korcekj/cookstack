@@ -1,6 +1,11 @@
 import type { Env } from '../types';
 
 import {
+  recipesTranslations,
+  images as imagesTable,
+  recipes as recipesTable,
+} from '../db/schema';
+import {
   getRecipeSchema,
   getRecipesSchema,
   createRecipeSchema,
@@ -18,11 +23,6 @@ import { rateLimit } from '../middlewares/rate-limit';
 import { initializeCloudinary } from '../services/image';
 import { initializeDB, getConflictUpdateSetter } from '../db';
 import { validator, validateRecipe } from '../middlewares/validation';
-import {
-  recipesTranslations,
-  recipes as recipesTable,
-  images as imagesTable,
-} from '../db/schema';
 
 import sections from './sections';
 
