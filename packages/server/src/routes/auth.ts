@@ -12,7 +12,6 @@ import {
   generateResetPasswordTokenSchema,
 } from '@cs/utils/zod';
 import {
-  sha256,
   pbkdf2,
   initializeLucia,
   initializeGoogle,
@@ -28,6 +27,7 @@ import {
 import { Hono } from 'hono';
 import { eq } from 'drizzle-orm';
 import { isURL } from '@cs/utils';
+import { sha256 } from '../utils';
 import { Provider } from '../types';
 import { initializeDB } from '../db';
 import { OAuth2RequestError } from 'arctic';
