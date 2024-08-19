@@ -15,9 +15,14 @@ import { useTranslation } from '@intlify/hono';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { rateLimit } from '../middlewares/rate-limit';
+import { initializeCloudinary } from '../services/image';
 import { initializeDB, getConflictUpdateSetter } from '../db';
 import { validator, validateRecipe } from '../middlewares/validation';
-import { recipesTranslations, recipes as recipesTable } from '../db/schema';
+import {
+  recipesTranslations,
+  recipes as recipesTable,
+  images as imagesTable,
+} from '../db/schema';
 
 import sections from './sections';
 
@@ -162,20 +167,27 @@ recipes.put(
     const { recipeId } = c.req.valid('param');
 
     const db = initializeDB(c.env.DB);
+    const cloudinary = initializeCloudinary(c);
 
     const imageId = generateIdFromEntropySize(10);
-    const imageUrl = new URL(`/images/${imageId}`, c.env.BASE_URL).toString();
+    const url = new URL(`/images/${imageId}`, c.env.BASE_URL).toString();
 
-    await c.env.BUCKET.put(imageId, image, {
-      httpMetadata: { contentType: image.type },
+    const {
+      eager: [{ secure_url: imageUrl }],
+    } = await cloudinary.upload(image, {
+      publicId: imageId,
+      uploadPreset: 'cookstack',
     });
 
-    await db
-      .update(recipesTable)
-      .set({ imageUrl, updatedAt: new Date() })
-      .where(eq(recipesTable.id, recipeId));
+    await db.batch([
+      db
+        .update(recipesTable)
+        .set({ imageId, updatedAt: new Date() })
+        .where(eq(recipesTable.id, recipeId)),
+      db.insert(imagesTable).values({ id: imageId, url: imageUrl }),
+    ]);
 
-    return c.json({ image: { id: imageId, url: imageUrl } });
+    return c.json({ image: { id: imageId, url } });
   }
 );
 

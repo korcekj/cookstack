@@ -2,7 +2,6 @@ import type { User, Session } from 'lucia';
 
 export type Bindings = {
   DB: D1Database;
-  BUCKET: R2Bucket;
   ENV: string;
   BASE_URL: string;
   SALT: string;
@@ -12,6 +11,9 @@ export type Bindings = {
   GOOGLE_REDIRECT_URL: string;
   UPSTASH_REDIS_REST_URL: string;
   UPSTASH_REDIS_REST_TOKEN: string;
+  CLOUDINARY_CLOUD_NAME: string;
+  CLOUDINARY_API_KEY: string;
+  CLOUDINARY_API_SECRET: string;
 };
 
 export type Variables = {
@@ -43,4 +45,49 @@ export type Email = {
   cc?: string | string[];
   bcc?: string | string[];
   headers?: Record<string, string>;
+};
+
+export type CloudinaryConfig = {
+  resourceType?: 'auto' | 'image' | 'video';
+  cloudName: string;
+  apiKey: string;
+  apiSecret: string;
+};
+
+export type CloudinaryOptions = {
+  publicId: string;
+  uploadPreset?: string;
+  eager?: string;
+};
+
+export type CloudinaryResponse = {
+  asset_id: string;
+  public_id: string;
+  version: number;
+  version_id: string;
+  signature: string;
+  width: number;
+  height: number;
+  format: string;
+  resource_type: string;
+  created_at: string;
+  bytes: number;
+  type: string;
+  etag: string;
+  placeholder: boolean;
+  url: string;
+  secure_url: string;
+  folder: string;
+  access_mode: string;
+  original_filename: string;
+  original_extension: string;
+  eager: {
+    transformation: string;
+    width: number;
+    height: number;
+    bytes: number;
+    format: string;
+    url: string;
+    secure_url: string;
+  }[];
 };

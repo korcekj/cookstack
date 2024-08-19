@@ -3,6 +3,7 @@ import type {
   GetRecipeInput,
   GetSectionInput,
   GetCategoryInput,
+  GetImageParamInput,
   GetIngredientInput,
   GetInstructionInput,
 } from '@cs/utils/zod';
@@ -109,6 +110,22 @@ export const validateInstruction = createMiddleware<Env>(async (c, next) => {
   if (!instruction) {
     throw new HTTPException(404, { message: t('instruction.notFound') });
   }
+
+  return next();
+});
+
+export const validateImage = createMiddleware<Env>(async (c, next) => {
+  const t = useTranslation(c);
+  const { imageId } = c.req.param() as GetImageParamInput;
+
+  const db = initializeDB(c.env.DB);
+
+  const image = await db.query.images.findFirst({
+    columns: { id: true },
+    where: (t, { eq }) => eq(t.id, imageId),
+  });
+
+  if (!image) throw new HTTPException(404, { message: t('image.notFound') });
 
   return next();
 });
