@@ -1,12 +1,12 @@
-import { Context } from 'hono';
 import type {
   Env,
   CloudinaryConfig,
   CloudinaryOptions,
   CloudinaryResponse,
 } from '../types';
+import { Context } from 'hono';
 
-import { createHash } from 'node:crypto';
+import { sha256 } from '../utils';
 import { snakeCaseifyKeys } from '@cs/utils';
 
 export const cloudinary = {
@@ -77,7 +77,7 @@ export const cloudinary = {
     const sorted = this.sort(obj);
     const value = this.combine(sorted) + apiSecret;
 
-    const hash = createHash('sha256').update(value).digest('hex');
+    const hash = sha256(value);
     return { timestamp, hash };
   },
   combine<T extends object>(obj: T) {

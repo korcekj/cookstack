@@ -5,12 +5,13 @@ import type { User } from '../db/schema';
 import { omit } from 'lodash';
 import { Google } from 'arctic';
 import { eq } from 'drizzle-orm';
+import { sha256 } from '../utils';
 import { initializeDB } from '../db';
 import { Lucia, generateIdFromEntropySize } from 'lucia';
+import { pbkdf2 as pbkdf2_, randomBytes } from 'node:crypto';
 import { generateRandomString, alphabet } from 'oslo/crypto';
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
 import { TimeSpan, createDate, isWithinExpirationDate } from 'oslo';
-import { pbkdf2 as pbkdf2_, createHash, randomBytes } from 'node:crypto';
 
 import {
   users,
@@ -105,10 +106,6 @@ export const generatePasswordResetToken = async (
     expiresAt: createDate(new TimeSpan(2, 'h')),
   });
   return token;
-};
-
-export const sha256 = (value: string | Uint8Array) => {
-  return createHash('sha256').update(value).digest('hex');
 };
 
 export const pbkdf2 = {
