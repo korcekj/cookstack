@@ -29,7 +29,7 @@ images.get(
       where: (t, { eq }) => eq(t.id, imageId),
     });
 
-    const { body, headers } = await cloudinary.fetch(image!.url, query);
+    const { body, headers } = await cloudinary.fetch(image!.externalUrl, query);
 
     c.header('content-type', headers.get('content-type')!);
     c.header('etag', headers.get('etag')!);

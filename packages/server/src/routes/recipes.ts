@@ -170,10 +170,10 @@ recipes.put(
     const cloudinary = initializeCloudinary(c);
 
     const imageId = generateIdFromEntropySize(10);
-    const url = new URL(`/images/${imageId}`, c.env.BASE_URL).toString();
+    const internalUrl = new URL(`images/${imageId}`, c.env.BASE_URL).toString();
 
     const {
-      eager: [{ secure_url: imageUrl }],
+      eager: [{ secure_url: externalUrl }],
     } = await cloudinary.upload(image, {
       publicId: imageId,
       folder: `cookstack/${c.env.ENV}`,
@@ -185,10 +185,10 @@ recipes.put(
         .update(recipesTable)
         .set({ imageId, updatedAt: new Date() })
         .where(eq(recipesTable.id, recipeId)),
-      db.insert(imagesTable).values({ id: imageId, url: imageUrl }),
+      db.insert(imagesTable).values({ id: imageId, internalUrl, externalUrl }),
     ]);
 
-    return c.json({ image: { id: imageId, url } });
+    return c.json({ image: { id: imageId, url: internalUrl } });
   }
 );
 

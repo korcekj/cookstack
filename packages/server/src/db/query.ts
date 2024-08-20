@@ -21,6 +21,7 @@ import {
   categoriesTranslations,
   ingredientsTranslations,
   instructionsTranslations,
+  images as imagesTable,
   recipes as recipesTable,
   sections as sectionsTable,
   categories as categoriesTable,
@@ -102,7 +103,7 @@ export const useRecipes = async (
   const recipesQuery = db
     .select({
       id: sql<RecipeTable['id']>`${recipesTable.id}`.as('r_id'),
-      imageUrl: recipesTable.imageUrl,
+      imageUrl: imagesTable.internalUrl,
       preparation: recipesTable.preparation,
       cook: recipesTable.cook,
       total: recipesTable.total,
@@ -136,6 +137,7 @@ export const useRecipes = async (
         eq(recipesTranslations.language, locale)
       )
     )
+    .innerJoin(imagesTable, eq(imagesTable.id, recipesTable.imageId))
     .innerJoin(
       categoriesTranslations,
       and(
