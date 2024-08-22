@@ -29,7 +29,7 @@ const Layout = async ({ children, params: { locale } }: Props) => {
   return (
     <html lang={locale} className={rubik.variable} suppressHydrationWarning>
       <body>
-        <Providers locale={locale} messages={messages}>
+        <Providers messages={messages}>
           <Toaster position='top-center' richColors closeButton></Toaster>
           <Header></Header>
           {children}
