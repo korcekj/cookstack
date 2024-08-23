@@ -1,8 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Link } from '@/navigation';
+import { env } from '@/env';
 import { useTranslations } from 'next-intl';
+
+import { Link } from '@/navigation';
 
 const Page = () => {
   const t = useTranslations('Index');
@@ -11,7 +13,7 @@ const Page = () => {
   React.useEffect(() => {
     const getUser = async () => {
       const response = await (
-        await fetch(`${process.env.NEXT_PUBLIC_AUTH_URL}/api/user/profile`, {
+        await fetch(`${env.NEXT_PUBLIC_AUTH_URL}/api/user/profile`, {
           credentials: 'include',
         })
       ).json();
@@ -25,7 +27,7 @@ const Page = () => {
     <main>
       <h1>{t('title')}</h1>
       <Link
-        href={`${process.env.NEXT_PUBLIC_AUTH_URL}/api/auth/signin/google?redirectUrl=${process.env.NEXT_PUBLIC_BASE_URL}`}
+        href={`${env.NEXT_PUBLIC_AUTH_URL}/api/auth/sign-in/google?redirectUrl=${env.NEXT_PUBLIC_BASE_URL}`}
       >
         Login with Google
       </Link>
