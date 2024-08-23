@@ -15,5 +15,5 @@ d1_databases = [
   { binding="DB", database_name='cookstack', database_id='22ec2f35-8298-49db-b1d6-78947a921ed0' }
 ]
 routes = [
-  { pattern='cookstack.korcek.com', custom_domain=true }
+  { pattern='cookstack.korcek.com/*', zone_name='korcek.com' }
 ]
