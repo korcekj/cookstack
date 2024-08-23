@@ -391,9 +391,9 @@ resetPassword.post(
   }
 );
 
-auth.route('/signin', signIn);
-auth.route('/signup', signUp);
-auth.route('/signout', signOut);
+auth.route('/sign-in', signIn);
+auth.route('/sign-up', signUp);
+auth.route('/sign-out', signOut);
 auth.route('/verify-email', verifyEmail);
 auth.route('/reset-password', resetPassword);
 
