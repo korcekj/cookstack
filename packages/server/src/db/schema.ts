@@ -121,7 +121,7 @@ export const recipes = sqliteTable(
   'recipes',
   {
     id: text('id').notNull().primaryKey(),
-    imageId: text('image_id'),
+    imageUrl: text('image_url'),
     preparation: integer('preparation').notNull(),
     cook: integer('cook').notNull(),
     total: integer('total').generatedAlwaysAs(

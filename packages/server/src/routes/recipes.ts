@@ -183,7 +183,7 @@ recipes.put(
     await db.batch([
       db
         .update(recipesTable)
-        .set({ imageId, updatedAt: new Date() })
+        .set({ imageUrl: internalUrl, updatedAt: new Date() })
         .where(eq(recipesTable.id, recipeId)),
       db.insert(imagesTable).values({ id: imageId, internalUrl, externalUrl }),
     ]);
