@@ -44,7 +44,7 @@ export const snakeCaseifyKeys = <T extends object>(obj: T) => {
   return Object.keys(obj).reduce(
     (reducer, acc) => ({
       ...reducer,
-      [snakeCase(acc)]: obj[acc],
+      [snakeCase(acc)]: obj[acc as keyof T],
     }),
     {} as T
   );
