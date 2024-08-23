@@ -14,6 +14,3 @@ vars = { ENV='production', BASE_URL='https://cookstack.korcek.com', GOOGLE_REDIR
 d1_databases = [
   { binding="DB", database_name='cookstack', database_id='22ec2f35-8298-49db-b1d6-78947a921ed0' }
 ]
-r2_buckets = [
-  { binding="BUCKET", bucket_name="cookstack"}
-]
