@@ -1,6 +1,12 @@
 import type { Env, GoogleUser } from '../types';
 
 import {
+  users,
+  images,
+  oauthAccounts,
+  passwordResetTokens,
+} from '../db/schema';
+import {
   signInSchema,
   signUpSchema,
   verifyEmailSchema,
@@ -39,7 +45,6 @@ import { setCookie, getCookie } from 'hono/cookie';
 import { validator } from '../middlewares/validation';
 import { rateLimit } from '../middlewares/rate-limit';
 import { generateState, generateCodeVerifier } from 'arctic';
-import { users, oauthAccounts, passwordResetTokens } from '../db/schema';
 
 const auth = new Hono<Env>();
 const signIn = new Hono<Env>();
@@ -121,26 +126,39 @@ signIn.get(
         })) ?? {};
 
       if (!userId) {
-        [{ id: userId }] = await db
-          .insert(users)
-          .values({
-            id: generateIdFromEntropySize(10),
-            email: user.email,
-            emailVerified: true,
-            firstName: user.given_name,
-            lastName: user.family_name,
-            imageUrl: user.picture,
-          })
-          .onConflictDoUpdate({
-            target: users.email,
-            set: {
+        const imageId = generateIdFromEntropySize(10);
+        const imageUrl = new URL(
+          `images/${imageId}`,
+          c.env.BASE_URL
+        ).toString();
+
+        [[{ id: userId }]] = await db.batch([
+          db
+            .insert(users)
+            .values({
+              id: generateIdFromEntropySize(10),
+              email: user.email,
               emailVerified: true,
               firstName: user.given_name,
               lastName: user.family_name,
-              imageUrl: user.picture,
-            },
-          })
-          .returning({ id: users.id });
+              imageUrl,
+            })
+            .onConflictDoUpdate({
+              target: users.email,
+              set: {
+                emailVerified: true,
+                firstName: user.given_name,
+                lastName: user.family_name,
+                imageUrl,
+              },
+            })
+            .returning({ id: users.id }),
+          db.insert(images).values({
+            id: imageId,
+            externalUrl: user.picture,
+            internalUrl: imageUrl,
+          }),
+        ]);
         await db
           .insert(oauthAccounts)
           .values({
