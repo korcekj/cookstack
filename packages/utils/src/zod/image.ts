@@ -1,7 +1,7 @@
 import { z } from './index';
 
 export const getImageParamSchema = z.object({
-  imageId: z.string().length(16),
+  imageId: z.string().min(1),
 });
 
 export type GetImageParamInput = z.infer<typeof getImageParamSchema>;

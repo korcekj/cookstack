@@ -26,6 +26,13 @@ export const cloudinary = {
     };
     return this;
   },
+  url(id: string, folder: string = 'cookstack') {
+    const { cloudName, resourceType } = this.config;
+    return new URL(
+      `${cloudName}/${resourceType}/upload/${folder}/${id}`,
+      this.fetchUrl
+    );
+  },
   async fetch(imageUrl: string | URL, options: CloudinaryTransformation = {}) {
     const { cloudName, resourceType } = this.config;
 
@@ -34,8 +41,6 @@ export const cloudinary = {
     const url = new URL(paths.filter(Boolean).join('/'), this.fetchUrl);
 
     const response = await fetch(url);
-    if (!response.ok) throw new Error(response.statusText);
-
     return response.clone();
   },
   async upload(file: File, options: CloudinaryOptions) {

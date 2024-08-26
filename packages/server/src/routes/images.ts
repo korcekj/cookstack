@@ -3,8 +3,9 @@ import type { Env } from '../types';
 import { Hono } from 'hono';
 import { cache } from 'hono/cache';
 import { initializeDB } from '../db';
+import { useTranslation } from '@intlify/hono';
+import { validator } from '../middlewares/validation';
 import { initializeCloudinary } from '../services/image';
-import { validator, validateImage } from '../middlewares/validation';
 import { getImageParamSchema, getImageQuerySchema } from '@cs/utils/zod';
 
 const images = new Hono<Env>();
@@ -16,9 +17,9 @@ images.get(
     cacheControl: `max-age=${60 * 60 * 24 * 7}`,
   }),
   validator('param', getImageParamSchema),
-  validateImage,
   validator('query', getImageQuerySchema),
   async (c) => {
+    const t = useTranslation(c);
     const query = c.req.valid('query');
     const { imageId } = c.req.valid('param');
 
@@ -29,7 +30,15 @@ images.get(
       where: (t, { eq }) => eq(t.id, imageId),
     });
 
-    const { body, headers } = await cloudinary.fetch(image!.externalUrl, query);
+    let externalUrl = image?.externalUrl;
+    if (!externalUrl) {
+      externalUrl = cloudinary.url(imageId).toString();
+    }
+
+    const response = await cloudinary.fetch(externalUrl, query);
+    if (!response.ok) return c.json({ error: t('image.notFound') }, 404);
+
+    const { body, headers } = response;
 
     c.header('content-type', headers.get('content-type')!);
     c.header('etag', headers.get('etag')!);
