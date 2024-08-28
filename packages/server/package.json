@@ -13,21 +13,21 @@
   },
   "dependencies": {
     "@cs/utils": "*",
-    "@hono/zod-validator": "^0.2.1",
+    "@hono/zod-validator": "^0.2.2",
     "@intlify/hono": "^0.1.1",
-    "@lucia-auth/adapter-drizzle": "^1.0.7",
-    "@upstash/ratelimit": "^1.2.1",
-    "@upstash/redis": "^1.31.5",
-    "arctic": "^1.8.1",
+    "@lucia-auth/adapter-drizzle": "^1.1.0",
+    "@upstash/ratelimit": "^2.0.2",
+    "@upstash/redis": "^1.34.0",
+    "arctic": "^1.9.2",
     "drizzle-orm": "^0.32.0",
-    "hono": "^4.5.0",
+    "hono": "^4.5.9",
     "lucia": "^3.2.0",
-    "resend": "^3.2.0"
+    "resend": "^4.0.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240403.0",
-    "better-sqlite3": "^10.0.0",
+    "@cloudflare/workers-types": "^4.20240821.1",
+    "better-sqlite3": "^11.2.1",
     "drizzle-kit": "^0.23.0",
-    "wrangler": "^3.65.0"
+    "wrangler": "^3.72.3"
   }
 }
