@@ -10,7 +10,6 @@ import { HTTPException } from 'hono/http-exception';
 
 import auth from './routes/auth';
 import user from './routes/user';
-import images from './routes/images';
 import recipes from './routes/recipes';
 import categories from './routes/categories';
 import { handleAuth } from './middlewares/auth';
@@ -54,7 +53,6 @@ api.route('/recipes', recipes);
 api.route('/categories', categories);
 
 app.route('/', api);
-app.route('/images', images);
 
 app.onError((err, c) => {
   const t = useTranslation(c);

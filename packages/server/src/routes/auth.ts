@@ -1,12 +1,6 @@
 import type { Env, GoogleUser } from '../types';
 
 import {
-  users,
-  images,
-  oauthAccounts,
-  passwordResetTokens,
-} from '../db/schema';
-import {
   signInSchema,
   signUpSchema,
   verifyEmailSchema,
@@ -44,7 +38,9 @@ import { generateIdFromEntropySize } from 'lucia';
 import { setCookie, getCookie } from 'hono/cookie';
 import { validator } from '../middlewares/validation';
 import { rateLimit } from '../middlewares/rate-limit';
+import { initializeCloudinary } from '../services/image';
 import { generateState, generateCodeVerifier } from 'arctic';
+import { users, oauthAccounts, passwordResetTokens } from '../db/schema';
 
 const auth = new Hono<Env>();
 const signIn = new Hono<Env>();
@@ -126,11 +122,8 @@ signIn.get(
         })) ?? {};
 
       if (!userId) {
-        const imageId = generateIdFromEntropySize(10);
-        const imageUrl = new URL(
-          `images/${imageId}`,
-          c.env.BASE_URL
-        ).toString();
+        const cloudinary = initializeCloudinary(c);
+        const imageUrl = cloudinary.url(user.picture).toString();
 
         [[{ id: userId }]] = await db.batch([
           db
@@ -153,11 +146,6 @@ signIn.get(
               },
             })
             .returning({ id: users.id }),
-          db.insert(images).values({
-            id: imageId,
-            externalUrl: user.picture,
-            internalUrl: imageUrl,
-          }),
         ]);
         await db
           .insert(oauthAccounts)

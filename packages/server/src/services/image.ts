@@ -26,20 +26,15 @@ export const cloudinary = {
     };
     return this;
   },
-  url(id: string, folder: string = 'cookstack') {
-    const { cloudName, resourceType } = this.config;
-    return new URL(
-      `${cloudName}/${resourceType}/upload/${folder}/${id}`,
-      this.fetchUrl
-    );
-  },
-  async fetch(imageUrl: string | URL, options: CloudinaryTransformation = {}) {
+  url(imageUrl: string | URL, options: CloudinaryTransformation = {}) {
     const { cloudName, resourceType } = this.config;
 
     const transformations = combineEntries(Object.entries(options), '_', ',');
     const paths = [cloudName, resourceType, 'fetch', transformations, imageUrl];
-    const url = new URL(paths.filter(Boolean).join('/'), this.fetchUrl);
-
+    return new URL(paths.filter(Boolean).join('/'), this.fetchUrl);
+  },
+  async fetch(imageUrl: string | URL, options: CloudinaryTransformation = {}) {
+    const url = this.url(imageUrl, options);
     const response = await fetch(url);
     return response.clone();
   },

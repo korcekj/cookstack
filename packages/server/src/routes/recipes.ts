@@ -1,10 +1,6 @@
 import type { Env } from '../types';
 
-import {
-  recipesTranslations,
-  images as imagesTable,
-  recipes as recipesTable,
-} from '../db/schema';
+import { recipesTranslations, recipes as recipesTable } from '../db/schema';
 import {
   getRecipeSchema,
   getRecipesSchema,
@@ -170,25 +166,21 @@ recipes.put(
     const cloudinary = initializeCloudinary(c);
 
     const imageId = generateIdFromEntropySize(10);
-    const internalUrl = new URL(`images/${imageId}`, c.env.BASE_URL).toString();
 
     const {
-      eager: [{ secure_url: externalUrl }],
+      eager: [{ secure_url: imageUrl }],
     } = await cloudinary.upload(image, {
       publicId: imageId,
       folder: `cookstack/${c.env.ENV}`,
       uploadPreset: 'cookstack',
     });
 
-    await db.batch([
-      db
-        .update(recipesTable)
-        .set({ imageUrl: internalUrl, updatedAt: new Date() })
-        .where(eq(recipesTable.id, recipeId)),
-      db.insert(imagesTable).values({ id: imageId, internalUrl, externalUrl }),
-    ]);
+    await db
+      .update(recipesTable)
+      .set({ imageUrl, updatedAt: new Date() })
+      .where(eq(recipesTable.id, recipeId));
 
-    return c.json({ image: { id: imageId, url: internalUrl } });
+    return c.json({ image: { id: imageId, url: imageUrl } });
   }
 );
 

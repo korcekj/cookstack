@@ -81,12 +81,6 @@ export const passwordResetTokens = sqliteTable(
   })
 );
 
-export const images = sqliteTable('images', {
-  id: text('id').notNull().primaryKey(),
-  internalUrl: text('internal_url').notNull().unique(),
-  externalUrl: text('external_url').notNull().unique(),
-});
-
 export const categories = sqliteTable('categories', {
   id: text('id').notNull().primaryKey(),
   createdAt: integer('created_at', { mode: 'timestamp' }).default(
