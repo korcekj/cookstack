@@ -1,6 +1,6 @@
 import type { Context } from 'hono';
 
-import { createHash } from 'node:crypto';
+import { createHash } from 'crypto';
 
 export const getIp = (c: Context) => c.req.header('cf-connecting-ip');
 
