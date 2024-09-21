@@ -54,3 +54,9 @@ export const joinValues = <T extends unknown[]>(array: T, separator = ' | ') =>
   array
     .map((val) => (typeof val === 'string' ? `'${val}'` : val))
     .join(separator);
+
+export const objectEntries = <T extends object>(
+  obj: T
+): [keyof T, T[keyof T]][] => {
+  return Object.entries(obj) as [keyof T, T[keyof T]][];
+};
