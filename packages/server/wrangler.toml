@@ -1,6 +1,6 @@
 name = "cookstack"
 compatibility_date = "2023-12-01"
-compatibility_flags = [ "nodejs_compat" ]
+compatibility_flags = [ "experimental:nodejs_compat_v2" ]
 
 [env.dev]
 vars = { ENV='dev', BASE_URL='http://localhost:8787', GOOGLE_REDIRECT_URL='http://localhost:8787/api/auth/sign-in/google/callback' }
