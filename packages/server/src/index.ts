@@ -11,16 +11,15 @@ import { HTTPException } from 'hono/http-exception';
 import auth from './routes/auth';
 import user from './routes/user';
 import recipes from './routes/recipes';
+import { i18n } from './middlewares/i18n';
 import categories from './routes/categories';
 import { handleAuth } from './middlewares/auth';
-import { i18n, i18nZod } from './middlewares/i18n';
 
 const app = new Hono<Env>();
 
 app.use(logger());
 
 app.use(i18n);
-app.use(i18nZod);
 
 app.use(
   csrf({
