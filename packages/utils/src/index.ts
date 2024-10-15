@@ -60,3 +60,15 @@ export const objectEntries = <T extends object>(
 ): [keyof T, T[keyof T]][] => {
   return Object.entries(obj) as [keyof T, T[keyof T]][];
 };
+
+export const formDataEntries = <K extends string | number | symbol>(
+  obj: Record<string, FormDataEntryValue>
+) => {
+  return Object.entries(obj).reduce(
+    (acc, [key, value]) => ({
+      ...acc,
+      [key]: value.toString(),
+    }),
+    {} as Record<K, string>
+  );
+};
