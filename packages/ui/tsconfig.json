@@ -9,7 +9,8 @@
     "composite": true,
     "outDir": "dist",
     "rootDir": "src",
-    "baseUrl": "./"
+    "baseUrl": "./",
+    "types": ["next"]
   },
   "include": ["src/**/*"],
   "exclude": ["dist"]
