@@ -7,8 +7,8 @@ import {
   SheetContent,
   SheetTrigger,
 } from '@cs/ui/components';
-import { Link } from '@/navigation';
 import { Menu } from 'lucide-react';
+import { Link } from '@/i18n/routing';
 
 export const Header: React.FC = () => {
   return (
