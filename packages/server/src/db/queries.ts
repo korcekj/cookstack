@@ -27,9 +27,9 @@ import {
   ingredients as ingredientsTable,
   instructions as instructionsTable,
 } from './schema';
-import { getLocale } from '../utils';
+import { initializeDB } from '.';
 import { sql, count, eq, and, asc } from 'drizzle-orm';
-import { initializeDB, getOrderByClauses } from '.';
+import { getLocale, getOrderByClauses } from '../utils';
 
 export const useCategories = async (
   c: Context<Env>,
