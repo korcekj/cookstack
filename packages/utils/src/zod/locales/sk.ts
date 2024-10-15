@@ -65,7 +65,7 @@ export default {
       },
       string: {
         exact: 'Dĺžka musí mať presne {maximum} znak(y)',
-        inclusive: 'Minimálna dĺžka je {maximum} znak(y)',
+        inclusive: 'Maximálna dĺžka je {maximum} znak(y)',
         notInclusive: 'Vložte menej ako {maximum} znak(y)',
       },
       number: {
