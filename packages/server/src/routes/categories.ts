@@ -18,7 +18,7 @@ import { useTranslation } from '@intlify/hono';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { rateLimit } from '../middlewares/rate-limit';
-import { useCategories, useRecipes } from '../db/query';
+import { useCategories, useRecipes } from '../db/queries';
 import { initializeDB, getConflictUpdateSetter } from '../db';
 import { validator, validateCategory } from '../middlewares/validation';
 

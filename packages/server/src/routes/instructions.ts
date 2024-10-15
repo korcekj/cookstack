@@ -17,8 +17,8 @@ import {
   validateInstruction,
 } from '../middlewares/validation';
 import { initializeDB } from '../db';
-import { useInstructions } from '../db/query';
 import { useTranslation } from '@intlify/hono';
+import { useInstructions } from '../db/queries';
 import { eq, count, inArray } from 'drizzle-orm';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';

@@ -13,7 +13,7 @@ import {
   validateSection,
 } from '../middlewares/validation';
 import { initializeDB } from '../db';
-import { useSections } from '../db/query';
+import { useSections } from '../db/queries';
 import { useTranslation } from '@intlify/hono';
 import { eq, count, inArray } from 'drizzle-orm';
 import { generateIdFromEntropySize } from 'lucia';

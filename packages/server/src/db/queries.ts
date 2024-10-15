@@ -2,7 +2,7 @@ import type {
   RecipeTranslation,
   CategoryTranslation,
   Recipe as RecipeTable,
-} from '../db/schema';
+} from './schema';
 import type {
   GetRecipeInput,
   GetRecipesInput,
@@ -26,10 +26,10 @@ import {
   categories as categoriesTable,
   ingredients as ingredientsTable,
   instructions as instructionsTable,
-} from '../db/schema';
+} from './schema';
 import { getLocale } from '../utils';
 import { sql, count, eq, and, asc } from 'drizzle-orm';
-import { initializeDB, getOrderByClauses } from '../db';
+import { initializeDB, getOrderByClauses } from '.';
 
 export const useCategories = async (
   c: Context<Env>,
