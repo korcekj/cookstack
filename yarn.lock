@@ -82,10 +82,10 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@drizzle-team/brocli@^0.8.2":
-  version "0.8.2"
-  resolved "https://registry.yarnpkg.com/@drizzle-team/brocli/-/brocli-0.8.2.tgz#a397253fa1094b16f761b776f39dbdd119838ef7"
-  integrity sha512-zTrFENsqGvOkBOuHDC1pXCkDXNd2UhP4lI3gYGhQ1R1SPeAAfqzPsV1dcpMy4uNU6kB5VpU5NGhvwxVNETR02A==
+"@drizzle-team/brocli@^0.10.1":
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/@drizzle-team/brocli/-/brocli-0.10.1.tgz#8b73d65eaf2f6d04f45718ea6f4d789d69526cd3"
+  integrity sha512-AHy0vjc+n/4w/8Mif+w86qpppHuF3AyXbcWW+R/W7GNA3F5/p2nuhlkCJaTXSLZheB4l1rtHzOfr9A7NwoR/Zg==
 
 "@emnapi/core@^0.45.0":
   version "0.45.0"
@@ -3129,20 +3129,20 @@ dotenv@^16.4.4, dotenv@~16.4.5:
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.4.5.tgz#cdd3b3b604cb327e286b4762e13502f717cb099f"
   integrity sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==
 
-drizzle-kit@^0.23.0:
-  version "0.23.2"
-  resolved "https://registry.yarnpkg.com/drizzle-kit/-/drizzle-kit-0.23.2.tgz#07fdc374e5e7c2a9f580d7449e000e90603dc16b"
-  integrity sha512-NWkQ7GD2OTbQ7HzcjsaCOf3n0tlFPSEAF38fvDpwDj8jRbGWGFtN2cD8I8wp4lU+5Os/oyP2xycTKGLHdPipUw==
+drizzle-kit@^0.26.2:
+  version "0.26.2"
+  resolved "https://registry.yarnpkg.com/drizzle-kit/-/drizzle-kit-0.26.2.tgz#1a2ecb5419a240e7d9a90ee9fea6bbbf29ec8bf7"
+  integrity sha512-cMq8omEKywjIy5KcqUo6LvEFxkl8/zYHsgYjFVXjmPWWtuW4blcz+YW9+oIhoaALgs2ebRjzXwsJgN9i6P49Dw==
   dependencies:
-    "@drizzle-team/brocli" "^0.8.2"
+    "@drizzle-team/brocli" "^0.10.1"
     "@esbuild-kit/esm-loader" "^2.5.5"
     esbuild "^0.19.7"
     esbuild-register "^3.5.0"
 
-drizzle-orm@^0.32.0:
-  version "0.32.2"
-  resolved "https://registry.yarnpkg.com/drizzle-orm/-/drizzle-orm-0.32.2.tgz#a44d8703120d44ad8005c6130b0b96ef967534d3"
-  integrity sha512-3fXKzPzrgZIcnWCSLiERKN5Opf9Iagrag75snfFlKeKSYB1nlgPBshzW3Zn6dQymkyiib+xc4nIz0t8U+Xdpuw==
+drizzle-orm@^0.35.1:
+  version "0.35.1"
+  resolved "https://registry.yarnpkg.com/drizzle-orm/-/drizzle-orm-0.35.1.tgz#d253384696f177a905a8b2ad5f0c5e0f1ead6484"
+  integrity sha512-HQxDdYuXlZFuvDPztlUIzrX8TqWa/Ej6uN6L0hkbuGL4slexOUMc3u4nXVU15RQ5QYbk+uLQnR6v1+OIrdCTXQ==
 
 duplexer@^0.1.1:
   version "0.1.2"

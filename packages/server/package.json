@@ -19,7 +19,7 @@
     "@upstash/ratelimit": "^2.0.2",
     "@upstash/redis": "^1.34.0",
     "arctic": "^1.9.2",
-    "drizzle-orm": "^0.32.0",
+    "drizzle-orm": "^0.35.1",
     "hono": "^4.6.5",
     "lucia": "^3.2.0",
     "resend": "^4.0.0"
@@ -27,7 +27,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240821.1",
     "better-sqlite3": "^10.0.0",
-    "drizzle-kit": "^0.23.0",
+    "drizzle-kit": "^0.26.2",
     "wrangler": "^3.80.4"
   }
 }
