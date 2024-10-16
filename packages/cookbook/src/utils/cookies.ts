@@ -1,4 +1,4 @@
-import type { CookieOptions } from '@/utils/types';
+import type { CookieOptions } from '@/types';
 
 import { env } from '@/env';
 import { cookies } from 'next/headers';

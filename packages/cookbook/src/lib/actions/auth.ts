@@ -4,8 +4,8 @@ import { redirect } from '@/i18n/routing';
 import { revalidateTag } from 'next/cache';
 import { formDataEntries } from '@cs/utils';
 import { fetch, HTTPError } from '@/utils/fetch';
-import { withI18nZod, withUser } from '@/lib/middleware';
 import { setResponseCookies } from '@/utils/cookies';
+import { withI18nZod, withUser } from '@/lib/middleware';
 import { signInSchema, signUpSchema } from '@cs/utils/zod';
 
 export const signIn = withI18nZod(signInSchema, async (data) => {

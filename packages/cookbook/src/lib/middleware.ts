@@ -2,7 +2,7 @@ import type {
   ActionFunction,
   ActionResponse,
   ActionFunctionWithUser,
-} from '@/utils/types';
+} from '@/types';
 
 import { get } from 'lodash';
 import { getUser } from '@/data/user';
