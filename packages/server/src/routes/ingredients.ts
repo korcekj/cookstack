@@ -44,10 +44,10 @@ ingredients.post(
     const ingredientId = generateIdFromEntropySize(10);
 
     try {
-      const [{ position }] = await db
-        .select({ position: count() })
-        .from(ingredientsTable)
-        .where(eq(ingredientsTable.sectionId, sectionId));
+      const position = await db.$count(
+        ingredientsTable,
+        eq(ingredientsTable.sectionId, sectionId)
+      );
       await db.batch([
         db.insert(ingredientsTable).values({
           ...ingredient,
@@ -116,10 +116,10 @@ ingredients.put(
       .flat();
 
     try {
-      let [{ total }] = await db
-        .select({ total: count() })
-        .from(ingredientsTable)
-        .where(eq(ingredientsTable.sectionId, sectionId));
+      let total = await db.$count(
+        ingredientsTable,
+        eq(ingredientsTable.sectionId, sectionId)
+      );
       const [_1, _2, _3, results] = await db.batch([
         db.delete(ingredientsTable).where(
           inArray(

@@ -44,10 +44,10 @@ instructions.post(
     const instructionId = generateIdFromEntropySize(10);
 
     try {
-      const [{ position }] = await db
-        .select({ position: count() })
-        .from(instructionsTable)
-        .where(eq(instructionsTable.sectionId, sectionId));
+      const position = await db.$count(
+        instructionsTable,
+        eq(instructionsTable.sectionId, sectionId)
+      );
       await db.batch([
         db.insert(instructionsTable).values({
           ...instruction,
@@ -116,10 +116,10 @@ instructions.put(
       .flat();
 
     try {
-      let [{ total }] = await db
-        .select({ total: count() })
-        .from(instructionsTable)
-        .where(eq(instructionsTable.sectionId, sectionId));
+      let total = await db.$count(
+        instructionsTable,
+        eq(instructionsTable.sectionId, sectionId)
+      );
       const [_1, _2, _3, results] = await db.batch([
         db.delete(instructionsTable).where(
           inArray(
