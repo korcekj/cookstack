@@ -9,6 +9,9 @@ import {
 } from '@cs/ui/components';
 import { Menu } from 'lucide-react';
 import { Link } from '@/i18n/routing';
+import { SignedIn } from '@/components/signed-in';
+import { SignedOut } from '@/components/signed-out';
+import { SignOut } from '@/components/forms/sign-out';
 
 export const Header: React.FC = () => {
   return (
@@ -86,12 +89,14 @@ export const Header: React.FC = () => {
             </DropdownMenuContent>
           </DropdownMenu> */}
         <ThemeSwitch></ThemeSwitch>
-        {/* <SignedOut>
-          <SigninButton></SigninButton>
+        <SignedOut>
+          <Button asChild>
+            <Link href='/sign-in'>Prihlásiť</Link>
+          </Button>
         </SignedOut>
         <SignedIn>
-          <SignoutButton></SignoutButton>
-        </SignedIn> */}
+          <SignOut></SignOut>
+        </SignedIn>
       </div>
     </header>
   );
