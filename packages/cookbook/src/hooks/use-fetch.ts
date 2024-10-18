@@ -16,6 +16,7 @@ export const useFetch = () => {
           beforeRequest: [
             async (request) => {
               request.headers.set('Accept-Language', locale);
+              request.headers.set('Origin', env.NEXT_PUBLIC_BASE_URL);
             },
           ],
         },

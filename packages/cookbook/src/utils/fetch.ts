@@ -9,7 +9,6 @@ export { HTTPError } from 'ky';
 
 export const fetcher = ky.create({
   prefixUrl: env.NEXT_PUBLIC_SERVER_URL,
-  credentials: 'include',
 });
 
 export const fetchCustom = (options: Options = {}) => fetcher.extend(options);
@@ -19,6 +18,7 @@ export const fetch = fetcher.extend({
     beforeRequest: [
       async (request) => {
         request.headers.set('Cookie', getAuthCookie());
+        request.headers.set('Origin', env.NEXT_PUBLIC_BASE_URL);
         request.headers.set('Accept-Language', await getLocale());
       },
     ],
