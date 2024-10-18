@@ -20,7 +20,7 @@ export const useI18nForm = <
   action: (_: any, formData: FormData) => Promise<T>,
   initialValues: Partial<z.infer<S>> = {}
 ): [UseFormReturn<z.infer<S>>, (payload: FormData) => void] => {
-  // Enable i18n to zodResolver
+  // Enable i18n in zodResolver
   useI18nZod();
 
   const [state, formAction] = useFormState(action, null);
