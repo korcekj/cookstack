@@ -3,6 +3,8 @@ import React from 'react';
 import { env } from '@/env';
 import { useLocale } from 'next-intl';
 
+export { HTTPError } from 'ky';
+
 export const useFetch = () => {
   const locale = useLocale();
   const fetcher = React.useMemo(
