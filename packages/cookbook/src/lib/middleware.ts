@@ -6,6 +6,7 @@ import type {
 
 import { get } from 'lodash';
 import { getUser } from '@/data/user';
+import { redirect } from '@/i18n/routing';
 import { formDataEntries } from '@cs/utils';
 import { z, makeZodI18nMap, parseError } from '@cs/utils/zod';
 
@@ -44,7 +45,7 @@ export const withUser = (action: ActionFunctionWithUser) => {
     formData: FormData
   ): Promise<ActionResponse<any>> => {
     const user = await getUser();
-    if (!user) return { error: 'Používatel nie je prihlasený' };
-    return action(prevState, formData, user);
+    if (user) return action(prevState, formData, user);
+    redirect('/sign-in');
   };
 };
