@@ -16,6 +16,7 @@ export default {
     invalidEmailPassword: 'Invalid email or password',
     invalidCode: 'Invalid code',
     invalidToken: 'Invalid token',
+    invalidHeader: 'Invalid header',
     unverifiedEmail: 'Unverified email',
     existsEmail: 'Email cannot be used',
     existsAuthor: 'Author already exists',

@@ -16,6 +16,7 @@ export default {
     invalidEmailPassword: 'Neplatný email alebo heslo',
     invalidCode: 'Neplatný kód',
     invalidToken: 'Neplatný token',
+    invalidHeader: 'Neplatná hlavička',
     unverifiedEmail: 'Neoverený email',
     existsEmail: 'Zvolený email nie je možné použiť',
     existsAuthor: 'Autor už existuje',

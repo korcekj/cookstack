@@ -5,6 +5,7 @@ export type Bindings = {
   ENV: string;
   BASE_URL: string;
   SALT: string;
+  AUTH_AUTHOR_TOKEN: string;
   RESEND_API_KEY: string;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;

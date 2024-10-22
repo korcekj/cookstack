@@ -1,6 +1,7 @@
 import type { Env } from '../types';
 
 import { every } from 'hono/combine';
+import { bearerAuth } from 'hono/bearer-auth';
 import { useTranslation } from '@intlify/hono';
 import { createMiddleware } from 'hono/factory';
 import { setCookie, getCookie } from 'hono/cookie';
@@ -32,6 +33,23 @@ export const handleAuth = createMiddleware<Env>(async (c, next) => {
   return next();
 });
 
+export const handleBearerAuth = (token: string) =>
+  bearerAuth({
+    token,
+    noAuthenticationHeaderMessage: (c) => {
+      const t = useTranslation(c);
+      throw new HTTPException(401, { message: t('auth.invalidHeader') });
+    },
+    invalidAuthenticationHeaderMessage: (c) => {
+      const t = useTranslation(c);
+      throw new HTTPException(400, { message: t('auth.invalidToken') });
+    },
+    invalidTokenMessage: (c) => {
+      const t = useTranslation(c);
+      throw new HTTPException(400, { message: t('auth.invalidToken') });
+    },
+  });
+
 export const verifyAuth = createMiddleware<Env>(async (c, next) => {
   const t = useTranslation(c);
   const session = c.get('session');
@@ -59,13 +77,11 @@ export const verifyAuthor = every(
 export const makeAuthor = every(
   verifyAuth,
   createMiddleware<Env>(async (c, next) => {
+    const bearer = handleBearerAuth(c.env.AUTH_AUTHOR_TOKEN);
+    return bearer(c, next);
+  }),
+  createMiddleware<Env>(async (c, next) => {
     const t = useTranslation(c);
-
-    // TODO: Make this safer
-    const author = c.req.header('x-author');
-    if (!author) {
-      throw new HTTPException(400, { message: t('errors.badRequest') });
-    }
 
     const user = c.get('user')!;
     if (!user.emailVerified) {
