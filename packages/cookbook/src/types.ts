@@ -20,13 +20,3 @@ export type ActionFunctionWithUser = (
   formData: FormData,
   user: object | null
 ) => Promise<ActionResponse<any>>;
-
-export type CookieOptions = {
-  path?: string;
-  expires?: Date;
-  maxAge?: number;
-  domain?: string;
-  httpOnly?: boolean;
-  secure?: boolean;
-  sameSite?: 'strict' | 'lax' | 'none';
-};

@@ -1,8 +1,16 @@
-import type { CookieOptions } from '@/types';
-
 import { env } from '@/env';
 import { cookies } from 'next/headers';
 import { parse } from 'set-cookie-parser';
+
+type CookieOptions = {
+  path?: string;
+  expires?: Date;
+  maxAge?: number;
+  domain?: string;
+  httpOnly?: boolean;
+  secure?: boolean;
+  sameSite?: 'strict' | 'lax' | 'none';
+};
 
 export const setResponseCookies = (response: Response) => {
   const parsedCookies = parse(response.headers.get('set-cookie') ?? '');
