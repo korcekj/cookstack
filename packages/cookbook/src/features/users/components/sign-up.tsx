@@ -3,8 +3,8 @@
 import React from 'react';
 import { env } from '@/env';
 import { cn } from '@cs/ui/utils';
-import { signUp } from '@/lib/actions/auth';
 import { signUpSchema } from '@cs/utils/zod';
+import { signUp } from '@/features/users/actions';
 import { useI18nForm } from '@/hooks/use-i18n-form';
 
 import {

@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import React from 'react';
 
 import { Image } from '@unpic/react';
-import { SignInForm } from '@/components/forms/sign-in';
+import { SignInForm } from '@/features/users/components/sign-in';
 
 export const metadata: Metadata = {
   title: 'Prihlásenie',

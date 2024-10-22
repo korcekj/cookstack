@@ -3,7 +3,7 @@
 import React from 'react';
 import { toast } from 'sonner';
 import { useFormState } from 'react-dom';
-import { signOut } from '@/lib/actions/auth';
+import { signOut } from '@/features/users/actions';
 
 import { SubmitButton } from '@cs/ui/components';
 

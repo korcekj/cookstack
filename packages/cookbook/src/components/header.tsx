@@ -11,7 +11,7 @@ import { Menu } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { SignedIn } from '@/components/signed-in';
 import { SignedOut } from '@/components/signed-out';
-import { SignOut } from '@/components/forms/sign-out';
+import { SignOut } from '@/features/users/components/sign-out';
 
 export const Header: React.FC = () => {
   return (

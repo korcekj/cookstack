@@ -1,5 +1,5 @@
 import React from 'react';
-import { getUser } from '@/data/user';
+import { getUser } from '@/features/users/api';
 
 export const SignedOut: React.FC<React.PropsWithChildren> = async ({
   children,

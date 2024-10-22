@@ -1,5 +1,3 @@
-'use server';
-
 import { unstable_cache } from 'next/cache';
 import { getLocale } from 'next-intl/server';
 import { getAuthCookie } from '@/utils/cookies';

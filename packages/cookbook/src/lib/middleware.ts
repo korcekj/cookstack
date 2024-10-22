@@ -5,9 +5,9 @@ import type {
 } from '@/types';
 
 import { get } from 'lodash';
-import { getUser } from '@/data/user';
 import { redirect } from '@/i18n/routing';
 import { formDataEntries } from '@cs/utils';
+import { getUser } from '@/features/users/api';
 import { z, makeZodI18nMap, parseError } from '@cs/utils/zod';
 
 import { getTranslations, getMessages } from 'next-intl/server';

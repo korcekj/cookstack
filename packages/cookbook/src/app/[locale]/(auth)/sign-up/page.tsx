@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import React from 'react';
 
 import { Image } from '@unpic/react';
-import { SignUpForm } from '@/components/forms/sign-up';
+import { SignUpForm } from '@/features/users/components/sign-up';
 
 export const metadata: Metadata = {
   title: 'Registrácia',
