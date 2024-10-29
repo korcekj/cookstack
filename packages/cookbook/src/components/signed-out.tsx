@@ -1,10 +1,10 @@
 import React from 'react';
-import { getUser } from '@/features/users/api';
+import { getUserCached } from '@/features/users/api';
 
 export const SignedOut: React.FC<React.PropsWithChildren> = async ({
   children,
 }) => {
-  const user = await getUser();
+  const user = await getUserCached();
 
   return !user ? <>{children}</> : null;
 };
