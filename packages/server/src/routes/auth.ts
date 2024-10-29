@@ -365,29 +365,29 @@ resetPassword.post(
 
     const db = initializeDB(c.env.DB);
     const hashedToken = sha256(token);
-    const validToken = await db.query.passwordResetTokens.findFirst({
+    const dbToken = await db.query.passwordResetTokens.findFirst({
       where: (table, { eq }) => eq(table.hashedToken, hashedToken),
     });
-    if (validToken) {
-      await db
-        .delete(passwordResetTokens)
-        .where(eq(passwordResetTokens.hashedToken, hashedToken));
-    }
 
-    if (!validToken || !isWithinExpirationDate(validToken.expiresAt)) {
+    if (!dbToken || !isWithinExpirationDate(dbToken.expiresAt)) {
       return c.json({ error: t('auth.invalidToken') }, 400);
     }
 
     const lucia = initializeLucia(c);
-    await lucia.invalidateUserSessions(validToken.userId);
+    await lucia.invalidateUserSessions(dbToken.userId);
 
     const hashedPassword = await pbkdf2.hash(password);
-    await db
-      .update(users)
-      .set({ hashedPassword })
-      .where(eq(users.id, validToken.userId));
+    await db.batch([
+      db
+        .delete(passwordResetTokens)
+        .where(eq(passwordResetTokens.hashedToken, hashedToken)),
+      db
+        .update(users)
+        .set({ hashedPassword })
+        .where(eq(users.id, dbToken.userId)),
+    ]);
 
-    const session = await lucia.createSession(validToken.userId, {});
+    const session = await lucia.createSession(dbToken.userId, {});
     const cookie = lucia.createSessionCookie(session.id);
 
     setCookie(c, cookie.name, cookie.value, cookie.attributes);
