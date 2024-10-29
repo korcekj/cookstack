@@ -9,7 +9,7 @@ import {
   resetPasswordSchema,
   resetPasswordTokenSchema,
   signInGoogleCallbackSchema,
-  generateResetPasswordTokenSchema,
+  forgotPasswordRedirectSchema,
 } from '@cs/utils/zod';
 import {
   pbkdf2,
@@ -321,8 +321,8 @@ verifyEmail.post('/:code', validator('param', verifyEmailSchema), async (c) => {
 resetPassword.use(rateLimit);
 resetPassword.post(
   '/',
-  validator('query', forgotPasswordSchema),
-  validator('json', generateResetPasswordTokenSchema),
+  validator('query', forgotPasswordRedirectSchema),
+  validator('json', forgotPasswordSchema),
   async (c) => {
     const t = useTranslation(c);
     const { email } = c.req.valid('json');
