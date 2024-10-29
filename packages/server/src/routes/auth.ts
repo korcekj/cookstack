@@ -3,13 +3,12 @@ import type { Env, GoogleUser } from '../types';
 import {
   signInSchema,
   signUpSchema,
+  confirmPassword,
   verifyEmailSchema,
   signInGoogleSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
-  resetPasswordTokenSchema,
   signInGoogleCallbackSchema,
-  forgotPasswordRedirectSchema,
 } from '@cs/utils/zod';
 import {
   pbkdf2,
@@ -203,49 +202,53 @@ signIn.post('/', rateLimit, validator('json', signInSchema), async (c) => {
 });
 
 signUp.use(rateLimit);
-signUp.post('/', validator('json', signUpSchema), async (c) => {
-  const t = useTranslation(c);
-  const { firstName, lastName, email, password } = c.req.valid('json');
+signUp.post(
+  '/',
+  validator('json', confirmPassword(signUpSchema)),
+  async (c) => {
+    const t = useTranslation(c);
+    const { firstName, lastName, email, password } = c.req.valid('json');
 
-  const db = initializeDB(c.env.DB);
-  const exists = await db.query.users.findFirst({
-    where: (table, { eq }) => eq(table.email, email),
-    columns: { email: true },
-  });
+    const db = initializeDB(c.env.DB);
+    const exists = await db.query.users.findFirst({
+      where: (table, { eq }) => eq(table.email, email),
+      columns: { email: true },
+    });
 
-  if (exists) return c.json({ error: { email: t('auth.existsEmail') } }, 400);
+    if (exists) return c.json({ error: { email: t('auth.existsEmail') } }, 400);
 
-  const hashedPassword = await pbkdf2.hash(password);
-  const [{ id: userId }] = await db
-    .insert(users)
-    .values({
-      id: generateIdFromEntropySize(10),
+    const hashedPassword = await pbkdf2.hash(password);
+    const [{ id: userId }] = await db
+      .insert(users)
+      .values({
+        id: generateIdFromEntropySize(10),
+        email,
+        hashedPassword,
+        firstName,
+        lastName,
+      })
+      .returning({ id: users.id });
+
+    const code = await generateEmailVerificationCode(c.env.DB, {
+      userId,
       email,
-      hashedPassword,
-      firstName,
-      lastName,
-    })
-    .returning({ id: users.id });
+    });
+    await sendEmail(c, {
+      to: email,
+      subject: t('emails.verificationCode.subject'),
+      html: verificationCodeTemplate(c, { code }),
+    });
 
-  const code = await generateEmailVerificationCode(c.env.DB, {
-    userId,
-    email,
-  });
-  await sendEmail(c, {
-    to: email,
-    subject: t('emails.verificationCode.subject'),
-    html: verificationCodeTemplate(c, { code }),
-  });
+    const lucia = initializeLucia(c);
+    const session = await lucia.createSession(userId, {});
+    const cookie = lucia.createSessionCookie(session.id);
 
-  const lucia = initializeLucia(c);
-  const session = await lucia.createSession(userId, {});
-  const cookie = lucia.createSessionCookie(session.id);
+    setCookie(c, cookie.name, cookie.value, cookie.attributes);
 
-  setCookie(c, cookie.name, cookie.value, cookie.attributes);
-
-  const { user: luciaUser } = await lucia.validateSession(session.id);
-  return c.json({ user: luciaUser }, 201);
-});
+    const { user: luciaUser } = await lucia.validateSession(session.id);
+    return c.json({ user: luciaUser }, 201);
+  }
+);
 
 signOut.use(rateLimit);
 signOut.use(verifyAuth);
@@ -321,8 +324,8 @@ verifyEmail.post('/:code', validator('param', verifyEmailSchema), async (c) => {
 resetPassword.use(rateLimit);
 resetPassword.post(
   '/',
-  validator('query', forgotPasswordRedirectSchema),
-  validator('json', forgotPasswordSchema),
+  validator('query', forgotPasswordSchema.pick({ redirectUrl: true })),
+  validator('json', forgotPasswordSchema.omit({ redirectUrl: true })),
   async (c) => {
     const t = useTranslation(c);
     const { email } = c.req.valid('json');
@@ -356,8 +359,8 @@ resetPassword.post(
 
 resetPassword.post(
   '/:token',
-  validator('param', resetPasswordTokenSchema),
-  validator('json', resetPasswordSchema),
+  validator('param', resetPasswordSchema.pick({ token: true })),
+  validator('json', confirmPassword(resetPasswordSchema.omit({ token: true }))),
   async (c) => {
     const t = useTranslation(c);
     const { token } = c.req.valid('param');
