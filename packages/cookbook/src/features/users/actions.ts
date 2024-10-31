@@ -3,6 +3,7 @@
 import {
   signInSchema,
   signUpSchema,
+  verifyEmailSchema,
   resetPasswordSchema,
   forgotPasswordSchema,
 } from '@cs/utils/zod';
@@ -59,6 +60,34 @@ export const signOut = withUser(async () => {
   }
   redirect(REDIRECTS.signIn);
 });
+
+export const resendVerificationEmail = withUser(async () => {
+  try {
+    await fetch.post('api/auth/verify-email');
+    return { success: 'Email bol úspešne odoslaný' };
+  } catch (err) {
+    if (err instanceof HTTPError) {
+      const { error } = await err.response.json<{ error: string }>();
+      return { error };
+    }
+  }
+});
+
+export const verifyEmail = withUser(
+  withI18nZod(verifyEmailSchema, async ({ code }) => {
+    try {
+      const response = await fetch.post(`api/auth/verify-email/${code}`);
+      setResponseCookies(response);
+      revalidateTag('user');
+    } catch (err) {
+      if (err instanceof HTTPError) {
+        const { error } = await err.response.json<{ error: string }>();
+        return { error };
+      }
+    }
+    redirect(REDIRECTS.home);
+  })
+);
 
 export const forgotPassword = withI18nZod(
   forgotPasswordSchema.omit({ redirectUrl: true }),
