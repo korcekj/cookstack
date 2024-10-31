@@ -17,7 +17,7 @@ const Page = async () => {
         <Image
           priority
           src='https://res.cloudinary.com/rest-image-cloud/image/upload/cookstack/auth.jpg'
-          alt='Prihlásenie'
+          alt='Zabudnuté heslo'
           width={1920}
           height={1080}
           className='h-full w-full dark:brightness-[0.5] dark:grayscale'
