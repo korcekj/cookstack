@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { cn } from '@cs/ui/utils';
+import { REDIRECTS } from '@/lib/constants';
 import { useI18nForm } from '@/hooks/use-i18n-form';
 import { resetPasswordSchema } from '@cs/utils/zod';
 import { resetPassword } from '@/features/users/actions';
@@ -84,7 +85,7 @@ export const ResetPassword: React.FC<Props> = ({ token, className }) => {
         </Form>
         <div className='mt-4 text-center text-sm'>
           Ešte nemáte účet?{' '}
-          <Link href='/sign-up' className='underline'>
+          <Link href={REDIRECTS.signUp} className='underline'>
             Registrácia
           </Link>
         </div>

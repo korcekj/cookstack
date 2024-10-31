@@ -10,6 +10,7 @@ import { env } from '@/env';
 import { redirect } from '@/i18n/routing';
 import { revalidateTag } from 'next/cache';
 import { formDataEntries } from '@cs/utils';
+import { REDIRECTS } from '@/lib/constants';
 import { fetch, HTTPError } from '@/utils/fetch';
 import { setResponseCookies } from '@/utils/cookies';
 import { withI18nZod, withUser } from '@/lib/middleware';
@@ -25,7 +26,7 @@ export const signIn = withI18nZod(signInSchema, async (data) => {
       return { error };
     }
   }
-  redirect('/');
+  redirect(REDIRECTS.home);
 });
 
 export const signUp = withI18nZod(signUpSchema, async (data, entries) => {
@@ -42,7 +43,7 @@ export const signUp = withI18nZod(signUpSchema, async (data, entries) => {
       return { fields: formDataEntries(entries), fieldErrors: error };
     }
   }
-  redirect('/');
+  redirect(REDIRECTS.verify);
 });
 
 export const signOut = withUser(async () => {
@@ -56,7 +57,7 @@ export const signOut = withUser(async () => {
       return { error };
     }
   }
-  redirect('/');
+  redirect(REDIRECTS.signIn);
 });
 
 export const forgotPassword = withI18nZod(
@@ -92,5 +93,5 @@ export const resetPassword = withI18nZod(resetPasswordSchema, async (data) => {
       return { error };
     }
   }
-  redirect('/');
+  redirect(REDIRECTS.home);
 });

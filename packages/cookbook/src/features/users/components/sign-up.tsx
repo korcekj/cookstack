@@ -3,6 +3,7 @@
 import React from 'react';
 import { env } from '@/env';
 import { cn } from '@cs/ui/utils';
+import { REDIRECTS } from '@/lib/constants';
 import { signUp } from '@/features/users/actions';
 import { useI18nForm } from '@/hooks/use-i18n-form';
 import { confirmPassword, signUpSchema } from '@cs/utils/zod';
@@ -141,7 +142,7 @@ export const SignUpForm: React.FC<Props> = ({ className }) => {
       </div>
       <div className='mt-4 text-center text-sm'>
         Už ste registrovaný?{' '}
-        <Link href='/sign-in' className='underline'>
+        <Link href={REDIRECTS.signIn} className='underline'>
           Prihlásenie
         </Link>
       </div>

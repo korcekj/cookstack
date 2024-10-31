@@ -3,6 +3,7 @@
 import React from 'react';
 import { env } from '@/env';
 import { cn } from '@cs/ui/utils';
+import { REDIRECTS } from '@/lib/constants';
 import { signInSchema } from '@cs/utils/zod';
 import { signIn } from '@/features/users/actions';
 import { useI18nForm } from '@/hooks/use-i18n-form';
@@ -67,7 +68,7 @@ export const SignInForm: React.FC<Props> = ({ className }) => {
                   <div className='flex items-center'>
                     <FormLabel>Heslo</FormLabel>
                     <Link
-                      href='/reset-password'
+                      href={REDIRECTS.resetPassword}
                       className='ml-auto text-sm underline'
                       tabIndex={-1}
                     >
@@ -94,7 +95,7 @@ export const SignInForm: React.FC<Props> = ({ className }) => {
       </div>
       <div className='mt-4 text-center text-sm'>
         Ešte nemáte účet?{' '}
-        <Link href='/sign-up' className='underline'>
+        <Link href={REDIRECTS.signUp} className='underline'>
           Registrácia
         </Link>
       </div>

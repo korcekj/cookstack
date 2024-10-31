@@ -9,6 +9,7 @@ import {
 } from '@cs/ui/components';
 import { Menu } from 'lucide-react';
 import { Link } from '@/i18n/routing';
+import { REDIRECTS } from '@/lib/constants';
 import { SignedIn } from '@/components/signed-in';
 import { SignedOut } from '@/components/signed-out';
 import { SignOut } from '@/features/users/components/sign-out';
@@ -91,7 +92,7 @@ export const Header: React.FC = () => {
         <ThemeSwitch></ThemeSwitch>
         <SignedOut>
           <Button asChild>
-            <Link href='/sign-in'>Prihlásiť</Link>
+            <Link href={REDIRECTS.signIn}>Prihlásiť</Link>
           </Button>
         </SignedOut>
         <SignedIn>

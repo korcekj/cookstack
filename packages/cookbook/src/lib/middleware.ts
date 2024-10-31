@@ -7,6 +7,7 @@ import type {
 import { get } from 'lodash';
 import { redirect } from '@/i18n/routing';
 import { formDataEntries } from '@cs/utils';
+import { REDIRECTS } from '@/lib/constants';
 import { getUser } from '@/features/users/api';
 import { z, makeZodI18nMap, parseError } from '@cs/utils/zod';
 
@@ -46,6 +47,6 @@ export const withUser = (action: ActionFunctionWithUser) => {
   ): Promise<ActionResponse<any>> => {
     const user = await getUser();
     if (user) return action(prevState, formData, user);
-    redirect('/sign-in');
+    redirect(REDIRECTS.signIn);
   };
 };
