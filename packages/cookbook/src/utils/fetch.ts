@@ -11,8 +11,6 @@ export const fetcher = ky.create({
   prefixUrl: env.NEXT_PUBLIC_SERVER_URL,
 });
 
-export const fetchCustom = (options: Options = {}) => fetcher.extend(options);
-
 export const fetch = fetcher.extend({
   hooks: {
     beforeRequest: [

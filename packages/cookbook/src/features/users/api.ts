@@ -1,7 +1,7 @@
 import { unstable_cache } from 'next/cache';
 import { getLocale } from 'next-intl/server';
 import { getAuthCookie } from '@/utils/cookies';
-import { fetch, fetchCustom, HTTPError } from '@/utils/fetch';
+import { fetch, fetcher, HTTPError } from '@/utils/fetch';
 
 export const getUser = async () => {
   try {
@@ -23,7 +23,7 @@ export const getUserCached = async () => {
   return unstable_cache(
     async () => {
       try {
-        return await fetchCustom({ headers })('api/user/profile').json();
+        return await fetcher.extend({ headers })('api/user/profile').json();
       } catch (err) {
         if (!(err instanceof HTTPError)) console.error(err);
         return null;
