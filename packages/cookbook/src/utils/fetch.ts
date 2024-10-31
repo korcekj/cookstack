@@ -9,6 +9,7 @@ export { HTTPError } from 'ky';
 
 export const fetcher = ky.create({
   prefixUrl: env.NEXT_PUBLIC_SERVER_URL,
+  credentials: 'include',
 });
 
 export const fetch = fetcher.extend({
