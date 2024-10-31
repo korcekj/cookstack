@@ -1,3 +1,5 @@
+export type { Options } from 'ky';
+
 import ky from 'ky';
 import { env } from '@/env';
 import { getLocale } from 'next-intl/server';
