@@ -6,7 +6,7 @@ import { getAuthCookie } from '@/utils/cookies';
 import { fetch, fetcher, HTTPError } from '@/utils/fetch';
 
 export const fetchUser = async (
-  options: Options & { cookie?: boolean } = {}
+  options: Options & { cookie?: boolean } = { cookie: true }
 ) => {
   try {
     let headers = options.headers;
