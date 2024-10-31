@@ -16,16 +16,17 @@ export const useI18nForm = <
   S extends z.ZodType<any, any>,
   T extends ActionResponse<S>
 >(
-  schema: S,
   action: (_: any, formData: FormData) => Promise<T>,
+  schema?: S,
   initialValues: Partial<z.infer<S>> = {}
 ): [UseFormReturn<z.infer<S>>, (payload: FormData) => void] => {
   // Enable i18n in zodResolver
   useI18nZod();
 
   const [state, formAction] = useFormState(action, null);
+  const resolver = schema ? zodResolver(schema) : undefined;
   const form = useForm<z.infer<S>>({
-    resolver: zodResolver(schema),
+    resolver,
     mode: 'onChange',
     defaultValues: {
       ...initialValues,

@@ -27,8 +27,8 @@ type Props = {
 export const ForgotPassword: React.FC<Props> = ({ className }) => {
   const [email, setEmail] = React.useState('');
   const [form, formAction] = useI18nForm(
-    forgotPasswordSchema.omit({ redirectUrl: true }),
     forgotPassword,
+    forgotPasswordSchema.omit({ redirectUrl: true }),
     {
       email: '',
     }

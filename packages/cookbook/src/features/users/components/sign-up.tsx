@@ -28,8 +28,8 @@ type Props = {
 
 export const SignUpForm: React.FC<Props> = ({ className }) => {
   const [form, formAction] = useI18nForm(
-    confirmPassword(signUpSchema),
     signUp,
+    confirmPassword(signUpSchema),
     {
       firstName: '',
       lastName: '',

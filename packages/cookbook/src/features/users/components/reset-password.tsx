@@ -26,7 +26,7 @@ type Props = {
 };
 
 export const ResetPassword: React.FC<Props> = ({ token, className }) => {
-  const [form, formAction] = useI18nForm(resetPasswordSchema, resetPassword, {
+  const [form, formAction] = useI18nForm(resetPassword, resetPasswordSchema, {
     token,
     password: '',
     passwordConfirm: '',

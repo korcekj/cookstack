@@ -27,7 +27,7 @@ type Props = {
 };
 
 export const SignInForm: React.FC<Props> = ({ className }) => {
-  const [form, formAction] = useI18nForm(signInSchema, signIn, {
+  const [form, formAction] = useI18nForm(signIn, signInSchema, {
     email: '',
     password: '',
   });
