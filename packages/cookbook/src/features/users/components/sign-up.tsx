@@ -3,9 +3,9 @@
 import React from 'react';
 import { env } from '@/env';
 import { cn } from '@cs/ui/utils';
-import { signUpSchema } from '@cs/utils/zod';
 import { signUp } from '@/features/users/actions';
 import { useI18nForm } from '@/hooks/use-i18n-form';
+import { confirmPassword, signUpSchema } from '@cs/utils/zod';
 
 import {
   Input,
@@ -26,13 +26,17 @@ type Props = {
 };
 
 export const SignUpForm: React.FC<Props> = ({ className }) => {
-  const [form, formAction] = useI18nForm(signUpSchema, signUp, {
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    passwordConfirm: '',
-  });
+  const [form, formAction] = useI18nForm(
+    confirmPassword(signUpSchema),
+    signUp,
+    {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      passwordConfirm: '',
+    }
+  );
 
   return (
     <div className={cn('space-y-6', className)}>
