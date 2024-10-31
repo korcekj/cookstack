@@ -61,7 +61,7 @@ export const generateEmailVerificationCode = async (
     .delete(emailVerificationCodes)
     .where(eq(emailVerificationCodes.userId, userId));
   const id = generateIdFromEntropySize(10);
-  const code = generateRandomString(8, alphabet('0-9'));
+  const code = generateRandomString(6, alphabet('0-9'));
   await db.insert(emailVerificationCodes).values({
     id,
     userId,

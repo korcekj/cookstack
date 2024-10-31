@@ -23,7 +23,7 @@ export const signUpSchema = z.object({
 });
 
 export const verifyEmailSchema = z.object({
-  code: z.string().regex(/^\d+$/).length(8),
+  code: z.string().regex(/^\d+$/).length(6),
 });
 
 export const forgotPasswordSchema = z.object({
