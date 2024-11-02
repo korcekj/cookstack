@@ -3,14 +3,14 @@ compatibility_date = "2023-12-01"
 compatibility_flags = [ "nodejs_compat_v2" ]
 
 [env.dev]
-vars = { ENV='dev', BASE_URL='http://localhost:8787', GOOGLE_REDIRECT_URL='http://localhost:8787/api/auth/sign-in/google/callback' }
+vars = { ENV='dev', BASE_URL='http://localhost:8787', COOKIE_NAME='auth_session', COOKIE_DOMAIN='localhost', GOOGLE_REDIRECT_URL='http://localhost:8787/api/auth/sign-in/google/callback' }
 d1_databases = [
   { binding="DB", database_name='cookstack', database_id='22ec2f35-8298-49db-b1d6-78947a921ed0' }
 ]
 
 [env.production]
 placement = { mode = 'smart' }
-vars = { ENV='production', BASE_URL='https://cookstack.korcek.com', GOOGLE_REDIRECT_URL='https://cookstack.korcek.com/api/auth/sign-in/google/callback' }
+vars = { ENV='production', BASE_URL='https://cookstack.korcek.com', COOKIE_NAME='auth_session', COOKIE_DOMAIN='.korcek.com', GOOGLE_REDIRECT_URL='https://cookstack.korcek.com/api/auth/sign-in/google/callback' }
 d1_databases = [
   { binding="DB", database_name='cookstack', database_id='22ec2f35-8298-49db-b1d6-78947a921ed0' }
 ]
