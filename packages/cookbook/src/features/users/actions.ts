@@ -19,7 +19,7 @@ import { withI18nZod, withUser } from '@/lib/middleware';
 export const signIn = withI18nZod(signInSchema, async (data) => {
   try {
     const response = await fetch.post('api/auth/sign-in', { json: data });
-    setResponseCookies(response);
+    setResponseCookies(response.headers);
     revalidateTag('user');
   } catch (err) {
     if (err instanceof HTTPError) {
@@ -33,7 +33,7 @@ export const signIn = withI18nZod(signInSchema, async (data) => {
 export const signUp = withI18nZod(signUpSchema, async (data, entries) => {
   try {
     const response = await fetch.post('api/auth/sign-up', { json: data });
-    setResponseCookies(response);
+    setResponseCookies(response.headers);
     revalidateTag('user');
   } catch (err) {
     if (err instanceof HTTPError) {
@@ -50,7 +50,7 @@ export const signUp = withI18nZod(signUpSchema, async (data, entries) => {
 export const signOut = withUser(async () => {
   try {
     const response = await fetch.post('api/auth/sign-out');
-    setResponseCookies(response);
+    setResponseCookies(response.headers);
     revalidateTag('user');
   } catch (err) {
     if (err instanceof HTTPError) {
@@ -77,7 +77,7 @@ export const verifyEmail = withUser(
   withI18nZod(verifyEmailSchema, async ({ code }) => {
     try {
       const response = await fetch.post(`api/auth/verify-email/${code}`);
-      setResponseCookies(response);
+      setResponseCookies(response.headers);
       revalidateTag('user');
     } catch (err) {
       if (err instanceof HTTPError) {
@@ -114,7 +114,7 @@ export const resetPassword = withI18nZod(resetPasswordSchema, async (data) => {
     const response = await fetch.post(`api/auth/reset-password/${token}`, {
       json: rest,
     });
-    setResponseCookies(response);
+    setResponseCookies(response.headers);
     revalidateTag('user');
   } catch (err) {
     if (err instanceof HTTPError) {

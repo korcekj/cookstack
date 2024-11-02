@@ -12,8 +12,8 @@ type CookieOptions = {
   sameSite?: 'strict' | 'lax' | 'none';
 };
 
-export const setResponseCookies = (response: Response) => {
-  const parsedCookies = parse(response.headers.get('set-cookie') ?? '');
+export const setResponseCookies = (headers: Headers) => {
+  const parsedCookies = parse(headers.get('set-cookie') ?? '');
   const nextCookies = cookies();
   parsedCookies.forEach(({ name, value, ...options }) => {
     nextCookies.set(name, value, options as CookieOptions);
