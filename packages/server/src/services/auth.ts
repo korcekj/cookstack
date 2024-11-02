@@ -2,8 +2,8 @@ import type { Context } from 'hono';
 import type { Env } from '../types';
 import type { User } from '../db/schema';
 
-import { omit } from 'lodash';
 import { Google } from 'arctic';
+import { omit } from '@cs/utils';
 import { eq } from 'drizzle-orm';
 import { sha256 } from '../utils';
 import { initializeDB } from '../db';
@@ -23,7 +23,7 @@ import {
 declare module 'lucia' {
   interface Register {
     Lucia: ReturnType<typeof initializeLucia>;
-    DatabaseUserAttributes: Omit<User, 'hashedPassword'>;
+    DatabaseUserAttributes: User;
   }
 }
 
@@ -34,7 +34,7 @@ export const initializeLucia = (c: Context<Env>) => {
     users
   );
   return new Lucia(adapter, {
-    getUserAttributes: (attributes) => omit(attributes, 'hashedPassword'),
+    getUserAttributes: (attributes) => omit(attributes, ['hashedPassword']),
     sessionExpiresIn: new TimeSpan(30, 'd'),
     sessionCookie: {
       attributes: {

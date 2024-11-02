@@ -1,7 +1,6 @@
 import type { ZodErrorMap, ZodError } from 'zod';
 
-import { set } from 'lodash';
-import { joinValues } from '../index';
+import { set, joinValues } from '../index';
 import { z, defaultErrorMap, ZodIssueCode, ZodParsedType } from 'zod';
 
 export * from './auth';

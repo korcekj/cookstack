@@ -6,7 +6,7 @@ import {
   defineI18nMiddleware,
   detectLocaleFromAcceptLanguageHeader,
 } from '@intlify/hono';
-import { get } from 'lodash';
+import { get } from '@cs/utils';
 import { every } from 'hono/combine';
 import { createMiddleware } from 'hono/factory';
 import { z, makeZodI18nMap } from '@cs/utils/zod';
@@ -34,7 +34,7 @@ export const i18n = every(
   }),
   createMiddleware<Env>(async (c, next) => {
     const t = useTranslation(c);
-    const { messages } = c.get('i18n');
+    const { messages }: { messages: Record<string, string> } = c.get('i18n');
 
     const te = (path: string) => {
       return Object.keys(messages).every((key) =>

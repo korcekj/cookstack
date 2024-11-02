@@ -4,7 +4,7 @@ import type {
   ActionFunctionWithUser,
 } from '@/types';
 
-import { get } from 'lodash';
+import { get } from '@cs/utils';
 import { redirect } from '@/i18n/routing';
 import { formDataEntries } from '@cs/utils';
 import { REDIRECTS } from '@/lib/constants';

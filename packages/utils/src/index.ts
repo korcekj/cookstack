@@ -1,5 +1,3 @@
-import { deburr, snakeCase } from 'lodash';
-
 export const isURL = (value: string) => {
   let url: URL;
 
@@ -36,15 +34,16 @@ export const parseOrigin = (origin: string) => {
   };
 };
 
-export const slugify = (value: string, separator = '-') => {
-  return deburr(value).toLowerCase().replace(/ +/g, separator);
+export const slugify = (value: string) => {
+  const normalized = value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return toCase(normalized, '-');
 };
 
 export const snakeCaseifyKeys = <T extends object>(obj: T) => {
   return Object.keys(obj).reduce(
     (reducer, acc) => ({
       ...reducer,
-      [snakeCase(acc)]: obj[acc as keyof T],
+      [toCase(acc, '_')]: obj[acc as keyof T],
     }),
     {} as T
   );
@@ -71,4 +70,57 @@ export const formDataEntries = <K extends string | number | symbol>(
     }),
     {} as Record<K, string>
   );
+};
+
+export const set = <T extends object>(object: T, path: string, value: any) => {
+  const pathArray = Array.isArray(path) ? path : path.match(/([^[.\]]+)/g);
+
+  pathArray?.reduce((acc, key, index) => {
+    if (index === pathArray.length - 1) {
+      acc[key] = value;
+    } else {
+      if (!acc[key]) {
+        acc[key] = isNaN(Number(pathArray[index + 1])) ? {} : [];
+      }
+    }
+    return acc[key];
+  }, object);
+
+  return object;
+};
+
+export const get = <T extends object, K extends keyof T>(
+  object: T,
+  path: K | K[]
+): T[K] | undefined => {
+  const pathArray = Array.isArray(path)
+    ? path
+    : String(path).match(/([^[.\]]+)/g);
+
+  return pathArray?.reduce((acc: any, key) => {
+    return acc && acc[key as keyof T] !== undefined
+      ? acc[key as keyof T]
+      : undefined;
+  }, object);
+};
+
+export const omit = <T extends object, K extends keyof T>(
+  object: T,
+  keys: K[]
+): Omit<T, K> => {
+  const result = { ...object };
+
+  keys.forEach((key) => {
+    delete result[key];
+  });
+
+  return result;
+};
+
+export const toCase = (value: string, separator = '-') => {
+  return value
+    .replace(/([a-z])([A-Z])/g, `$1${separator}$2`)
+    .replace(/\s+/g, separator)
+    .replace(/_+/g, separator)
+    .toLowerCase();
 };
