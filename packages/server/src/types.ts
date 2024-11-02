@@ -4,6 +4,8 @@ export type Bindings = {
   DB: D1Database;
   ENV: string;
   BASE_URL: string;
+  COOKIE_NAME: string;
+  COOKIE_DOMAIN: string;
   SALT: string;
   AUTH_AUTHOR_TOKEN: string;
   RESEND_API_KEY: string;

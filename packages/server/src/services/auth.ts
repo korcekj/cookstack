@@ -37,8 +37,11 @@ export const initializeLucia = (c: Context<Env>) => {
     getUserAttributes: (attributes) => omit(attributes, ['hashedPassword']),
     sessionExpiresIn: new TimeSpan(30, 'd'),
     sessionCookie: {
+      name: c.env.COOKIE_NAME,
       attributes: {
+        domain: c.env.COOKIE_DOMAIN,
         secure: c.env.ENV === 'production',
+        sameSite: c.env.ENV === 'production' ? 'none' : undefined,
       },
     },
   });
