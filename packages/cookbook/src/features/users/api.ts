@@ -14,7 +14,6 @@ export const fetchUser = async (
       const cookie = getAuthCookie();
       headers = { ...headers, Cookie: cookie };
     }
-    console.log('Fetching user', Date.now());
     return await fetcher('api/user/profile', {
       ...options,
       headers,
