@@ -32,6 +32,8 @@ export const SignInForm: React.FC<Props> = ({ className }) => {
     password: '',
   });
 
+  const redirectUrl = new URL('api/revalidate-user', env.NEXT_PUBLIC_BASE_URL);
+
   return (
     <div className={cn('space-y-6', className)}>
       <div className='grid gap-2 text-center'>
@@ -87,7 +89,7 @@ export const SignInForm: React.FC<Props> = ({ className }) => {
         </Form>
         <Button variant='outline' className='w-full' asChild>
           <Link
-            href={`${env.NEXT_PUBLIC_SERVER_URL}/api/auth/sign-in/google?redirectUrl=${env.NEXT_PUBLIC_BASE_URL}`}
+            href={`${env.NEXT_PUBLIC_SERVER_URL}/api/auth/sign-in/google?redirectUrl=${redirectUrl}`}
           >
             Prihlásenie s Google
           </Link>
