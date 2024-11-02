@@ -3,10 +3,10 @@ import type { Env } from '../types';
 import type { User } from '../db/schema';
 
 import { Google } from 'arctic';
-import { omit } from '@cs/utils';
 import { eq } from 'drizzle-orm';
 import { sha256 } from '../utils';
 import { initializeDB } from '../db';
+import { omit, parseUrl } from '@cs/utils';
 import { pbkdf2 as pbkdf2_, randomBytes } from 'crypto';
 import { Lucia, generateIdFromEntropySize } from 'lucia';
 import { generateRandomString, alphabet } from 'oslo/crypto';
@@ -28,6 +28,7 @@ declare module 'lucia' {
 }
 
 export const initializeLucia = (c: Context<Env>) => {
+  const { domain, tld } = parseUrl(c.req.url);
   const adapter = new DrizzleSQLiteAdapter(
     initializeDB(c.env.DB),
     sessions,
@@ -37,10 +38,9 @@ export const initializeLucia = (c: Context<Env>) => {
     getUserAttributes: (attributes) => omit(attributes, ['hashedPassword']),
     sessionExpiresIn: new TimeSpan(30, 'd'),
     sessionCookie: {
-      name: c.env.COOKIE_NAME,
       attributes: {
-        domain: c.env.COOKIE_DOMAIN,
         secure: c.env.ENV === 'production',
+        domain: `.${domain}${tld ? `.${tld}` : ''}`,
         sameSite: c.env.ENV === 'production' ? 'none' : undefined,
       },
     },

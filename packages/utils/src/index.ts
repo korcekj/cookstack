@@ -10,7 +10,9 @@ export const isURL = (value: string) => {
   return url.protocol === 'http:' || url.protocol === 'https:';
 };
 
-export const parseUrl = (url: string | URL) => {
+export const parseUrl = (
+  url: string | URL
+): Partial<{ protocol: string; domain: string; tld: string | null }> => {
   try {
     const { hostname, protocol } = new URL(url);
     const parts = hostname.split('.');
@@ -30,7 +32,7 @@ export const parseUrl = (url: string | URL) => {
       tld,
     };
   } catch (err) {
-    return null;
+    return {};
   }
 };
 
