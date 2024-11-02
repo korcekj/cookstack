@@ -2,10 +2,7 @@
   "name": "@cs/utils",
   "version": "0.0.0",
   "dependencies": {
-    "lodash": "^4.17.21",
     "zod": "^3.23.8"
   },
-  "devDependencies": {
-    "@types/lodash": "^4.17.5"
-  }
+  "devDependencies": {}
 }
