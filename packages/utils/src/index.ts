@@ -10,16 +10,28 @@ export const isURL = (value: string) => {
   return url.protocol === 'http:' || url.protocol === 'https:';
 };
 
-export const parseOrigin = (origin: string) => {
-  const matches = [...origin.matchAll(/(.*):\/\/(.*)\.(.*)/g)];
-  const protocol = matches.at(0)?.at(1);
-  const domains = matches.at(0)?.at(2)?.split('.') ?? [];
-  const topLevelDomain = matches.at(0)?.at(3);
-  return {
-    protocol,
-    domains,
-    topLevelDomain,
-  };
+export const parseUrl = (url: string | URL) => {
+  try {
+    const { hostname, protocol } = new URL(url);
+    const parts = hostname.split('.');
+    if (parts.length === 1) {
+      return {
+        protocol,
+        domain: hostname,
+        tld: null,
+      };
+    }
+
+    const tld = parts.pop();
+    const domain = parts.pop();
+    return {
+      protocol,
+      domain,
+      tld,
+    };
+  } catch (err) {
+    return null;
+  }
 };
 
 export const slugify = (value: string) => {
