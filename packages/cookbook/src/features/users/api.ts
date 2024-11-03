@@ -9,6 +9,7 @@ export const fetchUser = async (
   options: Options & { cookie?: boolean } = { cookie: true }
 ) => {
   try {
+    console.log('Fetching user');
     let headers = options.headers;
     if (options.cookie) {
       const cookie = getAuthCookie();
@@ -36,17 +37,20 @@ export const getUser = async () => {
 export const getUserCached = async () => {
   const cookie = getAuthCookie();
   const locale = await getLocale();
-  const headers = {
-    Cookie: cookie,
-    'Accept-Language': locale,
-  };
 
   return unstable_cache(
-    () => fetchUser({ headers, cookie: false }),
+    (locale: string, cookie?: string) =>
+      fetchUser({
+        headers: {
+          Cookie: cookie,
+          'Accept-Language': locale,
+        },
+        cookie: false,
+      }),
     ['user', locale],
     {
       tags: ['user'],
       revalidate: 3600,
     }
-  )();
+  )(locale, cookie);
 };
