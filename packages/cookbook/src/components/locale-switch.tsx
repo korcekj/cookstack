@@ -20,7 +20,7 @@ export const LocaleSwitch: React.FC = () => {
   const t = useTranslations('LocaleSwitch');
   const pathname = usePathname();
   const currentLocale = useLocale();
-  const query = useSearchParams().toString();
+  const search = useSearchParams().toString();
 
   return (
     <DropdownMenu>
@@ -36,7 +36,7 @@ export const LocaleSwitch: React.FC = () => {
             key={locale}
             disabled={locale === currentLocale}
           >
-            <Link href={{ pathname, query }} locale={locale}>
+            <Link href={{ pathname, search }} locale={locale}>
               {t('locale', { locale })}
             </Link>
           </DropdownMenuItem>
