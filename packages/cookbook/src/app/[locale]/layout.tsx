@@ -4,6 +4,8 @@ import '@cs/ui/globals.css';
 
 import React from 'react';
 import { Rubik } from 'next/font/google';
+import { routing } from '@/i18n/routing';
+import { notFound } from 'next/navigation';
 import { getMessages } from 'next-intl/server';
 
 import Providers from '@/app/providers';
@@ -24,6 +26,10 @@ type Props = React.PropsWithChildren & {
 };
 
 const Layout = async ({ children, params: { locale } }: Props) => {
+  if (!routing.locales.includes(locale)) {
+    notFound();
+  }
+
   const messages = await getMessages();
 
   return (

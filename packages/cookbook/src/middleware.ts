@@ -1,21 +1,12 @@
 import type { NextRequest } from 'next/server';
 
-import {
-  LOCALES,
-  REDIRECTS,
-  PRIVATE_ROUTES,
-  LOCALE_PREFIX,
-  DEFAULT_LOCALE,
-} from '@/lib/constants';
+import { routing } from '@/i18n/routing';
 import { NextResponse } from 'next/server';
 import { fetchUser } from '@/features/users/api';
 import createMiddleware from 'next-intl/middleware';
+import { LOCALES, REDIRECTS, PRIVATE_ROUTES } from '@/lib/constants';
 
-const handleI18nRouting = createMiddleware({
-  locales: LOCALES,
-  localePrefix: LOCALE_PREFIX,
-  defaultLocale: DEFAULT_LOCALE,
-});
+const handleI18nRouting = createMiddleware(routing);
 
 const middleware = async (request: NextRequest) => {
   const { pathname } = request.nextUrl;
