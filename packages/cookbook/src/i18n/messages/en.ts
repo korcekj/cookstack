@@ -1,8 +1,10 @@
 import en from '@cs/utils/zod/locales/en';
 
-export default {
+const messages = {
   ...en,
-  Index: {
-    title: 'Hello world!',
+  LocaleSwitch: {
+    locale: '{locale, select, sk {Slovak} en {English} other {Unknown}}',
   },
 };
+
+export default messages;

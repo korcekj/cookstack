@@ -1,8 +1,10 @@
 import sk from '@cs/utils/zod/locales/sk';
 
-export default {
+const messages = {
   ...sk,
-  Index: {
-    title: 'Ahoj svet!',
+  LocaleSwitch: {
+    locale: '{locale, select, sk {Slovensky} en {Anglicky} other {Neznámy}}',
   },
 };
+
+export default messages;

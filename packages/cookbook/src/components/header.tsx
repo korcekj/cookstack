@@ -12,6 +12,7 @@ import { Link } from '@/i18n/routing';
 import { REDIRECTS } from '@/lib/constants';
 import { SignedIn } from '@/components/signed-in';
 import { SignedOut } from '@/components/signed-out';
+import { LocaleSwitch } from '@/components/locale-switch';
 import { SignOut } from '@/features/users/components/sign-out';
 
 export const Header: React.FC = () => {
@@ -89,6 +90,7 @@ export const Header: React.FC = () => {
               <DropdownMenuItem>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu> */}
+        <LocaleSwitch></LocaleSwitch>
         <ThemeSwitch></ThemeSwitch>
         <SignedOut>
           <Button asChild>
