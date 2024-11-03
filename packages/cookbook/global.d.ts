@@ -1,4 +1,4 @@
-import sk from './src/lib/messages/sk.ts';
+import sk from './src/i18n/messages/sk.ts';
 
 type Messages = typeof sk;
 
