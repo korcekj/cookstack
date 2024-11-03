@@ -12,11 +12,13 @@ import { redirect } from '@/i18n/routing';
 import { revalidateTag } from 'next/cache';
 import { formDataEntries } from '@cs/utils';
 import { REDIRECTS } from '@/lib/constants';
+import { getLocale } from 'next-intl/server';
 import { fetch, HTTPError } from '@/utils/fetch';
 import { setResponseCookies } from '@/utils/cookies';
 import { withI18nZod, withUser } from '@/lib/middleware';
 
 export const signIn = withI18nZod(signInSchema, async (data) => {
+  const locale = await getLocale();
   try {
     const response = await fetch.post('api/auth/sign-in', { json: data });
     setResponseCookies(response.headers);
@@ -27,10 +29,11 @@ export const signIn = withI18nZod(signInSchema, async (data) => {
       return { error };
     }
   }
-  redirect(REDIRECTS.home);
+  redirect({ href: REDIRECTS.home, locale });
 });
 
 export const signUp = withI18nZod(signUpSchema, async (data, entries) => {
+  const locale = await getLocale();
   try {
     const response = await fetch.post('api/auth/sign-up', { json: data });
     setResponseCookies(response.headers);
@@ -44,10 +47,11 @@ export const signUp = withI18nZod(signUpSchema, async (data, entries) => {
       return { fields: formDataEntries(entries), fieldErrors: error };
     }
   }
-  redirect(REDIRECTS.verify);
+  redirect({ href: REDIRECTS.verify, locale });
 });
 
 export const signOut = withUser(async () => {
+  const locale = await getLocale();
   try {
     const response = await fetch.post('api/auth/sign-out');
     setResponseCookies(response.headers);
@@ -58,7 +62,7 @@ export const signOut = withUser(async () => {
       return { error };
     }
   }
-  redirect(REDIRECTS.signIn);
+  redirect({ href: REDIRECTS.signIn, locale });
 });
 
 export const resendVerificationEmail = withUser(async () => {
@@ -75,6 +79,7 @@ export const resendVerificationEmail = withUser(async () => {
 
 export const verifyEmail = withUser(
   withI18nZod(verifyEmailSchema, async ({ code }) => {
+    const locale = await getLocale();
     try {
       const response = await fetch.post(`api/auth/verify-email/${code}`);
       setResponseCookies(response.headers);
@@ -85,7 +90,7 @@ export const verifyEmail = withUser(
         return { error };
       }
     }
-    redirect(REDIRECTS.home);
+    redirect({ href: REDIRECTS.home, locale });
   })
 );
 
@@ -109,6 +114,7 @@ export const forgotPassword = withI18nZod(
 );
 
 export const resetPassword = withI18nZod(resetPasswordSchema, async (data) => {
+  const locale = await getLocale();
   try {
     const { token, ...rest } = data;
     const response = await fetch.post(`api/auth/reset-password/${token}`, {
@@ -122,5 +128,5 @@ export const resetPassword = withI18nZod(resetPasswordSchema, async (data) => {
       return { error };
     }
   }
-  redirect(REDIRECTS.home);
+  redirect({ href: REDIRECTS.home, locale });
 });

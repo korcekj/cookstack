@@ -11,7 +11,7 @@ import { REDIRECTS } from '@/lib/constants';
 import { getUser } from '@/features/users/api';
 import { z, makeZodI18nMap, parseError } from '@cs/utils/zod';
 
-import { getTranslations, getMessages } from 'next-intl/server';
+import { getTranslations, getMessages, getLocale } from 'next-intl/server';
 
 export const withI18nZod = <
   S extends z.ZodType<any, any>,
@@ -46,7 +46,8 @@ export const withUser = (action: ActionFunctionWithUser) => {
     formData: FormData
   ): Promise<ActionResponse<any>> => {
     const user = await getUser();
+    const locale = await getLocale();
     if (user) return action(prevState, formData, user);
-    redirect(REDIRECTS.signIn);
+    redirect({ href: REDIRECTS.signIn, locale });
   };
 };
