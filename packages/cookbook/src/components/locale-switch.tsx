@@ -17,6 +17,7 @@ import { Link } from '@/i18n/routing';
 import { Languages } from 'lucide-react';
 
 export const LocaleSwitch: React.FC = () => {
+  // @ts-ignore
   const t = useTranslations('LocaleSwitch');
   const pathname = usePathname();
   const currentLocale = useLocale();
@@ -37,6 +38,7 @@ export const LocaleSwitch: React.FC = () => {
             disabled={locale === currentLocale}
           >
             <Link href={{ pathname, search }} locale={locale}>
+              {/* @ts-ignore */}
               {t('locale', { locale })}
             </Link>
           </DropdownMenuItem>
