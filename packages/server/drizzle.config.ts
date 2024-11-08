@@ -3,7 +3,7 @@ import { defineConfig } from 'drizzle-kit';
 
 export default process.env.DB_URL
   ? defineConfig({
-      schema: './src/db/schema.ts',
+      schema: './src/services/db/schema.ts',
       out: './drizzle',
       dialect: 'sqlite',
       dbCredentials: {
@@ -11,7 +11,7 @@ export default process.env.DB_URL
       },
     })
   : defineConfig({
-      schema: './src/db/schema.ts',
+      schema: './src/services/db/schema.ts',
       dialect: 'sqlite',
       driver: 'd1-http',
       dbCredentials: {

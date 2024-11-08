@@ -9,8 +9,8 @@ import type {
 import type { Env } from '../types';
 import type { ValidationTargets } from 'hono';
 
-import { initializeDB } from '../db';
 import { parseError } from '@cs/utils/zod';
+import { initializeDB } from '../services/db';
 import { useTranslation } from '@intlify/hono';
 import { createMiddleware } from 'hono/factory';
 import { zValidator } from '@hono/zod-validator';

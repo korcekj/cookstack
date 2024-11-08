@@ -1,24 +1,23 @@
 import type { Context } from 'hono';
 import type { Env } from '../types';
-import type { User } from '../db/schema';
-
-import { Google } from 'arctic';
-import { eq } from 'drizzle-orm';
-import { sha256 } from '../utils';
-import { initializeDB } from '../db';
-import { omit, parseUrl } from '@cs/utils';
-import { pbkdf2 as pbkdf2_, randomBytes } from 'crypto';
-import { Lucia, generateIdFromEntropySize } from 'lucia';
-import { generateRandomString, alphabet } from 'oslo/crypto';
-import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
-import { TimeSpan, createDate, isWithinExpirationDate } from 'oslo';
+import type { User } from '../services/db/schema';
 
 import {
   users,
   sessions,
   emailVerificationCodes,
   passwordResetTokens,
-} from '../db/schema';
+} from '../services/db/schema';
+import { Google } from 'arctic';
+import { eq } from 'drizzle-orm';
+import { sha256 } from '../utils';
+import { omit, parseUrl } from '@cs/utils';
+import { initializeDB } from '../services/db';
+import { pbkdf2 as pbkdf2_, randomBytes } from 'crypto';
+import { Lucia, generateIdFromEntropySize } from 'lucia';
+import { generateRandomString, alphabet } from 'oslo/crypto';
+import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
+import { TimeSpan, createDate, isWithinExpirationDate } from 'oslo';
 
 declare module 'lucia' {
   interface Register {

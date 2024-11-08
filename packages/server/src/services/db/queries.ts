@@ -13,7 +13,7 @@ import type {
   CategoriesOrderByColumns,
 } from '@cs/utils/zod';
 import type { Context } from 'hono';
-import type { Env } from '../types';
+import type { Env } from '../../types';
 
 import {
   recipesTranslations,
@@ -29,7 +29,7 @@ import {
 } from './schema';
 import { initializeDB } from '.';
 import { sql, count, eq, and, asc } from 'drizzle-orm';
-import { getLocale, getOrderByClauses } from '../utils';
+import { getLocale, getOrderByClauses } from '../../utils';
 
 export const useCategories = async (
   c: Context<Env>,

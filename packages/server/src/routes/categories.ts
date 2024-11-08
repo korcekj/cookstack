@@ -1,10 +1,6 @@
 import type { Env } from '../types';
 
 import {
-  categories as categoriesTable,
-  categoriesTranslations,
-} from '../db/schema';
-import {
   getRecipesSchema,
   getCategorySchema,
   getCategoriesSchema,
@@ -12,15 +8,19 @@ import {
   updateCategorySchema,
 } from '@cs/utils/zod';
 import { Hono } from 'hono';
+import {
+  categories as categoriesTable,
+  categoriesTranslations,
+} from '../services/db/schema';
 import { eq } from 'drizzle-orm';
 import { slugify } from '@cs/utils';
-import { initializeDB } from '../db';
+import { initializeDB } from '../services/db';
 import { useTranslation } from '@intlify/hono';
 import { generateIdFromEntropySize } from 'lucia';
 import { getConflictUpdateSetter } from '../utils';
 import { verifyAuthor } from '../middlewares/auth';
 import { rateLimit } from '../middlewares/rate-limit';
-import { useCategories, useRecipes } from '../db/queries';
+import { useCategories, useRecipes } from '../services/db/queries';
 import { validator, validateCategory } from '../middlewares/validation';
 
 const categories = new Hono<Env>();

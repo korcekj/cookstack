@@ -1,10 +1,6 @@
 import type { Env } from '../types';
 
 import {
-  instructionsTranslations,
-  instructions as instructionsTable,
-} from '../db/schema';
-import {
   getSectionSchema,
   getInstructionSchema,
   createInstructionSchema,
@@ -12,17 +8,21 @@ import {
 } from '@cs/utils/zod';
 import { Hono } from 'hono';
 import {
+  instructionsTranslations,
+  instructions as instructionsTable,
+} from '../services/db/schema';
+import {
   validator,
   validateSection,
   validateInstruction,
 } from '../middlewares/validation';
-import { initializeDB } from '../db';
+import { eq, inArray } from 'drizzle-orm';
+import { initializeDB } from '../services/db';
 import { useTranslation } from '@intlify/hono';
-import { useInstructions } from '../db/queries';
-import { eq, count, inArray } from 'drizzle-orm';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { rateLimit } from '../middlewares/rate-limit';
+import { useInstructions } from '../services/db/queries';
 
 const instructions = new Hono<Env>();
 

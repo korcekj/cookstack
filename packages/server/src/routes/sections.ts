@@ -8,18 +8,21 @@ import {
 } from '@cs/utils/zod';
 import { Hono } from 'hono';
 import {
+  sectionsTranslations,
+  sections as sectionsTable,
+} from '../services/db/schema';
+import {
   validator,
   validateRecipe,
   validateSection,
 } from '../middlewares/validation';
-import { initializeDB } from '../db';
-import { useSections } from '../db/queries';
+import { eq, inArray } from 'drizzle-orm';
+import { initializeDB } from '../services/db';
 import { useTranslation } from '@intlify/hono';
-import { eq, count, inArray } from 'drizzle-orm';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
+import { useSections } from '../services/db/queries';
 import { rateLimit } from '../middlewares/rate-limit';
-import { sectionsTranslations, sections as sectionsTable } from '../db/schema';
 
 import ingredients from './ingredients';
 import instructions from './instructions';

@@ -1,10 +1,6 @@
 import type { Env } from '../types';
 
 import {
-  ingredientsTranslations,
-  ingredients as ingredientsTable,
-} from '../db/schema';
-import {
   getSectionSchema,
   getIngredientSchema,
   createIngredientSchema,
@@ -12,17 +8,21 @@ import {
 } from '@cs/utils/zod';
 import { Hono } from 'hono';
 import {
+  ingredientsTranslations,
+  ingredients as ingredientsTable,
+} from '../services/db/schema';
+import {
   validator,
   validateSection,
   validateIngredient,
 } from '../middlewares/validation';
-import { initializeDB } from '../db';
-import { useIngredients } from '../db/queries';
+import { eq, inArray } from 'drizzle-orm';
+import { initializeDB } from '../services/db';
 import { useTranslation } from '@intlify/hono';
-import { eq, count, inArray } from 'drizzle-orm';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { rateLimit } from '../middlewares/rate-limit';
+import { useIngredients } from '../services/db/queries';
 
 const ingredients = new Hono<Env>();
 

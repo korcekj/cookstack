@@ -1,6 +1,5 @@
 import type { Env } from '../types';
 
-import { recipesTranslations, recipes as recipesTable } from '../db/schema';
 import {
   getRecipeSchema,
   getRecipesSchema,
@@ -9,14 +8,18 @@ import {
   updateRecipeImageSchema,
 } from '@cs/utils/zod';
 import { Hono } from 'hono';
+import {
+  recipesTranslations,
+  recipes as recipesTable,
+} from '../services/db/schema';
 import { eq } from 'drizzle-orm';
 import { slugify } from '@cs/utils';
-import { initializeDB } from '../db';
-import { useRecipes } from '../db/queries';
+import { initializeDB } from '../services/db';
 import { useTranslation } from '@intlify/hono';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { getConflictUpdateSetter } from '../utils';
+import { useRecipes } from '../services/db/queries';
 import { rateLimit } from '../middlewares/rate-limit';
 import { initializeCloudinary } from '../services/image';
 import { validator, validateRecipe } from '../middlewares/validation';

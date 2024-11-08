@@ -2,9 +2,9 @@ import type { Env } from '../types';
 
 import { Hono } from 'hono';
 import { eq } from 'drizzle-orm';
-import { users } from '../db/schema';
-import { initializeDB } from '../db';
 import { setCookie } from 'hono/cookie';
+import { initializeDB } from '../services/db';
+import { users } from '../services/db/schema';
 import { initializeLucia } from '../services/auth';
 import { rateLimit } from '../middlewares/rate-limit';
 import { verifyAuth, makeAuthor } from '../middlewares/auth';

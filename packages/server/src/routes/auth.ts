@@ -24,12 +24,17 @@ import {
   verificationCodeTemplate,
 } from '../services/email';
 import { Hono } from 'hono';
+import {
+  users,
+  oauthAccounts,
+  passwordResetTokens,
+} from '../services/db/schema';
 import { eq } from 'drizzle-orm';
 import { isURL } from '@cs/utils';
 import { sha256 } from '../utils';
 import { Provider } from '../types';
-import { initializeDB } from '../db';
 import { OAuth2RequestError } from 'arctic';
+import { initializeDB } from '../services/db';
 import { isWithinExpirationDate } from 'oslo';
 import { useTranslation } from '@intlify/hono';
 import { verifyAuth } from '../middlewares/auth';
@@ -39,7 +44,6 @@ import { validator } from '../middlewares/validation';
 import { rateLimit } from '../middlewares/rate-limit';
 import { initializeCloudinary } from '../services/image';
 import { generateState, generateCodeVerifier } from 'arctic';
-import { users, oauthAccounts, passwordResetTokens } from '../db/schema';
 
 const auth = new Hono<Env>();
 const signIn = new Hono<Env>();
