@@ -33,8 +33,8 @@ export const config = {
   // https://next-intl-docs.vercel.app/docs/routing/middleware#matcher-no-prefix
   matcher: [
     // Match all pathnames except for
-    // - … if they start with `/_next`
+    // - … if they start with `/_next` or `/_vercel`
     // - … the ones containing a dot (e.g. `favicon.ico`)
-    '/((?!_next|.*\\..*).*)',
+    '/((?!_next|_vercel|.*\\..*).*)',
   ],
 };
