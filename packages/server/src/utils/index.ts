@@ -18,16 +18,6 @@ export const sha256 = (value: string | Uint8Array) => {
   return createHash('sha256').update(value).digest('hex');
 };
 
-export const combineEntries = <T extends [string, unknown][]>(
-  entries: T,
-  coupler: string = '=',
-  delimiter: string = ','
-) => {
-  return entries
-    .map(([key, value]) => `${key}${coupler}${value}`)
-    .join(delimiter);
-};
-
 export const getOrderByClauses = <T extends string>(
   orderBy: string | undefined,
   getter: (v: T) => SQLiteColumn | SQL

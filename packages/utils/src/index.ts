@@ -62,6 +62,16 @@ export const objectEntries = <T extends object>(
   return Object.entries(obj) as [keyof T, T[keyof T]][];
 };
 
+export const combineEntries = <T extends [string, unknown][]>(
+  entries: T,
+  coupler: string = '=',
+  delimiter: string = ','
+) => {
+  return entries
+    .map(([key, value]) => `${key}${coupler}${value}`)
+    .join(delimiter);
+};
+
 export const formDataEntries = <K extends string | number | symbol>(
   obj: Record<string, FormDataEntryValue>
 ) => {
