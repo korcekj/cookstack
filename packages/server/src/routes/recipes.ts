@@ -18,10 +18,10 @@ import { initializeDB } from '../services/db';
 import { useTranslation } from '@intlify/hono';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
-import { getConflictUpdateSetter } from '../utils';
 import { useRecipes } from '../services/db/queries';
 import { rateLimit } from '../middlewares/rate-limit';
 import { initializeCloudinary } from '../services/image';
+import { getConflictUpdateSetter } from '../services/db/helpers';
 import { validator, validateRecipe } from '../middlewares/validation';
 
 import sections from './sections';

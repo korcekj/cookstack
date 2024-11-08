@@ -17,9 +17,9 @@ import { slugify } from '@cs/utils';
 import { initializeDB } from '../services/db';
 import { useTranslation } from '@intlify/hono';
 import { generateIdFromEntropySize } from 'lucia';
-import { getConflictUpdateSetter } from '../utils';
 import { verifyAuthor } from '../middlewares/auth';
 import { rateLimit } from '../middlewares/rate-limit';
+import { getConflictUpdateSetter } from '../services/db/helpers';
 import { useCategories, useRecipes } from '../services/db/queries';
 import { validator, validateCategory } from '../middlewares/validation';
 
