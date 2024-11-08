@@ -10,7 +10,7 @@ import { get } from '@cs/utils';
 import { every } from 'hono/combine';
 import { createMiddleware } from 'hono/factory';
 import { z, makeZodI18nMap } from '@cs/utils/zod';
-import { DEFAULT_LOCALE, LOCALES } from '../utils/constants';
+import { DEFAULT_LOCALE, LOCALES } from '../constants';
 
 import en from '../locales/en';
 import sk from '../locales/sk';
