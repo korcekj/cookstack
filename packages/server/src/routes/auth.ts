@@ -18,11 +18,6 @@ import {
   verifyEmailVerificationCode,
   generateEmailVerificationCode,
 } from '../services/auth';
-import {
-  sendEmail,
-  resetPasswordTemplate,
-  verificationCodeTemplate,
-} from '../services/email';
 import { Hono } from 'hono';
 import {
   users,
@@ -40,6 +35,7 @@ import { useTranslation } from '@intlify/hono';
 import { verifyAuth } from '../middlewares/auth';
 import { generateIdFromEntropySize } from 'lucia';
 import { setCookie, getCookie } from 'hono/cookie';
+import { initializeResend } from '../services/email';
 import { validator } from '../middlewares/validation';
 import { rateLimit } from '../middlewares/rate-limit';
 import { initializeCloudinary } from '../services/image';
@@ -237,10 +233,12 @@ signUp.post(
       userId,
       email,
     });
-    await sendEmail(c, {
+
+    const resend = initializeResend(c);
+    await resend.send({
       to: email,
       subject: t('emails.verificationCode.subject'),
-      html: verificationCodeTemplate(c, { code }),
+      html: resend.templates.verificationCode({ code }),
     });
 
     const lucia = initializeLucia(c);
@@ -286,10 +284,12 @@ verifyEmail.post('/', async (c) => {
   }
 
   const code = await generateEmailVerificationCode(c.env.DB, { userId, email });
-  await sendEmail(c, {
+
+  const resend = initializeResend(c);
+  await resend.send({
     to: email,
     subject: t('emails.verificationCode.subject'),
-    html: verificationCodeTemplate(c, { code }),
+    html: resend.templates.verificationCode({ code }),
   });
 
   return c.body(null, 204);
@@ -351,10 +351,11 @@ resetPassword.post(
       link = `${redirectUrl.replace(/\/+$/g, '')}/${token}`;
     }
 
-    await sendEmail(c, {
+    const resend = initializeResend(c);
+    await resend.send({
       to: email,
       subject: t('emails.resetPassword.subject'),
-      html: resetPasswordTemplate(c, { link }),
+      html: resend.templates.resetPassword({ link }),
     });
 
     return c.body(null, 204);

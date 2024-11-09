@@ -39,13 +39,17 @@ export enum Provider {
   Google = 'Google',
 }
 
-export type Email = {
+export type ResendEmail = {
   to: string | string[];
   subject: string;
   html: string;
   cc?: string | string[];
   bcc?: string | string[];
   headers?: Record<string, string>;
+};
+
+export type ResendConfig = {
+  apiKey: string;
 };
 
 export type CloudinaryConfig = {
