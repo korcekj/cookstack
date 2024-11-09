@@ -2,7 +2,7 @@ import type { User, Session } from 'lucia';
 
 export type Bindings = {
   DB: D1Database;
-  ENV: string;
+  ENV: 'dev' | 'production';
   BASE_URL: string;
   SALT: string;
   AUTH_AUTHOR_TOKEN: string;
@@ -38,6 +38,18 @@ export type GoogleUser = {
 export enum Provider {
   Google = 'Google',
 }
+
+export type AuthConfig = {
+  bindings: Pick<
+    Bindings,
+    | 'DB'
+    | 'ENV'
+    | 'GOOGLE_REDIRECT_URL'
+    | 'GOOGLE_CLIENT_ID'
+    | 'GOOGLE_CLIENT_SECRET'
+  >;
+  url: string;
+};
 
 export type ResendEmail = {
   to: string | string[];

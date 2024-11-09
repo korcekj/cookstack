@@ -10,14 +10,6 @@ import {
   resetPasswordSchema,
   signInGoogleCallbackSchema,
 } from '@cs/utils/zod';
-import {
-  pbkdf2,
-  initializeLucia,
-  initializeGoogle,
-  generatePasswordResetToken,
-  verifyEmailVerificationCode,
-  generateEmailVerificationCode,
-} from '../services/auth';
 import { Hono } from 'hono';
 import {
   users,
@@ -34,6 +26,7 @@ import { isWithinExpirationDate } from 'oslo';
 import { useTranslation } from '@intlify/hono';
 import { verifyAuth } from '../middlewares/auth';
 import { generateIdFromEntropySize } from 'lucia';
+import { initializeAuth } from '../services/auth';
 import { setCookie, getCookie } from 'hono/cookie';
 import { initializeResend } from '../services/email';
 import { validator } from '../middlewares/validation';
@@ -52,7 +45,9 @@ signIn.get('/google', validator('query', signInGoogleSchema), async (c) => {
   const { redirectUrl } = c.req.valid('query');
   const state = redirectUrl ?? generateState();
   const code = generateCodeVerifier();
-  const url = await initializeGoogle(c).createAuthorizationURL(state, code, {
+
+  const { google } = initializeAuth(c);
+  const url = await google.createAuthorizationURL(state, code, {
     scopes: ['openid', 'profile', 'email'],
   });
 
@@ -91,10 +86,8 @@ signIn.get(
     }
 
     try {
-      const tokens = await initializeGoogle(c).validateAuthorizationCode(
-        code,
-        cookieCode
-      );
+      const { lucia, google } = initializeAuth(c);
+      const tokens = await google.validateAuthorizationCode(code, cookieCode);
 
       const response = await fetch(
         'https://openidconnect.googleapis.com/v1/userinfo',
@@ -156,7 +149,6 @@ signIn.get(
           .onConflictDoNothing();
       }
 
-      const lucia = initializeLucia(c);
       const session = await lucia.createSession(userId, {});
       const cookie = lucia.createSessionCookie(session.id);
 
@@ -177,6 +169,7 @@ signIn.post('/', rateLimit, validator('json', signInSchema), async (c) => {
   const t = useTranslation(c);
   const { email, password } = c.req.valid('json');
 
+  const auth = initializeAuth(c);
   const db = initializeDB(c.env.DB);
   const user = await db.query.users.findFirst({
     where: (table, { eq }) => eq(table.email, email),
@@ -186,18 +179,17 @@ signIn.post('/', rateLimit, validator('json', signInSchema), async (c) => {
     return c.json({ error: t('auth.invalidEmailPassword') }, 400);
   }
 
-  const isValid = await pbkdf2.verify(user.hashedPassword, password);
+  const isValid = await auth.verifyPassword(user.hashedPassword, password);
   if (!isValid) {
     return c.json({ error: t('auth.invalidEmailPassword') }, 400);
   }
 
-  const lucia = initializeLucia(c);
-  const session = await lucia.createSession(user.id, {});
-  const cookie = lucia.createSessionCookie(session.id);
+  const session = await auth.lucia.createSession(user.id, {});
+  const cookie = auth.lucia.createSessionCookie(session.id);
 
   setCookie(c, cookie.name, cookie.value, cookie.attributes);
 
-  const { user: luciaUser } = await lucia.validateSession(session.id);
+  const { user: luciaUser } = await auth.lucia.validateSession(session.id);
   return c.json({ user: luciaUser });
 });
 
@@ -209,6 +201,7 @@ signUp.post(
     const t = useTranslation(c);
     const { firstName, lastName, email, password } = c.req.valid('json');
 
+    const auth = initializeAuth(c);
     const db = initializeDB(c.env.DB);
     const exists = await db.query.users.findFirst({
       where: (table, { eq }) => eq(table.email, email),
@@ -217,7 +210,7 @@ signUp.post(
 
     if (exists) return c.json({ error: { email: t('auth.existsEmail') } }, 400);
 
-    const hashedPassword = await pbkdf2.hash(password);
+    const hashedPassword = await auth.hashPassword(password);
     const [{ id: userId }] = await db
       .insert(users)
       .values({
@@ -229,7 +222,7 @@ signUp.post(
       })
       .returning({ id: users.id });
 
-    const code = await generateEmailVerificationCode(c.env.DB, {
+    const code = await auth.verificationCode({
       userId,
       email,
     });
@@ -241,13 +234,12 @@ signUp.post(
       html: resend.templates.verificationCode({ code }),
     });
 
-    const lucia = initializeLucia(c);
-    const session = await lucia.createSession(userId, {});
-    const cookie = lucia.createSessionCookie(session.id);
+    const session = await auth.lucia.createSession(userId, {});
+    const cookie = auth.lucia.createSessionCookie(session.id);
 
     setCookie(c, cookie.name, cookie.value, cookie.attributes);
 
-    const { user: luciaUser } = await lucia.validateSession(session.id);
+    const { user: luciaUser } = await auth.lucia.validateSession(session.id);
     return c.json({ user: luciaUser }, 201);
   }
 );
@@ -257,7 +249,7 @@ signOut.use(verifyAuth);
 signOut.post('/', async (c) => {
   const session = c.get('session')!;
 
-  const lucia = initializeLucia(c);
+  const { lucia } = initializeAuth(c);
   await lucia.invalidateSession(session.id);
   const cookie = lucia.createBlankSessionCookie();
 
@@ -274,6 +266,7 @@ verifyEmail.post('/', async (c) => {
 
   if (emailVerified) return c.json({ error: t('errors.badRequest') }, 400);
 
+  const auth = initializeAuth(c);
   const db = initializeDB(c.env.DB);
   const lastSent = await db.query.emailVerificationCodes.findFirst({
     where: (table, { eq }) => eq(table.userId, userId),
@@ -283,7 +276,7 @@ verifyEmail.post('/', async (c) => {
     return c.json({ error: t('errors.tryAgainInMinutes') }, 400);
   }
 
-  const code = await generateEmailVerificationCode(c.env.DB, { userId, email });
+  const code = await auth.verificationCode({ userId, email });
 
   const resend = initializeResend(c);
   await resend.send({
@@ -300,28 +293,27 @@ verifyEmail.post('/:code', validator('param', verifyEmailSchema), async (c) => {
   const { code } = c.req.valid('param');
   const { id: userId, email } = c.get('user')!;
 
-  const validCode = await verifyEmailVerificationCode(c.env.DB, {
+  const auth = initializeAuth(c);
+  const db = initializeDB(c.env.DB);
+  const validCode = await auth.verifyCode({
     userId,
     email,
     code,
   });
   if (!validCode) return c.json({ error: t('auth.invalidCode') }, 400);
 
-  const lucia = initializeLucia(c);
-  const db = initializeDB(c.env.DB);
-
-  await lucia.invalidateUserSessions(userId);
+  await auth.lucia.invalidateUserSessions(userId);
   await db
     .update(users)
     .set({ emailVerified: true })
     .where(eq(users.id, userId));
 
-  const session = await lucia.createSession(userId, {});
-  const cookie = lucia.createSessionCookie(session.id);
+  const session = await auth.lucia.createSession(userId, {});
+  const cookie = auth.lucia.createSessionCookie(session.id);
 
   setCookie(c, cookie.name, cookie.value, cookie.attributes);
 
-  const { user: luciaUser } = await lucia.validateSession(session.id);
+  const { user: luciaUser } = await auth.lucia.validateSession(session.id);
   return c.json({ user: luciaUser });
 });
 
@@ -335,6 +327,7 @@ resetPassword.post(
     const { email } = c.req.valid('json');
     const { redirectUrl = '' } = c.req.valid('query');
 
+    const auth = initializeAuth(c);
     const db = initializeDB(c.env.DB);
     const user = await db.query.users.findFirst({
       where: (table, { eq }) => eq(table.email, email),
@@ -343,7 +336,7 @@ resetPassword.post(
       return c.json({ error: t('auth.invalidEmail') }, 400);
     }
 
-    const token = await generatePasswordResetToken(c.env.DB, {
+    const token = await auth.resetToken({
       userId: user.id,
     });
     let link = `${c.env.BASE_URL}/api/auth/reset-password/${token}`;
@@ -371,6 +364,7 @@ resetPassword.post(
     const { token } = c.req.valid('param');
     const { password } = c.req.valid('json');
 
+    const auth = initializeAuth(c);
     const db = initializeDB(c.env.DB);
     const hashedToken = sha256(token);
     const dbToken = await db.query.passwordResetTokens.findFirst({
@@ -381,10 +375,9 @@ resetPassword.post(
       return c.json({ error: t('auth.invalidToken') }, 400);
     }
 
-    const lucia = initializeLucia(c);
-    await lucia.invalidateUserSessions(dbToken.userId);
+    await auth.lucia.invalidateUserSessions(dbToken.userId);
 
-    const hashedPassword = await pbkdf2.hash(password);
+    const hashedPassword = await auth.hashPassword(password);
     await db.batch([
       db
         .delete(passwordResetTokens)
@@ -395,12 +388,12 @@ resetPassword.post(
         .where(eq(users.id, dbToken.userId)),
     ]);
 
-    const session = await lucia.createSession(dbToken.userId, {});
-    const cookie = lucia.createSessionCookie(session.id);
+    const session = await auth.lucia.createSession(dbToken.userId, {});
+    const cookie = auth.lucia.createSessionCookie(session.id);
 
     setCookie(c, cookie.name, cookie.value, cookie.attributes);
 
-    const { user: luciaUser } = await lucia.validateSession(session.id);
+    const { user: luciaUser } = await auth.lucia.validateSession(session.id);
     return c.json({ user: luciaUser });
   }
 );
