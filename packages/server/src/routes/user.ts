@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { setCookie } from 'hono/cookie';
 import { initializeDB } from '../services/db';
 import { users } from '../services/db/schema';
-import { initializeLucia } from '../services/auth';
+import { initializeAuth } from '../services/auth';
 import { rateLimit } from '../middlewares/rate-limit';
 import { verifyAuth, makeAuthor } from '../middlewares/auth';
 
@@ -20,7 +20,7 @@ author.post('/', makeAuthor, async (c) => {
   const db = initializeDB(c.env.DB);
   await db.update(users).set({ role: 'author' }).where(eq(users.id, user.id));
 
-  const lucia = initializeLucia(c);
+  const { lucia } = initializeAuth(c);
   const session = await lucia.createSession(user.id, {});
   const cookie = lucia.createSessionCookie(session.id);
 

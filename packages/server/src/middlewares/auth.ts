@@ -4,12 +4,12 @@ import { every } from 'hono/combine';
 import { bearerAuth } from 'hono/bearer-auth';
 import { useTranslation } from '@intlify/hono';
 import { createMiddleware } from 'hono/factory';
+import { initializeAuth } from '../services/auth';
 import { setCookie, getCookie } from 'hono/cookie';
-import { initializeLucia } from '../services/auth';
 import { HTTPException } from 'hono/http-exception';
 
 export const handleAuth = createMiddleware<Env>(async (c, next) => {
-  const lucia = initializeLucia(c);
+  const { lucia } = initializeAuth(c);
   const sessionId = getCookie(c, lucia.sessionCookieName) ?? null;
   if (!sessionId) {
     c.set('user', null);
