@@ -1,21 +1,21 @@
 import type { Context } from 'hono';
-import type { Env, ResendConfig, ResendEmail } from '../../types';
+import type { Env, Email, EmailConfig } from '../../types';
 
 import { Resend } from 'resend';
 import * as templates from './templates';
 import { objectEntries } from '@cs/utils';
 
 export const resend = {
-  config: {} as ResendConfig,
+  config: {} as EmailConfig,
   templates: {} as Record<keyof typeof templates, (...args: any[]) => string>,
-  configure(config: ResendConfig) {
+  configure(config: EmailConfig) {
     this.config = {
       ...this.config,
       ...config,
     };
     return this;
   },
-  async send(email: ResendEmail) {
+  async send(email: Email) {
     try {
       const { apiKey } = this.config;
       const resend = new Resend(apiKey);
@@ -31,7 +31,7 @@ export const resend = {
   },
 };
 
-export const initializeResend = (c: Context<Env>) => {
+export const initializeEmail = (c: Context<Env>) => {
   const instance = resend.configure({
     apiKey: c.env.RESEND_API_KEY,
   });

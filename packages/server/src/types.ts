@@ -51,7 +51,7 @@ export type AuthConfig = {
   url: string;
 };
 
-export type ResendEmail = {
+export type Email = {
   to: string | string[];
   subject: string;
   html: string;
@@ -60,7 +60,7 @@ export type ResendEmail = {
   headers?: Record<string, string>;
 };
 
-export type ResendConfig = {
+export type EmailConfig = {
   apiKey: string;
 };
 

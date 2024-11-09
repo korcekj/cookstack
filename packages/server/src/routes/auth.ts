@@ -28,7 +28,7 @@ import { verifyAuth } from '../middlewares/auth';
 import { generateIdFromEntropySize } from 'lucia';
 import { initializeAuth } from '../services/auth';
 import { setCookie, getCookie } from 'hono/cookie';
-import { initializeResend } from '../services/email';
+import { initializeEmail } from '../services/email';
 import { validator } from '../middlewares/validation';
 import { rateLimit } from '../middlewares/rate-limit';
 import { initializeCloudinary } from '../services/image';
@@ -227,7 +227,7 @@ signUp.post(
       email,
     });
 
-    const resend = initializeResend(c);
+    const resend = initializeEmail(c);
     await resend.send({
       to: email,
       subject: t('emails.verificationCode.subject'),
@@ -278,7 +278,7 @@ verifyEmail.post('/', async (c) => {
 
   const code = await auth.verificationCode({ userId, email });
 
-  const resend = initializeResend(c);
+  const resend = initializeEmail(c);
   await resend.send({
     to: email,
     subject: t('emails.verificationCode.subject'),
@@ -344,7 +344,7 @@ resetPassword.post(
       link = `${redirectUrl.replace(/\/+$/g, '')}/${token}`;
     }
 
-    const resend = initializeResend(c);
+    const resend = initializeEmail(c);
     await resend.send({
       to: email,
       subject: t('emails.resetPassword.subject'),
