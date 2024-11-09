@@ -1,15 +1,13 @@
 import type { Options } from '@/utils/fetch';
 
 import { unstable_cache } from 'next/cache';
-import { getLocale } from 'next-intl/server';
 import { getAuthCookie } from '@/utils/cookies';
-import { fetch, fetcher, HTTPError } from '@/utils/fetch';
+import { fetcher, HTTPError } from '@/utils/fetch';
 
 export const fetchUser = async (
   options: Options & { cookie?: boolean } = { cookie: true }
 ) => {
   try {
-    console.log('Fetching user');
     let headers = options.headers;
     if (options.cookie) {
       const cookie = getAuthCookie();
@@ -25,32 +23,16 @@ export const fetchUser = async (
   }
 };
 
-export const getUser = async () => {
-  try {
-    return await fetch('api/user/profile').json();
-  } catch (err) {
-    if (!(err instanceof HTTPError)) console.error(err);
-    return null;
-  }
-};
+export const getUser = fetchUser;
 
 export const getUserCached = async () => {
   const cookie = getAuthCookie();
-  const locale = await getLocale();
-
   return unstable_cache(
-    (locale: string, cookie?: string) =>
-      fetchUser({
-        headers: {
-          Cookie: cookie,
-          'Accept-Language': locale,
-        },
-        cookie: false,
-      }),
-    ['user', locale],
+    (cookie?: string) => fetchUser({ headers: { Cookie: cookie } }),
+    ['user'],
     {
       tags: ['user'],
       revalidate: 3600,
     }
-  )(locale, cookie);
+  )(cookie);
 };
