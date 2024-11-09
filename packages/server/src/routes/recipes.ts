@@ -19,8 +19,8 @@ import { useTranslation } from '@intlify/hono';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { useRecipes } from '../services/db/queries';
+import { initializeImage } from '../services/image';
 import { rateLimit } from '../middlewares/rate-limit';
-import { initializeCloudinary } from '../services/image';
 import { getConflictUpdateSetter } from '../services/db/helpers';
 import { validator, validateRecipe } from '../middlewares/validation';
 
@@ -163,17 +163,17 @@ recipes.put(
   validateRecipe,
   validator('form', updateRecipeImageSchema),
   async (c) => {
-    const { image } = c.req.valid('form');
     const { recipeId } = c.req.valid('param');
+    const { image: file } = c.req.valid('form');
 
     const db = initializeDB(c.env.DB);
-    const cloudinary = initializeCloudinary(c);
+    const image = initializeImage(c);
 
     const imageId = generateIdFromEntropySize(10);
 
     const {
       eager: [{ secure_url: imageUrl }],
-    } = await cloudinary.upload(image, {
+    } = await image.upload(file, {
       publicId: imageId,
       folder: `cookstack/${c.env.ENV}`,
       uploadPreset: 'cookstack',

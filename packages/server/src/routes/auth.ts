@@ -28,10 +28,10 @@ import { verifyAuth } from '../middlewares/auth';
 import { generateIdFromEntropySize } from 'lucia';
 import { initializeAuth } from '../services/auth';
 import { setCookie, getCookie } from 'hono/cookie';
+import { initializeImage } from '../services/image';
 import { initializeEmail } from '../services/email';
 import { validator } from '../middlewares/validation';
 import { rateLimit } from '../middlewares/rate-limit';
-import { initializeCloudinary } from '../services/image';
 import { generateState, generateCodeVerifier } from 'arctic';
 
 const auth = new Hono<Env>();
@@ -114,8 +114,8 @@ signIn.get(
         })) ?? {};
 
       if (!userId) {
-        const cloudinary = initializeCloudinary(c);
-        const imageUrl = cloudinary.url(user.picture).toString();
+        const image = initializeImage(c);
+        const imageUrl = image.url(user.picture).toString();
 
         [[{ id: userId }]] = await db.batch([
           db
@@ -227,11 +227,11 @@ signUp.post(
       email,
     });
 
-    const resend = initializeEmail(c);
-    await resend.send({
+    const mail = initializeEmail(c);
+    await mail.send({
       to: email,
       subject: t('emails.verificationCode.subject'),
-      html: resend.templates.verificationCode({ code }),
+      html: mail.templates.verificationCode({ code }),
     });
 
     const session = await auth.lucia.createSession(userId, {});
@@ -278,11 +278,11 @@ verifyEmail.post('/', async (c) => {
 
   const code = await auth.verificationCode({ userId, email });
 
-  const resend = initializeEmail(c);
-  await resend.send({
+  const mail = initializeEmail(c);
+  await mail.send({
     to: email,
     subject: t('emails.verificationCode.subject'),
-    html: resend.templates.verificationCode({ code }),
+    html: mail.templates.verificationCode({ code }),
   });
 
   return c.body(null, 204);
@@ -344,11 +344,11 @@ resetPassword.post(
       link = `${redirectUrl.replace(/\/+$/g, '')}/${token}`;
     }
 
-    const resend = initializeEmail(c);
-    await resend.send({
+    const mail = initializeEmail(c);
+    await mail.send({
       to: email,
       subject: t('emails.resetPassword.subject'),
-      html: resend.templates.resetPassword({ link }),
+      html: mail.templates.resetPassword({ link }),
     });
 
     return c.body(null, 204);

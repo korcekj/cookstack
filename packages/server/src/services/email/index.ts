@@ -1,14 +1,14 @@
 import type { Context } from 'hono';
-import type { Env, Email, EmailConfig } from '../../types';
+import type { Env, Email, ResendConfig } from '../../types';
 
 import { Resend } from 'resend';
 import * as templates from './templates';
 import { objectEntries } from '@cs/utils';
 
 export const resend = {
-  config: {} as EmailConfig,
+  config: {} as ResendConfig,
   templates: {} as Record<keyof typeof templates, (...args: any[]) => string>,
-  configure(config: EmailConfig) {
+  configure(config: ResendConfig) {
     this.config = {
       ...this.config,
       ...config,

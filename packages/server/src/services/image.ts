@@ -93,7 +93,7 @@ export const cloudinary = {
   },
 };
 
-export const initializeCloudinary = (c: Context<Env>) => {
+export const initializeImage = (c: Context<Env>) => {
   return cloudinary.configure({
     cloudName: c.env.CLOUDINARY_CLOUD_NAME,
     apiKey: c.env.CLOUDINARY_API_KEY,

@@ -60,7 +60,7 @@ export type Email = {
   headers?: Record<string, string>;
 };
 
-export type EmailConfig = {
+export type ResendConfig = {
   apiKey: string;
 };
 
