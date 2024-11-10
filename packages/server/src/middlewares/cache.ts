@@ -11,9 +11,16 @@ export const generateKey = (c: Context<Env>) => {
   return parts.join(':');
 };
 
-export const invalidateKey = async (c: Context<Env>, key: string) => {
-  const { keys } = await c.env.KV.list({ prefix: key });
-  await Promise.all(keys.map((key) => c.env.KV.delete(key.name)));
+export const invalidateKey = async (
+  c: Context<Env>,
+  key: string,
+  prefix?: boolean
+) => {
+  if (!prefix) await c.env.KV.delete(key);
+  else {
+    const { keys } = await c.env.KV.list({ prefix: key });
+    await Promise.all(keys.map((key) => c.env.KV.delete(key.name)));
+  }
 };
 
 export const invalidateAll = async (c: Context<Env>) => {
