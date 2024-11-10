@@ -16,6 +16,7 @@ vars = { ENV='production', BASE_URL='https://cookstack.korcek.com', GOOGLE_REDIR
 d1_databases = [
   { binding="DB", database_name='cookstack', database_id='22ec2f35-8298-49db-b1d6-78947a921ed0' }
 ]
+kv_namespaces = [{ binding='KV', id='22c8696e91b24d2ca26e227ea9ae61ca'}]
 routes = [
   { pattern='cookstack.korcek.com/*', zone_name='korcek.com' }
 ]
