@@ -2,6 +2,7 @@ import type { User, Session } from 'lucia';
 
 export type Bindings = {
   DB: D1Database;
+  KV: KVNamespace;
   ENV: 'dev' | 'production';
   BASE_URL: string;
   SALT: string;
