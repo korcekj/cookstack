@@ -42,7 +42,9 @@ export const cache = ({
     const cached = await c.env.KV.get(key);
     if (cached)
       return c.json(JSON.parse(cached), 200, {
-        'Cache-Control': `public, max-age=${ttl}`,
+        'Cache-Control': `public, max-age=${ttl}, stale-while-revalidate=${
+          ttl * 0.1
+        }`,
         Vary: 'Accept-Language',
       });
 
@@ -50,8 +52,10 @@ export const cache = ({
 
     if (c.res && c.res.ok) {
       const value = await c.res.clone().text();
-      await c.env.KV.put(key, value, { expirationTtl: ttl });
-
-      return c.res;
+      c.executionCtx.waitUntil(
+        c.env.KV.put(key, value, { expirationTtl: ttl })
+      );
     }
+
+    return c.res;
   });
