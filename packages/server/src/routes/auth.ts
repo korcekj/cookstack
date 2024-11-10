@@ -30,6 +30,7 @@ import { initializeAuth } from '../services/auth';
 import { setCookie, getCookie } from 'hono/cookie';
 import { initializeImage } from '../services/image';
 import { initializeEmail } from '../services/email';
+import { invalidateKey } from '../middlewares/cache';
 import { validator } from '../middlewares/validation';
 import { rateLimit } from '../middlewares/rate-limit';
 import { generateState, generateCodeVerifier } from 'arctic';
@@ -149,6 +150,7 @@ signIn.get(
           .onConflictDoNothing();
       }
 
+      await invalidateKey(c, `user:${userId}`);
       const session = await lucia.createSession(userId, {});
       const cookie = lucia.createSessionCookie(session.id);
 
@@ -184,6 +186,7 @@ signIn.post('/', rateLimit, validator('json', signInSchema), async (c) => {
     return c.json({ error: t('auth.invalidEmailPassword') }, 400);
   }
 
+  await invalidateKey(c, `user:${user.id}`);
   const session = await auth.lucia.createSession(user.id, {});
   const cookie = auth.lucia.createSessionCookie(session.id);
 
@@ -234,6 +237,7 @@ signUp.post(
       html: mail.templates.verificationCode({ code }),
     });
 
+    await invalidateKey(c, `user:${userId}`);
     const session = await auth.lucia.createSession(userId, {});
     const cookie = auth.lucia.createSessionCookie(session.id);
 
@@ -247,9 +251,12 @@ signUp.post(
 signOut.use(rateLimit);
 signOut.use(verifyAuth);
 signOut.post('/', async (c) => {
+  const user = c.get('user')!;
   const session = c.get('session')!;
 
   const { lucia } = initializeAuth(c);
+
+  await invalidateKey(c, `user:${user.id}`);
   await lucia.invalidateSession(session.id);
   const cookie = lucia.createBlankSessionCookie();
 
@@ -302,6 +309,7 @@ verifyEmail.post('/:code', validator('param', verifyEmailSchema), async (c) => {
   });
   if (!validCode) return c.json({ error: t('auth.invalidCode') }, 400);
 
+  await invalidateKey(c, `user:${userId}`);
   await auth.lucia.invalidateUserSessions(userId);
   await db
     .update(users)
@@ -375,6 +383,7 @@ resetPassword.post(
       return c.json({ error: t('auth.invalidToken') }, 400);
     }
 
+    await invalidateKey(c, `user:${dbToken.userId}`);
     await auth.lucia.invalidateUserSessions(dbToken.userId);
 
     const hashedPassword = await auth.hashPassword(password);
