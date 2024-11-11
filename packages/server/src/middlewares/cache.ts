@@ -1,5 +1,5 @@
 import type { Context } from 'hono';
-import type { Env } from '../types';
+import type { Env, CacheMetadata } from '../types';
 
 import { getLocale } from '../utils';
 import { createMiddleware } from 'hono/factory';
@@ -30,32 +30,44 @@ export const invalidateAll = async (c: Context<Env>) => {
 
 export const cache = ({
   keyGenerator = generateKey,
-  ttl = 3600,
+  maxAge = 3600,
 }: {
   keyGenerator?: (c: Context<Env>) => string;
-  ttl?: number;
+  maxAge?: number;
 } = {}) =>
   createMiddleware<Env>(async (c, next) => {
     if (c.req.method !== 'GET') return next();
 
     const key = keyGenerator(c);
-    const cached = await c.env.KV.get(key);
-    if (cached)
-      return c.json(JSON.parse(cached), 200, {
-        'Cache-Control': `public, max-age=${ttl}, stale-while-revalidate=${
-          ttl * 0.1
-        }`,
-        Vary: 'Accept-Language',
-      });
 
-    await next();
+    try {
+      const cached = await c.env.KV.getWithMetadata<CacheMetadata>(key);
+      if (cached.value && cached.metadata) {
+        return c.newResponse(cached.value, cached.metadata.status, {
+          ...cached.metadata.headers,
+          'Cache-Control': `public, max-age=${maxAge}`,
+          Vary: 'Accept-Language',
+        });
+      }
 
-    if (c.res && c.res.ok) {
-      const value = await c.res.clone().text();
-      c.executionCtx.waitUntil(
-        c.env.KV.put(key, value, { expirationTtl: ttl })
-      );
+      await next();
+
+      if (c.res && c.res.ok) {
+        const value = await c.res.clone().text();
+        c.executionCtx.waitUntil(
+          c.env.KV.put(key, value, {
+            expirationTtl: maxAge,
+            metadata: {
+              status: c.res.status,
+              headers: Object.fromEntries(c.res.headers.entries()),
+            },
+          })
+        );
+      }
+
+      return c.res;
+    } catch (err) {
+      console.error(err);
+      return next();
     }
-
-    return c.res;
   });

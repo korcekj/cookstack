@@ -1,4 +1,5 @@
 import type { User, Session } from 'lucia';
+import type { StatusCode } from 'hono/utils/http-status';
 
 export type Bindings = {
   DB: D1Database;
@@ -120,4 +121,9 @@ export type CloudinaryTransformation = {
   f?: string;
   o?: number;
   g?: string;
+};
+
+export type CacheMetadata = {
+  status: StatusCode;
+  headers: Record<string, string>;
 };
