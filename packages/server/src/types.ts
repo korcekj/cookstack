@@ -1,5 +1,4 @@
 import type { User, Session } from 'lucia';
-import type { StatusCode } from 'hono/utils/http-status';
 
 export type Bindings = {
   DB: D1Database;
