@@ -3,7 +3,6 @@ import type { StatusCode } from 'hono/utils/http-status';
 
 export type Bindings = {
   DB: D1Database;
-  KV: KVNamespace;
   ENV: 'dev' | 'production';
   BASE_URL: string;
   SALT: string;
@@ -121,9 +120,4 @@ export type CloudinaryTransformation = {
   f?: string;
   o?: number;
   g?: string;
-};
-
-export type CacheMetadata = {
-  status: StatusCode;
-  headers: Record<string, string>;
 };
