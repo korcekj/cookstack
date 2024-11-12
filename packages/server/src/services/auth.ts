@@ -1,18 +1,18 @@
 import type { Context } from 'hono';
+import type { User } from './db/schema';
 import type { Env, AuthConfig } from '../types';
-import type { User } from '../services/db/schema';
 
 import {
   users,
   sessions,
   emailVerificationCodes,
   passwordResetTokens,
-} from '../services/db/schema';
+} from './db/schema';
 import { Google } from 'arctic';
 import { eq } from 'drizzle-orm';
+import { initializeDB } from './db';
 import { sha256, pbkdf2 } from '../utils';
 import { omit, parseUrl } from '@cs/utils';
-import { initializeDB } from '../services/db';
 import { Lucia, generateIdFromEntropySize } from 'lucia';
 import { generateRandomString, alphabet } from 'oslo/crypto';
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
