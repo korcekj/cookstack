@@ -21,7 +21,7 @@ export const useI18nForm = <
   initialValues: Partial<z.infer<S>> = {},
 ): [UseFormReturn<z.infer<S>>, (payload: FormData) => void] => {
   // Enable i18n translations in zodResolver
-  useI18nZod();
+  useI18nZod(map => z.setErrorMap(map));
 
   const [state, formAction] = useFormState(action, null);
   const resolver = schema ? zodResolver(schema) : undefined;
