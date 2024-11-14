@@ -1,4 +1,4 @@
-import { z } from './index';
+import { z } from 'zod';
 
 export const createInstructionSchema = z.object({
   translations: z

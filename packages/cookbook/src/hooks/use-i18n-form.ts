@@ -3,9 +3,9 @@
 import type { ActionResponse } from '@/types';
 import type { UseFormReturn, DefaultValues, Path } from 'react-hook-form';
 
+import { z } from 'zod';
 import React from 'react';
 import { toast } from 'sonner';
-import { z } from '@cs/utils/zod';
 import { useFormState } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { objectEntries } from '@cs/utils';

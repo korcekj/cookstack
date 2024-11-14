@@ -1,7 +1,7 @@
 import type { ZodErrorMap, ZodError } from 'zod';
 
 import { set, joinValues } from '../index';
-import { z, defaultErrorMap, ZodIssueCode, ZodParsedType } from 'zod';
+import { defaultErrorMap, ZodIssueCode, ZodParsedType } from 'zod';
 
 export * from './auth';
 export * from './recipe';
@@ -12,7 +12,7 @@ export * from './instruction';
 
 type NamedValue<T = {}> = T & Record<string, unknown>;
 
-export const parseError = (error: ZodError<any>) => {
+export const parseError = (error: ZodError) => {
   const { issues } = error;
   if (!issues[0].path.length) return issues[0].message;
   return issues.reduce((acc, issue) => {
@@ -133,5 +133,3 @@ export const makeZodI18nMap =
       message,
     };
   };
-
-export { z };

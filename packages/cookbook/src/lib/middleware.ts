@@ -4,12 +4,13 @@ import type {
   ActionFunctionWithUser,
 } from '@/types';
 
+import { z } from 'zod';
 import { get } from '@cs/utils';
 import { redirect } from '@/i18n/routing';
 import { formDataEntries } from '@cs/utils';
 import { REDIRECTS } from '@/lib/constants';
 import { getUser } from '@/features/users/api';
-import { z, makeZodI18nMap, parseError } from '@cs/utils/zod';
+import { makeZodI18nMap, parseError } from '@cs/utils/zod';
 
 import { getTranslations, getMessages, getLocale } from 'next-intl/server';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { get } from '@cs/utils';
-import { z, makeZodI18nMap } from '@cs/utils/zod';
+import { makeZodI18nMap } from '@cs/utils/zod';
 import { useMessages, useTranslations } from 'next-intl';
 
 export const useI18nZod = (

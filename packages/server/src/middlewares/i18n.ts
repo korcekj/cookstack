@@ -1,10 +1,11 @@
 import type { Env } from '../types';
 
+import { z } from 'zod';
 import { get } from '@cs/utils';
 import { translation } from '../i18n';
 import { DEFAULT_LOCALE } from '../constants';
 import { createMiddleware } from 'hono/factory';
-import { z, makeZodI18nMap } from '@cs/utils/zod';
+import { makeZodI18nMap } from '@cs/utils/zod';
 
 export const i18n = createMiddleware<Env>(async (c, next) => {
   let locale = c.req.header('accept-language')?.split(',')[0];

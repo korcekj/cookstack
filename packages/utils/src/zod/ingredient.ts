@@ -1,4 +1,4 @@
-import { z } from './index';
+import { z } from 'zod';
 
 export const createIngredientSchema = z.object({
   translations: z

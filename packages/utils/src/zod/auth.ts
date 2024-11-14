@@ -1,4 +1,4 @@
-import { z } from './index';
+import { z } from 'zod';
 
 export const signInGoogleSchema = z.object({
   redirectUrl: z.string().url().optional(),

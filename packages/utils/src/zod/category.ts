@@ -1,4 +1,4 @@
-import { z } from './index';
+import { z } from 'zod';
 import { joinValues } from '../index';
 
 export const createCategorySchema = z.object({
