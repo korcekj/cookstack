@@ -624,48 +624,6 @@
   resolved "https://registry.npmjs.org/@hutson/parse-repository-url/-/parse-repository-url-3.0.2.tgz"
   integrity sha512-H9XAx3hc0BQHY6l+IFSWHDySypcXsvsuLhgYLUGywmJ5pswRVQJUHpOsobnLYp2ZUaUlKiKDrgWWhosOwAEM8Q==
 
-"@intlify/core-base@npm:@intlify/core-base-edge@9.5.0-bd7ec22":
-  version "9.5.0-bd7ec22"
-  resolved "https://registry.npmjs.org/@intlify/core-base-edge/-/core-base-edge-9.5.0-bd7ec22.tgz"
-  integrity sha512-w4ZXDgGPNQ+E5l99stUWDGTbik8uaJkeMsLLk1QwvDG1fwZiP3z08owUFDAmBp0ewSQLT0SXedNQfUX5NSjTJQ==
-  dependencies:
-    "@intlify/message-compiler" "npm:@intlify/message-compiler-edge@9.5.0-bd7ec22"
-    "@intlify/shared" "npm:@intlify/shared-edge@9.5.0-bd7ec22"
-
-"@intlify/core@npm:@intlify/core-edge@9.5.0-bd7ec22":
-  version "9.5.0-bd7ec22"
-  resolved "https://registry.npmjs.org/@intlify/core-edge/-/core-edge-9.5.0-bd7ec22.tgz"
-  integrity sha512-8Y6SAYCTNHE6kwzzxVh3vDQtpmiuADoKqFaH1SYTa51o72ErS1JiEZibcj51KXafxm3ORSGW3UyHPv2JJR1I/Q==
-  dependencies:
-    "@intlify/core-base" "npm:@intlify/core-base-edge@9.5.0-bd7ec22"
-    "@intlify/shared" "npm:@intlify/shared-edge@9.5.0-bd7ec22"
-
-"@intlify/hono@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.npmjs.org/@intlify/hono/-/hono-0.1.1.tgz"
-  integrity sha512-MJHCti+oIsG0FGyROsG5d301i5zIjCsHsEoJJsjLckobNM/pQZxknB/xTOu53UkDfhOzehRgbelcQawfRf1L9A==
-  dependencies:
-    "@intlify/core" "npm:@intlify/core-edge@9.5.0-bd7ec22"
-    "@intlify/utils" "^0.11.1"
-
-"@intlify/message-compiler@npm:@intlify/message-compiler-edge@9.5.0-bd7ec22":
-  version "9.5.0-bd7ec22"
-  resolved "https://registry.npmjs.org/@intlify/message-compiler-edge/-/message-compiler-edge-9.5.0-bd7ec22.tgz"
-  integrity sha512-XfRx8rv27hx6Is7HmEiQSy/8+/YicS7OahvMwpre7Dm+fxdL5eaUW3tqGe6+oSKJThyeSmJIwVN8wQ1N8WEjBQ==
-  dependencies:
-    "@intlify/shared" "npm:@intlify/shared-edge@9.5.0-bd7ec22"
-    source-map-js "^1.0.2"
-
-"@intlify/shared@npm:@intlify/shared-edge@9.5.0-bd7ec22":
-  version "9.5.0-bd7ec22"
-  resolved "https://registry.npmjs.org/@intlify/shared-edge/-/shared-edge-9.5.0-bd7ec22.tgz"
-  integrity sha512-/66ccNR95ENE4kFrb5slZ8fBf9sx0fVkKMW3MtICwFJ8HlTcnPlIGgKOtoE6O61521oqQCS6xnq8Tv/jy3IBaA==
-
-"@intlify/utils@^0.11.1":
-  version "0.11.1"
-  resolved "https://registry.npmjs.org/@intlify/utils/-/utils-0.11.1.tgz"
-  integrity sha512-nP3EjYFcTXfbBws8FJHcYQ7JdgIvpmEd99MlfTaTnqM8GSrRQUZh2sn5awhbnjcd0xQ8vWGX/OLNDumvd7sjDg==
-
 "@isaacs/cliui@^8.0.2":
   version "8.0.2"
   resolved "https://registry.npmjs.org/@isaacs/cliui/-/cliui-8.0.2.tgz"
@@ -6817,6 +6775,14 @@ rollup-pluginutils@^2.8.1:
   dependencies:
     estree-walker "^0.6.1"
 
+rosetta@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/rosetta/-/rosetta-1.1.0.tgz#41ecc0f3cb38ce34b981b0dcfca2f4c94721738c"
+  integrity sha512-3jQaCo2ySoDqLIPjy7+AvN3rluLfkG8A27hg0virL0gRAB5BJ3V35IBdkL/t6k1dGK0TVTyUEwXVUJsygyx4pA==
+  dependencies:
+    dlv "^1.1.3"
+    templite "^1.1.0"
+
 run-async@^2.4.0:
   version "2.4.1"
   resolved "https://registry.npmjs.org/run-async/-/run-async-2.4.1.tgz"
@@ -7432,6 +7398,11 @@ temp-dir@1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/temp-dir/-/temp-dir-1.0.0.tgz"
   integrity sha512-xZFXEGbG7SNC3itwBzI3RYjq/cEhBkx2hJuKGIUOcEULmkQExXiHat2z/qkISYsuR+IKumhEfKKbV5qXmhICFQ==
+
+templite@^1.1.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/templite/-/templite-1.2.0.tgz#ac1781cfc46e3bed3b2c17297b3ce3b129d4a590"
+  integrity sha512-O9BpPXF44a9Pg84Be6mjzlrqOtbP2I/B5PNLWu5hb1n9UQ1GTLsjdMg1z5ROCkF6NFXsO5LQfRXEpgTGrZ7Q0Q==
 
 text-extensions@^1.0.0:
   version "1.9.0"
