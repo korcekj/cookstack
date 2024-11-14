@@ -1,4 +1,4 @@
-import { z } from '@cs/utils/zod';
+import { z } from 'zod';
 
 export type ActionResponse<S extends z.ZodType<any, any>> = Partial<{
   fields: Partial<z.infer<S>>;
