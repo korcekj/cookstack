@@ -11,16 +11,16 @@ export const metadata: Metadata = {
 
 const Page = async () => {
   return (
-    <main className='lg:grid lg:grid-cols-2 lg:min-h-[600px]'>
-      <VerifyEmail className='p-6 sm:p-12'></VerifyEmail>
-      <div className='hidden bg-muted lg:block'>
+    <main className="lg:grid lg:min-h-[600px] lg:grid-cols-2">
+      <VerifyEmail className="p-6 sm:p-12"></VerifyEmail>
+      <div className="bg-muted hidden lg:block">
         <Image
           priority
-          src='https://res.cloudinary.com/rest-image-cloud/image/upload/cookstack/auth.jpg'
-          alt='Overenie emailu'
+          src="https://res.cloudinary.com/rest-image-cloud/image/upload/cookstack/auth.jpg"
+          alt="Overenie emailu"
           width={1920}
           height={1080}
-          className='h-full w-full dark:brightness-[0.5] dark:grayscale'
+          className="h-full w-full dark:brightness-[0.5] dark:grayscale"
         />
       </div>
     </main>

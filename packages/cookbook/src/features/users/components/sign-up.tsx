@@ -36,33 +36,33 @@ export const SignUpForm: React.FC<Props> = ({ className }) => {
       email: '',
       password: '',
       passwordConfirm: '',
-    }
+    },
   );
 
   const redirectUrl = new URL('api/revalidate-user', env.NEXT_PUBLIC_BASE_URL);
 
   return (
     <div className={cn('space-y-6', className)}>
-      <div className='grid gap-2 text-center'>
-        <h1 className='text-3xl font-bold'>Registrácia</h1>
-        <p className='text-balance text-muted-foreground'>
+      <div className="grid gap-2 text-center">
+        <h1 className="text-3xl font-bold">Registrácia</h1>
+        <p className="text-muted-foreground text-balance">
           Zadajte vaše údaje pre vytvorenie účtu
         </p>
       </div>
-      <div className='space-y-4'>
+      <div className="space-y-4">
         <Form {...form}>
-          <form className='space-y-4' action={formAction}>
-            <div className='flex space-x-4'>
+          <form className="space-y-4" action={formAction}>
+            <div className="flex space-x-4">
               <FormField
                 control={form.control}
-                name='firstName'
+                name="firstName"
                 render={({ field }) => (
-                  <FormItem className='w-full'>
+                  <FormItem className="w-full">
                     <FormLabel>Meno</FormLabel>
                     <FormControl>
                       <Input
-                        autoComplete='given-name'
-                        placeholder='Meno'
+                        autoComplete="given-name"
+                        placeholder="Meno"
                         {...field}
                       />
                     </FormControl>
@@ -72,14 +72,14 @@ export const SignUpForm: React.FC<Props> = ({ className }) => {
               />
               <FormField
                 control={form.control}
-                name='lastName'
+                name="lastName"
                 render={({ field }) => (
-                  <FormItem className='w-full'>
+                  <FormItem className="w-full">
                     <FormLabel>Priezvisko</FormLabel>
                     <FormControl>
                       <Input
-                        autoComplete='family-name'
-                        placeholder='Priezvisko'
+                        autoComplete="family-name"
+                        placeholder="Priezvisko"
                         {...field}
                       />
                     </FormControl>
@@ -90,14 +90,14 @@ export const SignUpForm: React.FC<Props> = ({ className }) => {
             </div>
             <FormField
               control={form.control}
-              name='email'
+              name="email"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
-                      autoComplete='email'
-                      placeholder='vas@email.com'
+                      autoComplete="email"
+                      placeholder="vas@email.com"
                       {...field}
                     />
                   </FormControl>
@@ -107,12 +107,12 @@ export const SignUpForm: React.FC<Props> = ({ className }) => {
             />
             <FormField
               control={form.control}
-              name='password'
+              name="password"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Heslo</FormLabel>
                   <FormControl>
-                    <Password autoComplete='new-password' {...field} />
+                    <Password autoComplete="new-password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -120,21 +120,21 @@ export const SignUpForm: React.FC<Props> = ({ className }) => {
             />
             <FormField
               control={form.control}
-              name='passwordConfirm'
+              name="passwordConfirm"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Heslo znovu</FormLabel>
                   <FormControl>
-                    <Password autoComplete='new-password' {...field} />
+                    <Password autoComplete="new-password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <SubmitButton className='w-full'>Registrovať</SubmitButton>
+            <SubmitButton className="w-full">Registrovať</SubmitButton>
           </form>
         </Form>
-        <Button variant='outline' className='w-full' asChild>
+        <Button variant="outline" className="w-full" asChild>
           <Link
             href={`${env.NEXT_PUBLIC_SERVER_URL}/api/auth/sign-in/google?redirectUrl=${redirectUrl}`}
           >
@@ -142,9 +142,9 @@ export const SignUpForm: React.FC<Props> = ({ className }) => {
           </Link>
         </Button>
       </div>
-      <div className='mt-4 text-center text-sm'>
+      <div className="mt-4 text-center text-sm">
         Už ste registrovaný?{' '}
-        <Link href={REDIRECTS.signIn} className='underline'>
+        <Link href={REDIRECTS.signIn} className="underline">
           Prihlásenie
         </Link>
       </div>

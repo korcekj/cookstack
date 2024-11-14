@@ -7,7 +7,7 @@ export const createCategorySchema = z.object({
       z.object({
         name: z.string().max(128),
         language: z.string().length(2),
-      })
+      }),
     )
     .min(1),
 });
@@ -18,7 +18,7 @@ export const updateCategorySchema = z.object({
       z.object({
         name: z.string().max(128),
         language: z.string().length(2),
-      })
+      }),
     )
     .min(1),
 });
@@ -43,11 +43,11 @@ export const getCategoriesSchema = z.object({
     .string()
     .optional()
     .refine(
-      (v) =>
+      v =>
         v
           ? v
               .split(',')
-              .every((s) => categoriesOrderBySchema.safeParse(s).success)
+              .every(s => categoriesOrderBySchema.safeParse(s).success)
           : true,
       {
         params: {
@@ -58,7 +58,7 @@ export const getCategoriesSchema = z.object({
             },
           },
         },
-      }
+      },
     ),
 });
 

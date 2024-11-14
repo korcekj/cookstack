@@ -17,7 +17,7 @@ import { fetch, HTTPError } from '@/utils/fetch';
 import { setResponseCookies } from '@/utils/cookies';
 import { withI18nZod, withUser } from '@/lib/middleware';
 
-export const signIn = withI18nZod(signInSchema, async (data) => {
+export const signIn = withI18nZod(signInSchema, async data => {
   const locale = await getLocale();
   try {
     const response = await fetch.post('api/auth/sign-in', { json: data });
@@ -91,12 +91,12 @@ export const verifyEmail = withUser(
       }
     }
     redirect({ href: REDIRECTS.home, locale });
-  })
+  }),
 );
 
 export const forgotPassword = withI18nZod(
   forgotPasswordSchema.omit({ redirectUrl: true }),
-  async (data) => {
+  async data => {
     try {
       const url = new URL('reset-password', env.NEXT_PUBLIC_BASE_URL);
       await fetch.post('api/auth/reset-password', {
@@ -110,10 +110,10 @@ export const forgotPassword = withI18nZod(
         return { error };
       }
     }
-  }
+  },
 );
 
-export const resetPassword = withI18nZod(resetPasswordSchema, async (data) => {
+export const resetPassword = withI18nZod(resetPasswordSchema, async data => {
   const locale = await getLocale();
   try {
     const { token, ...rest } = data;

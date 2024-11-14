@@ -10,8 +10,14 @@
     "outDir": "dist",
     "rootDir": "src",
     "baseUrl": "./",
-    "types": ["next"]
+    "types": [
+      "next"
+    ]
   },
-  "include": ["src/**/*"],
-  "exclude": ["dist"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "dist"
+  ]
 }

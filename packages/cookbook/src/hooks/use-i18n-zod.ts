@@ -8,7 +8,7 @@ export const useI18nZod = () => {
   const messages = useMessages();
   const te = React.useCallback(
     (path: string) => (get(messages, path) ? true : false),
-    [messages]
+    [messages],
   );
 
   React.useEffect(() => {

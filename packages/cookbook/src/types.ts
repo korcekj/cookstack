@@ -9,14 +9,14 @@ export type ActionResponse<S extends z.ZodType<any, any>> = Partial<{
 
 export type ActionFunction<
   S extends z.ZodType<any, any>,
-  T extends ActionResponse<S>
+  T extends ActionResponse<S>,
 > = (
   data: z.infer<S>,
-  entries: Record<string, FormDataEntryValue>
+  entries: Record<string, FormDataEntryValue>,
 ) => Promise<T>;
 
 export type ActionFunctionWithUser = (
   prevState: any,
   formData: FormData,
-  user: object | null
+  user: object | null,
 ) => Promise<ActionResponse<any>>;

@@ -25,12 +25,12 @@ export const LocaleSwitch: React.FC = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant='outline' size='icon'>
+        <Button variant="outline" size="icon">
           <Languages />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align='end'>
-        {LOCALES.map((locale) => (
+      <DropdownMenuContent align="end">
+        {LOCALES.map(locale => (
           <DropdownMenuItem
             asChild
             key={locale}

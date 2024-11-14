@@ -8,7 +8,7 @@ export const createIngredientSchema = z.object({
         unit: z.string().max(128),
         amount: z.number().nonnegative(),
         language: z.string().length(2),
-      })
+      }),
     )
     .min(1),
 });
@@ -26,11 +26,11 @@ export const updateIngredientSchema = z
               unit: z.string().max(128),
               amount: z.number().nonnegative(),
               language: z.string().length(2),
-            })
+            }),
           )
           .min(1),
       })
-      .partial()
+      .partial(),
   )
   .min(1);
 

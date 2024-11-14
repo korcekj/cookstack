@@ -14,11 +14,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 export const useI18nForm = <
   S extends z.ZodType<any, any>,
-  T extends ActionResponse<S>
+  T extends ActionResponse<S>,
 >(
   action: (_: any, formData: FormData) => Promise<T>,
   schema?: S,
-  initialValues: Partial<z.infer<S>> = {}
+  initialValues: Partial<z.infer<S>> = {},
 ): [UseFormReturn<z.infer<S>>, (payload: FormData) => void] => {
   // Enable i18n translations in zodResolver
   useI18nZod();

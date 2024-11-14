@@ -31,7 +31,7 @@ export const ForgotPassword: React.FC<Props> = ({ className }) => {
     forgotPasswordSchema.omit({ redirectUrl: true }),
     {
       email: '',
-    }
+    },
   );
 
   const onSubmit = (formData: FormData) => {
@@ -46,25 +46,25 @@ export const ForgotPassword: React.FC<Props> = ({ className }) => {
 
   return (
     <div className={cn('space-y-6', className)}>
-      <div className='grid gap-2 text-center'>
-        <h1 className='text-3xl font-bold'>Zabudnuté heslo</h1>
-        <p className='text-balance text-muted-foreground'>
+      <div className="grid gap-2 text-center">
+        <h1 className="text-3xl font-bold">Zabudnuté heslo</h1>
+        <p className="text-muted-foreground text-balance">
           Použite svoj email na resetovanie hesla
         </p>
       </div>
-      <div className='space-y-4'>
+      <div className="space-y-4">
         <Form {...form}>
-          <form className='space-y-4' action={onSubmit}>
+          <form className="space-y-4" action={onSubmit}>
             <FormField
               control={form.control}
-              name='email'
+              name="email"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
-                      autoComplete='email'
-                      placeholder='vas@email.com'
+                      autoComplete="email"
+                      placeholder="vas@email.com"
                       {...field}
                     />
                   </FormControl>
@@ -72,12 +72,12 @@ export const ForgotPassword: React.FC<Props> = ({ className }) => {
                 </FormItem>
               )}
             />
-            <div className='flex flex-col sm:flex-row gap-4'>
-              <SubmitButton className='w-full'>Odoslať</SubmitButton>
+            <div className="flex flex-col gap-4 sm:flex-row">
+              <SubmitButton className="w-full">Odoslať</SubmitButton>
               {email && (
                 <SubmitButton
-                  className='w-full'
-                  variant='secondary'
+                  className="w-full"
+                  variant="secondary"
                   formAction={onResubmit}
                 >
                   <RotateCcw /> Znovu odoslať
@@ -86,9 +86,9 @@ export const ForgotPassword: React.FC<Props> = ({ className }) => {
             </div>
           </form>
         </Form>
-        <div className='mt-4 text-center text-sm'>
+        <div className="mt-4 text-center text-sm">
           Ešte nemáte účet?{' '}
-          <Link href={REDIRECTS.signUp} className='underline'>
+          <Link href={REDIRECTS.signUp} className="underline">
             Registrácia
           </Link>
         </div>

@@ -11,7 +11,7 @@ export const isURL = (value: string) => {
 };
 
 export const parseUrl = (
-  url: string | URL
+  url: string | URL,
 ): Partial<{ protocol: string; domain: string; tld: string | null }> => {
   try {
     const { hostname, protocol } = new URL(url);
@@ -47,17 +47,17 @@ export const snakeCaseifyKeys = <T extends object>(obj: T) => {
       ...reducer,
       [toCase(acc, '_')]: obj[acc as keyof T],
     }),
-    {} as T
+    {} as T,
   );
 };
 
 export const joinValues = <T extends unknown[]>(array: T, separator = ' | ') =>
   array
-    .map((val) => (typeof val === 'string' ? `'${val}'` : val))
+    .map(val => (typeof val === 'string' ? `'${val}'` : val))
     .join(separator);
 
 export const objectEntries = <T extends object>(
-  obj: T
+  obj: T,
 ): [keyof T, T[keyof T]][] => {
   return Object.entries(obj) as [keyof T, T[keyof T]][];
 };
@@ -65,7 +65,7 @@ export const objectEntries = <T extends object>(
 export const combineEntries = <T extends [string, unknown][]>(
   entries: T,
   coupler: string = '=',
-  delimiter: string = ','
+  delimiter: string = ',',
 ) => {
   return entries
     .map(([key, value]) => `${key}${coupler}${value}`)
@@ -73,14 +73,14 @@ export const combineEntries = <T extends [string, unknown][]>(
 };
 
 export const formDataEntries = <K extends string | number | symbol>(
-  obj: Record<string, FormDataEntryValue>
+  obj: Record<string, FormDataEntryValue>,
 ) => {
   return Object.entries(obj).reduce(
     (acc, [key, value]) => ({
       ...acc,
       [key]: value.toString(),
     }),
-    {} as Record<K, string>
+    {} as Record<K, string>,
   );
 };
 
@@ -103,7 +103,7 @@ export const set = <T extends object>(object: T, path: string, value: any) => {
 
 export const get = <T extends object, K extends keyof T>(
   object: T,
-  path: K | K[]
+  path: K | K[],
 ): T[K] | undefined => {
   const pathArray = Array.isArray(path)
     ? path
@@ -118,11 +118,11 @@ export const get = <T extends object, K extends keyof T>(
 
 export const omit = <T extends object, K extends keyof T>(
   object: T,
-  keys: K[]
+  keys: K[],
 ): Omit<T, K> => {
   const result = { ...object };
 
-  keys.forEach((key) => {
+  keys.forEach(key => {
     delete result[key];
   });
 

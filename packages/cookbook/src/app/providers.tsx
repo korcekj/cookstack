@@ -12,8 +12,8 @@ const Providers = ({ children, messages }: Props) => {
   return (
     <NextIntlClientProvider messages={messages}>
       <ThemeProvider
-        attribute='class'
-        defaultTheme='system'
+        attribute="class"
+        defaultTheme="system"
         enableSystem
         disableTransitionOnChange
       >

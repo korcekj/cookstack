@@ -13,24 +13,24 @@ export const Password = React.forwardRef<HTMLInputElement, Props>(
     const [show, setShow] = React.useState(false);
 
     return (
-      <div className='flex items-center space-x-2'>
+      <div className="flex items-center space-x-2">
         <Input type={show ? 'text' : 'password'} ref={ref} {...props} />
         <Button
-          type='button'
-          variant='outline'
-          size='icon'
+          type="button"
+          variant="outline"
+          size="icon"
           onClick={() => setShow(!show)}
           tabIndex={-1}
         >
           {show ? (
-            <EyeOff className='size-4'></EyeOff>
+            <EyeOff className="size-4"></EyeOff>
           ) : (
-            <Eye className='size-4' />
+            <Eye className="size-4" />
           )}
         </Button>
       </div>
     );
-  }
+  },
 );
 
 Password.displayName = 'Password';

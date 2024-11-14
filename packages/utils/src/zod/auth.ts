@@ -41,9 +41,9 @@ export const confirmPassword = <
   T extends {
     password: string;
     passwordConfirm: string;
-  }
+  },
 >(
-  schema: z.ZodType<T>
+  schema: z.ZodType<T>,
 ) => {
   return schema.refine(
     ({ password, passwordConfirm }) => password === passwordConfirm,
@@ -52,6 +52,6 @@ export const confirmPassword = <
       params: {
         i18n: 'notSamePassword',
       },
-    }
+    },
   );
 };

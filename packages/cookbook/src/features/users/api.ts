@@ -5,7 +5,7 @@ import { getAuthCookie } from '@/utils/cookies';
 import { fetcher, HTTPError } from '@/utils/fetch';
 
 export const fetchUser = async (
-  options: Options & { cookie?: boolean } = { cookie: true }
+  options: Options & { cookie?: boolean } = { cookie: true },
 ) => {
   try {
     let headers = options.headers;
@@ -33,6 +33,6 @@ export const getUserCached = async () => {
     {
       tags: ['user'],
       revalidate: 3600,
-    }
+    },
   )(cookie);
 };

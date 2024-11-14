@@ -6,7 +6,7 @@ export const createInstructionSchema = z.object({
       z.object({
         text: z.string().max(1024),
         language: z.string().length(2),
-      })
+      }),
     )
     .min(1),
 });
@@ -22,11 +22,11 @@ export const updateInstructionSchema = z
             z.object({
               text: z.string().max(1024),
               language: z.string().length(2),
-            })
+            }),
           )
           .min(1),
       })
-      .partial()
+      .partial(),
   )
   .min(1);
 

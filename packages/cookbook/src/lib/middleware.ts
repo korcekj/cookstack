@@ -15,10 +15,10 @@ import { getTranslations, getMessages, getLocale } from 'next-intl/server';
 
 export const withI18nZod = <
   S extends z.ZodType<any, any>,
-  T extends ActionResponse<S>
+  T extends ActionResponse<S>,
 >(
   schema: S,
-  action: ActionFunction<S, T>
+  action: ActionFunction<S, T>,
 ) => {
   return async (_: any, formData: FormData): Promise<ActionResponse<S>> => {
     const t = await getTranslations();
@@ -43,7 +43,7 @@ export const withI18nZod = <
 export const withUser = (action: ActionFunctionWithUser) => {
   return async (
     prevState: any,
-    formData: FormData
+    formData: FormData,
   ): Promise<ActionResponse<any>> => {
     const user = await getUser();
     const locale = await getLocale();

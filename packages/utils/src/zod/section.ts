@@ -6,7 +6,7 @@ export const createSectionSchema = z.object({
       z.object({
         name: z.string().max(128),
         language: z.string().length(2),
-      })
+      }),
     )
     .min(1),
 });
@@ -22,11 +22,11 @@ export const updateSectionSchema = z
             z.object({
               name: z.string().max(128),
               language: z.string().length(2),
-            })
+            }),
           )
           .min(1),
       })
-      .partial()
+      .partial(),
   )
   .min(1);
 

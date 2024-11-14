@@ -11,10 +11,10 @@ const handleI18nRouting = createMiddleware(routing);
 const middleware = async (request: NextRequest) => {
   const { pathname } = request.nextUrl;
   const isPrivate = RegExp(
-    `^(/(${LOCALES.join('|')}))?(${PRIVATE_ROUTES.flatMap((p) =>
-      p === '/' ? ['', '/'] : p
+    `^(/(${LOCALES.join('|')}))?(${PRIVATE_ROUTES.flatMap(p =>
+      p === '/' ? ['', '/'] : p,
     ).join('|')})/?$`,
-    'i'
+    'i',
   );
 
   if (isPrivate.test(pathname)) {

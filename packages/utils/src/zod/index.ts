@@ -26,7 +26,7 @@ export const makeZodI18nMap =
   (
     t: (k: string, nv?: NamedValue) => string,
     te: (k: string) => boolean,
-    ns = 'errors'
+    ns = 'errors',
   ): ZodErrorMap =>
   (issue, _ctx) => {
     // TODO: remove

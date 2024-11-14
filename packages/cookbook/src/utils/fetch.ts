@@ -15,7 +15,7 @@ export const fetcher = ky.create({
 export const fetch = fetcher.extend({
   hooks: {
     beforeRequest: [
-      async (request) => {
+      async request => {
         request.headers.set('Cookie', getAuthCookie());
         request.headers.set('Origin', env.NEXT_PUBLIC_BASE_URL);
         request.headers.set('Accept-Language', await getLocale());

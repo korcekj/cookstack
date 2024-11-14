@@ -14,14 +14,14 @@ export const useFetch = () => {
         credentials: 'include',
         hooks: {
           beforeRequest: [
-            async (request) => {
+            async request => {
               request.headers.set('Accept-Language', locale);
               request.headers.set('Origin', env.NEXT_PUBLIC_BASE_URL);
             },
           ],
         },
       }),
-    [locale]
+    [locale],
   );
 
   return fetcher;

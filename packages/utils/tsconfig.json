@@ -11,6 +11,10 @@
     "rootDir": "src",
     "baseUrl": "./"
   },
-  "include": ["src/**/*"],
-  "exclude": ["dist"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "dist"
+  ]
 }

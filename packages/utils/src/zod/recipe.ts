@@ -13,7 +13,7 @@ export const createRecipeSchema = z.object({
         name: z.string().max(128),
         description: z.string().max(1024).optional(),
         language: z.string().length(2),
-      })
+      }),
     )
     .min(1),
 });
@@ -31,7 +31,7 @@ export const updateRecipeSchema = z
           name: z.string().max(128),
           description: z.string().max(1024).optional(),
           language: z.string().length(2),
-        })
+        }),
       )
       .min(1),
   })
@@ -40,7 +40,7 @@ export const updateRecipeSchema = z
 export const updateRecipeImageSchema = z.object({
   image: z
     .any()
-    .refine((file) => file?.size <= 5 * 1024 * 1024, {
+    .refine(file => file?.size <= 5 * 1024 * 1024, {
       params: {
         i18n: {
           key: 'invalidFileSize',
@@ -50,7 +50,7 @@ export const updateRecipeImageSchema = z.object({
         },
       },
     })
-    .refine((file) => file?.type.startsWith('image/'), {
+    .refine(file => file?.type.startsWith('image/'), {
       params: {
         i18n: 'invalidFileType',
       },
@@ -88,9 +88,9 @@ export const getRecipesSchema = z.object({
     .string()
     .optional()
     .refine(
-      (v) =>
+      v =>
         v
-          ? v.split(',').every((s) => recipesOrderBySchema.safeParse(s).success)
+          ? v.split(',').every(s => recipesOrderBySchema.safeParse(s).success)
           : true,
       {
         params: {
@@ -101,7 +101,7 @@ export const getRecipesSchema = z.object({
             },
           },
         },
-      }
+      },
     ),
 });
 
