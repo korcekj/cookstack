@@ -19,7 +19,7 @@
       "@cs/utils/*": ["../utils/src/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["**/*.ts"],
   "exclude": ["dist"],
   "references": [{ "path": "../utils" }]
 }
