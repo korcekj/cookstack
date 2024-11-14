@@ -8,6 +8,8 @@
     "dev": "lerna run dev"
   },
   "devDependencies": {
-    "lerna": "^8.1.2"
+    "lerna": "^8.1.2",
+    "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.8"
   }
 }
