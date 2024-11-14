@@ -2,14 +2,14 @@ import type { Context } from 'hono';
 import type { Env } from '../../types';
 
 import { html } from 'hono/html';
-import { useTranslation } from '@intlify/hono';
 
 export const verificationCode = (c: Context<Env>) => {
-  const t = useTranslation(c);
+  const { t, locale } = c.get('i18n');
   return (props: { code: string }) =>
     html`
-      <html>
+      <html lang="${locale()}">
         <head>
+          <title></title>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
           <link
@@ -31,11 +31,12 @@ export const verificationCode = (c: Context<Env>) => {
 };
 
 export const resetPassword = (c: Context<Env>) => {
-  const t = useTranslation(c);
+  const { t, locale } = c.get('i18n');
   return (props: { link: string }) =>
     html`
-      <html>
+      <html lang="${locale()}">
         <head>
+          <title></title>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
           <link

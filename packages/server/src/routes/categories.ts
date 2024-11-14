@@ -15,7 +15,6 @@ import {
 import { eq } from 'drizzle-orm';
 import { slugify } from '@cs/utils';
 import { initializeDB } from '../services/db';
-import { useTranslation } from '@intlify/hono';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { rateLimit } from '../middlewares/rate-limit';
@@ -27,7 +26,7 @@ const categories = new Hono<Env>();
 
 categories.use(rateLimit);
 
-categories.get('/', validator('query', getCategoriesSchema), async (c) => {
+categories.get('/', validator('query', getCategoriesSchema), async c => {
   const options = c.req.valid('query');
   const { limit, offset } = options;
 
@@ -42,8 +41,8 @@ categories.post(
   '/',
   verifyAuthor,
   validator('json', createCategorySchema),
-  async (c) => {
-    const t = useTranslation(c);
+  async c => {
+    const { t } = c.get('i18n');
     const { translations } = c.req.valid('json');
 
     const db = initializeDB(c.env.DB);
@@ -56,11 +55,11 @@ categories.post(
           id: categoryId,
         }),
         db.insert(categoriesTranslations).values(
-          translations.map((v) => ({
+          translations.map(v => ({
             categoryId,
             slug: slugify(v.name),
             ...v,
-          }))
+          })),
         ),
       ]);
     } catch (err) {
@@ -74,20 +73,20 @@ categories.post(
     }
 
     return c.json({ category: { id: categoryId } }, 201);
-  }
+  },
 );
 
 categories.get(
   '/:categoryId',
   validator('param', getCategorySchema),
   validateCategory,
-  async (c) => {
+  async c => {
     const options = c.req.valid('param');
 
     const { categories } = await useCategories(c, options);
 
     return c.json({ category: categories[0] });
-  }
+  },
 );
 
 categories.get(
@@ -95,7 +94,7 @@ categories.get(
   validator('param', getCategorySchema),
   validateCategory,
   validator('query', getRecipesSchema),
-  async (c) => {
+  async c => {
     const param = c.req.valid('param');
     const query = c.req.valid('query');
     const { limit, offset } = query;
@@ -105,7 +104,7 @@ categories.get(
     const pages = Math.ceil(total / limit);
 
     return c.json({ recipes, total, page, pages });
-  }
+  },
 );
 
 categories.patch(
@@ -114,8 +113,8 @@ categories.patch(
   validator('param', getCategorySchema),
   validateCategory,
   validator('json', updateCategorySchema),
-  async (c) => {
-    const t = useTranslation(c);
+  async c => {
+    const { t } = c.get('i18n');
     const { categoryId } = c.req.valid('param');
     const { translations } = c.req.valid('json');
 
@@ -130,11 +129,11 @@ categories.patch(
         db
           .insert(categoriesTranslations)
           .values(
-            translations.map((v) => ({
+            translations.map(v => ({
               ...v,
               categoryId,
               slug: slugify(v.name),
-            }))
+            })),
           )
           .onConflictDoUpdate({
             target: [
@@ -158,7 +157,7 @@ categories.patch(
     }
 
     return c.body(null, 204);
-  }
+  },
 );
 
 categories.delete(
@@ -166,8 +165,8 @@ categories.delete(
   verifyAuthor,
   validator('param', getCategorySchema),
   validateCategory,
-  async (c) => {
-    const t = useTranslation(c);
+  async c => {
+    const { t } = c.get('i18n');
     const { categoryId } = c.req.valid('param');
 
     const db = initializeDB(c.env.DB);
@@ -187,7 +186,7 @@ categories.delete(
     }
 
     return c.body(null, 204);
-  }
+  },
 );
 
 export default categories;

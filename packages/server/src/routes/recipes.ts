@@ -15,7 +15,6 @@ import {
 import { eq } from 'drizzle-orm';
 import { slugify } from '@cs/utils';
 import { initializeDB } from '../services/db';
-import { useTranslation } from '@intlify/hono';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { useRecipes } from '../services/db/queries';
@@ -30,7 +29,7 @@ const recipes = new Hono<Env>();
 
 recipes.use(rateLimit);
 
-recipes.get('/', validator('query', getRecipesSchema), async (c) => {
+recipes.get('/', validator('query', getRecipesSchema), async c => {
   const options = c.req.valid('query');
   const { limit, offset } = options;
 
@@ -45,8 +44,8 @@ recipes.post(
   '/',
   verifyAuthor,
   validator('json', createRecipeSchema),
-  async (c) => {
-    const t = useTranslation(c);
+  async c => {
+    const { t } = c.get('i18n');
     const { translations, ...recipe } = c.req.valid('json');
 
     const db = initializeDB(c.env.DB);
@@ -62,11 +61,11 @@ recipes.post(
           userId,
         }),
         db.insert(recipesTranslations).values(
-          translations.map((v) => ({
+          translations.map(v => ({
             ...v,
             recipeId,
             slug: slugify(v.name),
-          }))
+          })),
         ),
       ]);
     } catch (err) {
@@ -82,18 +81,18 @@ recipes.post(
     }
 
     return c.json({ recipe: { id: recipeId } }, 201);
-  }
+  },
 );
 
 recipes.get(
   '/:recipeId',
   validator('param', getRecipeSchema),
   validateRecipe,
-  async (c) => {
+  async c => {
     const options = c.req.valid('param');
     const { recipes } = await useRecipes(c, options);
     return c.json({ recipe: recipes[0] });
-  }
+  },
 );
 
 recipes.patch(
@@ -102,8 +101,8 @@ recipes.patch(
   validator('param', getRecipeSchema),
   validateRecipe,
   validator('json', updateRecipeSchema),
-  async (c) => {
-    const t = useTranslation(c);
+  async c => {
+    const { t } = c.get('i18n');
     const { recipeId } = c.req.valid('param');
     const { translations, ...recipe } = c.req.valid('json');
 
@@ -120,11 +119,11 @@ recipes.patch(
               db
                 .insert(recipesTranslations)
                 .values(
-                  translations.map((v) => ({
+                  translations.map(v => ({
                     ...v,
                     recipeId,
                     slug: slugify(v.name),
-                  }))
+                  })),
                 )
                 .onConflictDoUpdate({
                   target: [
@@ -153,7 +152,7 @@ recipes.patch(
     }
 
     return c.body(null, 204);
-  }
+  },
 );
 
 recipes.put(
@@ -162,7 +161,7 @@ recipes.put(
   validator('param', getRecipeSchema),
   validateRecipe,
   validator('form', updateRecipeImageSchema),
-  async (c) => {
+  async c => {
     const { recipeId } = c.req.valid('param');
     const { image: file } = c.req.valid('form');
 
@@ -185,7 +184,7 @@ recipes.put(
       .where(eq(recipesTable.id, recipeId));
 
     return c.json({ image: { id: imageId, url: imageUrl } });
-  }
+  },
 );
 
 recipes.delete(
@@ -193,7 +192,7 @@ recipes.delete(
   verifyAuthor,
   validator('param', getRecipeSchema),
   validateRecipe,
-  async (c) => {
+  async c => {
     const { recipeId } = c.req.valid('param');
 
     const db = initializeDB(c.env.DB);
@@ -201,7 +200,7 @@ recipes.delete(
     await db.delete(recipesTable).where(eq(recipesTable.id, recipeId));
 
     return c.body(null, 204);
-  }
+  },
 );
 
 recipes.route('/:recipeId/sections', sections);

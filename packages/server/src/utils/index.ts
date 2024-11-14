@@ -6,11 +6,6 @@ export const getIp = (c: Context) => c.req.header('cf-connecting-ip');
 
 export const getCountry = (c: Context) => c.req.raw.cf?.country as string;
 
-export const getLocale = (c: Context) => {
-  const { locale } = c.get('i18n') as unknown as { locale: () => string };
-  return locale();
-};
-
 export const sha256 = (value: string | Uint8Array) => {
   return createHash('sha256').update(value).digest('hex');
 };
@@ -19,7 +14,7 @@ export const pbkdf2 = {
   key(
     value: string | Uint8Array,
     salt: string | Uint8Array,
-    options?: { c: number; dkLen: number; digest: 'sha256' | 'sha512' }
+    options?: { c: number; dkLen: number; digest: 'sha256' | 'sha512' },
   ) {
     const { c = 100_000, dkLen = 64, digest = 'sha512' } = options ?? {};
     return new Promise<string>((resolve, reject) => {

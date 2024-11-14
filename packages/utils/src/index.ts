@@ -136,3 +136,17 @@ export const toCase = (value: string, separator = '-') => {
     .replace(/_+/g, separator)
     .toLowerCase();
 };
+
+export const replaceValues = <T extends object>(obj: T, regex: RegExp) => {
+  const replacer = (input: Record<string, any> | string) => {
+    if (typeof input === 'string') return input.replace(regex, '{{$1}}');
+    else if (input && typeof input === 'object') {
+      for (let key in input) {
+        input[key] = replacer(input[key]);
+      }
+    }
+    return input;
+  };
+
+  return replacer(obj) as T;
+};

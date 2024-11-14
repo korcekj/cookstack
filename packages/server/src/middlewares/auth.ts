@@ -2,7 +2,6 @@ import type { Env } from '../types';
 
 import { every } from 'hono/combine';
 import { bearerAuth } from 'hono/bearer-auth';
-import { useTranslation } from '@intlify/hono';
 import { createMiddleware } from 'hono/factory';
 import { initializeAuth } from '../services/auth';
 import { setCookie, getCookie } from 'hono/cookie';
@@ -36,22 +35,22 @@ export const handleAuth = createMiddleware<Env>(async (c, next) => {
 export const handleBearerAuth = (token: string) =>
   bearerAuth({
     token,
-    noAuthenticationHeaderMessage: (c) => {
-      const t = useTranslation(c);
+    noAuthenticationHeaderMessage: c => {
+      const { t } = c.get('i18n');
       throw new HTTPException(401, { message: t('auth.invalidHeader') });
     },
-    invalidAuthenticationHeaderMessage: (c) => {
-      const t = useTranslation(c);
+    invalidAuthenticationHeaderMessage: c => {
+      const { t } = c.get('i18n');
       throw new HTTPException(400, { message: t('auth.invalidToken') });
     },
-    invalidTokenMessage: (c) => {
-      const t = useTranslation(c);
+    invalidTokenMessage: c => {
+      const { t } = c.get('i18n');
       throw new HTTPException(400, { message: t('auth.invalidToken') });
     },
   });
 
 export const verifyAuth = createMiddleware<Env>(async (c, next) => {
-  const t = useTranslation(c);
+  const { t } = c.get('i18n');
   const session = c.get('session');
   if (!session) {
     throw new HTTPException(401, { message: t('auth.unauthorized') });
@@ -63,7 +62,7 @@ export const verifyAuth = createMiddleware<Env>(async (c, next) => {
 export const verifyAuthor = every(
   verifyAuth,
   createMiddleware<Env>(async (c, next) => {
-    const t = useTranslation(c);
+    const { t } = c.get('i18n');
 
     const user = c.get('user')!;
     if (user.role !== 'author') {
@@ -71,7 +70,7 @@ export const verifyAuthor = every(
     }
 
     return next();
-  })
+  }),
 );
 
 export const makeAuthor = every(
@@ -81,7 +80,7 @@ export const makeAuthor = every(
     return bearer(c, next);
   }),
   createMiddleware<Env>(async (c, next) => {
-    const t = useTranslation(c);
+    const { t } = c.get('i18n');
 
     const user = c.get('user')!;
     if (!user.emailVerified) {
@@ -92,5 +91,5 @@ export const makeAuthor = every(
     }
 
     return next();
-  })
+  }),
 );

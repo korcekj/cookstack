@@ -1,3 +1,4 @@
+import type { Translation } from './i18n';
 import type { User, Session } from 'lucia';
 
 export type Bindings = {
@@ -18,6 +19,7 @@ export type Bindings = {
 };
 
 export type Variables = {
+  i18n: Translation;
   user: User | null;
   session: Session | null;
 };

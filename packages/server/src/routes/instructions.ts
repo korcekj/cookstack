@@ -18,7 +18,6 @@ import {
 } from '../middlewares/validation';
 import { eq, inArray } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
-import { useTranslation } from '@intlify/hono';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { rateLimit } from '../middlewares/rate-limit';
@@ -34,8 +33,8 @@ instructions.post(
   validator('param', getSectionSchema),
   validateSection,
   validator('json', createInstructionSchema),
-  async (c) => {
-    const t = useTranslation(c);
+  async c => {
+    const { t } = c.get('i18n');
     const { sectionId } = c.req.valid('param');
     const { translations, ...instruction } = c.req.valid('json');
 
@@ -46,7 +45,7 @@ instructions.post(
     try {
       const position = await db.$count(
         instructionsTable,
-        eq(instructionsTable.sectionId, sectionId)
+        eq(instructionsTable.sectionId, sectionId),
       );
       await db.batch([
         db.insert(instructionsTable).values({
@@ -56,10 +55,10 @@ instructions.post(
           id: instructionId,
         }),
         db.insert(instructionsTranslations).values(
-          translations.map((v) => ({
+          translations.map(v => ({
             ...v,
             instructionId,
-          }))
+          })),
         ),
       ]);
     } catch (err) {
@@ -73,20 +72,20 @@ instructions.post(
     }
 
     return c.json({ instruction: { id: instructionId } }, 201);
-  }
+  },
 );
 
 instructions.get(
   '/',
   validator('param', getSectionSchema),
   validateSection,
-  async (c) => {
+  async c => {
     const options = c.req.valid('param');
 
     const instructions = await useInstructions(c, options);
 
     return c.json({ instructions });
-  }
+  },
 );
 
 instructions.put(
@@ -95,8 +94,8 @@ instructions.put(
   validator('param', getSectionSchema),
   validateSection,
   validator('json', updateInstructionSchema),
-  async (c) => {
-    const t = useTranslation(c);
+  async c => {
+    const { t } = c.get('i18n');
     const body = c.req.valid('json');
     const options = c.req.valid('param');
     const { sectionId } = options;
@@ -111,28 +110,28 @@ instructions.put(
     const translations = instructions
       .map(
         ({ id, translations }) =>
-          translations?.map((v) => ({ ...v, instructionId: id })) ?? []
+          translations?.map(v => ({ ...v, instructionId: id })) ?? [],
       )
       .flat();
 
     try {
       let total = await db.$count(
         instructionsTable,
-        eq(instructionsTable.sectionId, sectionId)
+        eq(instructionsTable.sectionId, sectionId),
       );
       const [_1, _2, _3, results] = await db.batch([
         db.delete(instructionsTable).where(
           inArray(
             instructionsTable.id,
-            instructions.map(({ id }) => id)
-          )
+            instructions.map(({ id }) => id),
+          ),
         ),
         db.insert(instructionsTable).values(
           instructions.map(({ id, position }) => ({
             id,
             sectionId,
             position: position ?? total++,
-          }))
+          })),
         ),
         ...(translations.length
           ? [db.insert(instructionsTranslations).values(translations)]
@@ -150,7 +149,7 @@ instructions.put(
 
       throw err;
     }
-  }
+  },
 );
 
 instructions.delete(
@@ -158,7 +157,7 @@ instructions.delete(
   verifyAuthor,
   validator('param', getInstructionSchema),
   validateInstruction,
-  async (c) => {
+  async c => {
     const { instructionId } = c.req.valid('param');
 
     const db = initializeDB(c.env.DB);
@@ -168,7 +167,7 @@ instructions.delete(
       .where(eq(instructionsTable.id, instructionId));
 
     return c.body(null, 204);
-  }
+  },
 );
 
 export default instructions;

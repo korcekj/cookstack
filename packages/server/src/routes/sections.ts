@@ -18,7 +18,6 @@ import {
 } from '../middlewares/validation';
 import { eq, inArray } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
-import { useTranslation } from '@intlify/hono';
 import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { useSections } from '../services/db/queries';
@@ -35,13 +34,13 @@ sections.get(
   '/',
   validator('param', getRecipeSchema),
   validateRecipe,
-  async (c) => {
+  async c => {
     const options = c.req.valid('param');
 
     const sections = await useSections(c, options);
 
     return c.json({ sections });
-  }
+  },
 );
 
 sections.post(
@@ -50,8 +49,8 @@ sections.post(
   validator('param', getRecipeSchema),
   validateRecipe,
   validator('json', createSectionSchema),
-  async (c) => {
-    const t = useTranslation(c);
+  async c => {
+    const { t } = c.get('i18n');
     const { recipeId } = c.req.valid('param');
     const { translations, ...section } = c.req.valid('json');
 
@@ -62,17 +61,17 @@ sections.post(
     try {
       const position = await db.$count(
         sectionsTable,
-        eq(sectionsTable.recipeId, recipeId)
+        eq(sectionsTable.recipeId, recipeId),
       );
       await db.batch([
         db
           .insert(sectionsTable)
           .values({ ...section, id: sectionId, recipeId, position }),
         db.insert(sectionsTranslations).values(
-          translations.map((v) => ({
+          translations.map(v => ({
             ...v,
             sectionId,
-          }))
+          })),
         ),
       ]);
     } catch (err) {
@@ -86,7 +85,7 @@ sections.post(
     }
 
     return c.json({ section: { id: sectionId } }, 201);
-  }
+  },
 );
 
 sections.put(
@@ -95,8 +94,8 @@ sections.put(
   validator('param', getRecipeSchema),
   validateRecipe,
   validator('json', updateSectionSchema),
-  async (c) => {
-    const t = useTranslation(c);
+  async c => {
+    const { t } = c.get('i18n');
     const body = c.req.valid('json');
     const options = c.req.valid('param');
     const { recipeId } = options;
@@ -111,28 +110,28 @@ sections.put(
     const translations = sections
       .map(
         ({ id, translations }) =>
-          translations?.map((v) => ({ ...v, sectionId: id })) ?? []
+          translations?.map(v => ({ ...v, sectionId: id })) ?? [],
       )
       .flat();
 
     try {
       let total = await db.$count(
         sectionsTable,
-        eq(sectionsTable.recipeId, recipeId)
+        eq(sectionsTable.recipeId, recipeId),
       );
       const [_1, _2, _3, results] = await db.batch([
         db.delete(sectionsTable).where(
           inArray(
             sectionsTable.id,
-            sections.map(({ id }) => id)
-          )
+            sections.map(({ id }) => id),
+          ),
         ),
         db.insert(sectionsTable).values(
           sections.map(({ id, position }) => ({
             id,
             recipeId,
             position: position ?? total++,
-          }))
+          })),
         ),
         ...(translations.length
           ? [db.insert(sectionsTranslations).values(translations)]
@@ -150,7 +149,7 @@ sections.put(
 
       throw err;
     }
-  }
+  },
 );
 
 sections.delete(
@@ -158,7 +157,7 @@ sections.delete(
   verifyAuthor,
   validator('param', getSectionSchema),
   validateSection,
-  async (c) => {
+  async c => {
     const { sectionId } = c.req.valid('param');
 
     const db = initializeDB(c.env.DB);
@@ -166,7 +165,7 @@ sections.delete(
     await db.delete(sectionsTable).where(eq(sectionsTable.id, sectionId));
 
     return c.body(null, 204);
-  }
+  },
 );
 
 sections.route('/:sectionId/ingredients', ingredients);

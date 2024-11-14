@@ -1,48 +1,32 @@
-import type { Context } from 'hono';
 import type { Env } from '../types';
 
-import {
-  useTranslation,
-  defineI18nMiddleware,
-  detectLocaleFromAcceptLanguageHeader,
-} from '@intlify/hono';
 import { get } from '@cs/utils';
-import { every } from 'hono/combine';
+import { translation } from '../i18n';
+import { DEFAULT_LOCALE } from '../constants';
 import { createMiddleware } from 'hono/factory';
 import { z, makeZodI18nMap } from '@cs/utils/zod';
-import { DEFAULT_LOCALE, LOCALES } from '../constants';
 
-import en from '../locales/en';
-import sk from '../locales/sk';
+export const i18n = createMiddleware<Env>(async (c, next) => {
+  let locale = c.req.header('accept-language')?.split(',')[0];
+  locale ??= DEFAULT_LOCALE;
 
-type ResourceSchema = typeof en;
-declare module '@intlify/hono' {
-  export interface DefineLocaleMessage extends ResourceSchema {}
-}
+  translation.locale(locale);
 
-export const i18n = every(
-  defineI18nMiddleware({
-    locale: (ctx: Context) => {
-      const locale = detectLocaleFromAcceptLanguageHeader(ctx);
-      if (!LOCALES.includes(locale)) return DEFAULT_LOCALE;
-      return locale;
-    },
-    messages: {
-      en,
-      sk,
-    },
-  }),
-  createMiddleware<Env>(async (c, next) => {
-    const t = useTranslation(c);
-    const { messages }: { messages: Record<string, string> } = c.get('i18n');
+  const messages = translation.table(locale);
 
-    const te = (path: string) => {
-      return Object.keys(messages).every((key) =>
-        get(messages, `${key}.${path}`)
-      );
-    };
+  const t = translation.t;
+  const te = (path: string) => {
+    return Object.keys(translation.table).every(key =>
+      // @ts-ignore
+      get(messages, `${key}.${path}`),
+    );
+  };
 
-    z.setErrorMap(makeZodI18nMap(t, te));
-    return next();
-  })
-);
+  z.setErrorMap(makeZodI18nMap(t, te));
+
+  c.set('i18n', translation);
+
+  console.log({ locale: c.get('i18n').locale() });
+
+  return next();
+});

@@ -2,7 +2,6 @@ import type { Context } from 'hono';
 import type { Env } from '../types';
 
 import { getIp, getCountry } from '../utils';
-import { useTranslation } from '@intlify/hono';
 import { Ratelimit } from '@upstash/ratelimit';
 import { createMiddleware } from 'hono/factory';
 import { Redis } from '@upstash/redis/cloudflare';
@@ -20,8 +19,8 @@ const identifier = (c: Context<Env>) => {
 export const rateLimit = createMiddleware<Env>(async (c, next) => {
   if (c.env.ENV === 'dev') return next();
 
+  const { t } = c.get('i18n');
   const key = identifier(c);
-  const t = useTranslation(c);
 
   const redis = Redis.fromEnv(c.env);
   const limiter = new Ratelimit({

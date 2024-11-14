@@ -28,15 +28,14 @@ import {
   instructions as instructionsTable,
 } from './schema';
 import { initializeDB } from '.';
-import { getLocale } from '../../utils';
 import { getOrderByClauses } from './helpers';
 import { sql, count, eq, and, asc } from 'drizzle-orm';
 
 export const useCategories = async (
   c: Context<Env>,
-  options: GetCategoryInput | GetCategoriesInput
+  options: GetCategoryInput | GetCategoriesInput,
 ) => {
-  const locale = getLocale(c);
+  const { locale } = c.get('i18n');
 
   const db = initializeDB(c.env.DB);
 
@@ -53,8 +52,8 @@ export const useCategories = async (
       categoriesTranslations,
       and(
         eq(categoriesTranslations.categoryId, categoriesTable.id),
-        eq(categoriesTranslations.language, locale)
-      )
+        eq(categoriesTranslations.language, locale()),
+      ),
     );
   const totalQuery = db.select({ total: count() }).from(categoriesTable);
 
@@ -68,14 +67,14 @@ export const useCategories = async (
   if ('orderBy' in options) {
     const orderByClauses = getOrderByClauses<CategoriesOrderByColumns>(
       options.orderBy,
-      (value) => {
+      value => {
         switch (value) {
           case 'name':
             return categoriesTranslations.name;
           default:
             throw new Error(`Invalid column name: ${value}`);
         }
-      }
+      },
     );
     categoriesQuery.$dynamic().orderBy(...orderByClauses);
   }
@@ -94,9 +93,9 @@ export const useCategories = async (
 
 export const useRecipes = async (
   c: Context<Env>,
-  options: GetRecipeInput | GetRecipesInput | GetCategoryInput
+  options: GetRecipeInput | GetRecipesInput | GetCategoryInput,
 ) => {
-  const locale = getLocale(c);
+  const { locale } = c.get('i18n');
 
   const db = initializeDB(c.env.DB);
 
@@ -109,15 +108,15 @@ export const useRecipes = async (
       total: recipesTable.total,
       yield: recipesTable.yield,
       name: sql<RecipeTranslation['name']>`${recipesTranslations.name}`.as(
-        'rt_name'
+        'rt_name',
       ),
       slug: sql<RecipeTranslation['slug']>`${recipesTranslations.slug}`.as(
-        'rt_slug'
+        'rt_slug',
       ),
       description: recipesTranslations.description,
       category: {
         id: sql<RecipeTable['categoryId']>`${recipesTable.categoryId}`.as(
-          'c_id'
+          'c_id',
         ),
         name: sql<
           CategoryTranslation['name']
@@ -134,15 +133,15 @@ export const useRecipes = async (
       recipesTranslations,
       and(
         eq(recipesTranslations.recipeId, recipesTable.id),
-        eq(recipesTranslations.language, locale)
-      )
+        eq(recipesTranslations.language, locale()),
+      ),
     )
     .innerJoin(
       categoriesTranslations,
       and(
         eq(categoriesTranslations.categoryId, recipesTable.categoryId),
-        eq(categoriesTranslations.language, locale)
-      )
+        eq(categoriesTranslations.language, locale()),
+      ),
     );
   const totalQuery = db.select({ total: count() }).from(recipesTable);
 
@@ -163,7 +162,7 @@ export const useRecipes = async (
   if ('orderBy' in options) {
     const orderByClauses = getOrderByClauses<RecipesOrderByColumns>(
       options.orderBy,
-      (value) => {
+      value => {
         switch (value) {
           case 'name':
             return recipesTranslations.name;
@@ -178,7 +177,7 @@ export const useRecipes = async (
           default:
             throw new Error(`Invalid column name: ${value}`);
         }
-      }
+      },
     );
 
     recipesQuery.$dynamic().orderBy(...orderByClauses);
@@ -197,7 +196,7 @@ export const useRecipes = async (
 };
 
 export const useSections = (c: Context<Env>, options: GetRecipeInput) => {
-  const locale = getLocale(c);
+  const { locale } = c.get('i18n');
 
   const db = initializeDB(c.env.DB);
 
@@ -212,15 +211,15 @@ export const useSections = (c: Context<Env>, options: GetRecipeInput) => {
       sectionsTranslations,
       and(
         eq(sectionsTranslations.sectionId, sectionsTable.id),
-        eq(sectionsTranslations.language, locale)
-      )
+        eq(sectionsTranslations.language, locale()),
+      ),
     )
     .where(eq(sectionsTable.recipeId, options.recipeId))
     .orderBy(asc(sectionsTable.position));
 };
 
 export const useIngredients = (c: Context<Env>, options: GetSectionInput) => {
-  const locale = getLocale(c);
+  const { locale } = c.get('i18n');
 
   const db = initializeDB(c.env.DB);
 
@@ -237,15 +236,15 @@ export const useIngredients = (c: Context<Env>, options: GetSectionInput) => {
       ingredientsTranslations,
       and(
         eq(ingredientsTranslations.ingredientId, ingredientsTable.id),
-        eq(ingredientsTranslations.language, locale)
-      )
+        eq(ingredientsTranslations.language, locale()),
+      ),
     )
     .where(eq(ingredientsTable.sectionId, options.sectionId))
     .orderBy(asc(ingredientsTable.position));
 };
 
 export const useInstructions = (c: Context<Env>, options: GetSectionInput) => {
-  const locale = getLocale(c);
+  const { locale } = c.get('i18n');
 
   const db = initializeDB(c.env.DB);
 
@@ -260,8 +259,8 @@ export const useInstructions = (c: Context<Env>, options: GetSectionInput) => {
       instructionsTranslations,
       and(
         eq(instructionsTranslations.instructionId, instructionsTable.id),
-        eq(instructionsTranslations.language, locale)
-      )
+        eq(instructionsTranslations.language, locale()),
+      ),
     )
     .where(eq(instructionsTable.sectionId, options.sectionId))
     .orderBy(asc(instructionsTable.position));

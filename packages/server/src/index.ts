@@ -5,15 +5,15 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { csrf } from 'hono/csrf';
 import { logger } from 'hono/logger';
-import { useTranslation } from '@intlify/hono';
 import { HTTPException } from 'hono/http-exception';
+
+import { i18n } from './middlewares/i18n';
+import { handleAuth } from './middlewares/auth';
 
 import auth from './routes/auth';
 import user from './routes/user';
 import recipes from './routes/recipes';
-import { i18n } from './middlewares/i18n';
 import categories from './routes/categories';
-import { handleAuth } from './middlewares/auth';
 
 const app = new Hono<Env>();
 
@@ -27,7 +27,7 @@ app.use(
       c.env.ENV === 'dev'
         ? /^https?:\/\/localhost(:\d+)?$/.test(origin)
         : origin.endsWith('korcek.com'),
-  })
+  }),
 );
 app.use(
   cors({
@@ -37,10 +37,10 @@ app.use(
           ? origin
           : null
         : origin.endsWith('korcek.com')
-        ? origin
-        : null,
+          ? origin
+          : null,
     credentials: true,
-  })
+  }),
 );
 
 const api = app.basePath('/api');
@@ -54,7 +54,7 @@ api.route('/categories', categories);
 app.route('/', api);
 
 app.onError((err, c) => {
-  const t = useTranslation(c);
+  const { t } = c.get('i18n');
 
   if (err instanceof HTTPException) {
     return c.json({ error: err.message }, err.status);
