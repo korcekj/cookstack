@@ -1,9 +1,13 @@
+import { replaceValues } from '@cs/utils';
+
 import sk from '@cs/utils/zod/locales/sk';
 
+const messages = replaceValues(sk, /{([^{}]+)}/g);
+
 export default {
-  ...sk,
+  ...messages,
   errors: {
-    ...sk.errors,
+    ...messages.errors,
     internalServerError: 'Interná chyba servera',
     badRequest: 'Zlá požiadavka',
     tryAgainInMinutes: 'Skúste to znovu o niekoľko minút',

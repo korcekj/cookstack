@@ -1,9 +1,13 @@
+import { replaceValues } from '@cs/utils';
+
 import en from '@cs/utils/zod/locales/en';
 
+const messages = replaceValues(en, /{([^{}]+)}/g);
+
 export default {
-  ...en,
+  ...messages,
   errors: {
-    ...en.errors,
+    ...messages.errors,
     internalServerError: 'Internal server error',
     badRequest: 'Bad request',
     tryAgainInMinutes: 'Try again in a few minutes',
