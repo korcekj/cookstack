@@ -15,7 +15,7 @@ import { REDIRECTS } from '@/lib/constants';
 import { getLocale } from 'next-intl/server';
 import { fetch, HTTPError } from '@/utils/fetch';
 import { setResponseCookies } from '@/utils/cookies';
-import { withI18nZod, withUser } from '@/lib/middleware';
+import { withI18nZod, withUser } from '@/lib/actions';
 
 export const signIn = withI18nZod(signInSchema, async data => {
   const locale = await getLocale();
