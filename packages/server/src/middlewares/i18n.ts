@@ -27,7 +27,5 @@ export const i18n = createMiddleware<Env>(async (c, next) => {
 
   c.set('i18n', translation);
 
-  console.log({ locale: c.get('i18n').locale() });
-
   return next();
 });
