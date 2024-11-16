@@ -6,8 +6,8 @@
     "dev": "wrangler dev src/index.ts --env dev",
     "deploy": "wrangler deploy --minify src/index.ts --env production",
     "generate": "drizzle-kit generate",
-    "migrate:dev": "wrangler d1 execute cookstack --local --file=$(find drizzle -type f -name '*.sql' -print0 | xargs -r -0 ls -1 -t | head -1) --env dev",
-    "migrate:production": "wrangler d1 execute cookstack --remote --file=$(find drizzle -type f -name '*.sql' -print0 | xargs -r -0 ls -1 -t | head -1) --env production",
+    "migrate:dev": "wrangler d1 migrations apply cookstack --local --env dev",
+    "migrate:production": "wrangler d1 migrations apply cookstack --remote --env production",
     "studio:dev": "DB_URL=$(find .wrangler/state/v3/d1/miniflare-D1DatabaseObject -type f -name '*.sqlite' -print) drizzle-kit studio",
     "studio:production": "drizzle-kit studio"
   },
