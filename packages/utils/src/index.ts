@@ -1,4 +1,4 @@
-import { customAlphabet } from 'nanoid';
+import { getRandomValues } from 'crypto';
 
 export const isURL = (value: string) => {
   let url: URL;
@@ -153,12 +153,21 @@ export const replaceValues = <T extends object>(obj: T, regex: RegExp) => {
   return replacer(obj) as T;
 };
 
+export const random = (size: number, alphabet: string) => {
+  const randomValues = new Uint8Array(size);
+  getRandomValues(randomValues);
+  return Array.from(
+    randomValues,
+    value => alphabet[value % alphabet.length],
+  ).join('');
+};
+
 export const generateId = (size: number) => {
-  const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz');
-  return nanoid(size);
+  const alphabet = '1234567890abcdefghijklmnopqrstuvwxyz';
+  return random(size, alphabet);
 };
 
 export const generateNumbers = (size: number) => {
-  const nanoid = customAlphabet('1234567890');
-  return nanoid(size);
+  const alphabet = '1234567890';
+  return random(size, alphabet);
 };
