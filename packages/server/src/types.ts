@@ -1,5 +1,5 @@
 import type { Translation } from './i18n';
-import type { User, Session } from 'lucia';
+import type { User, Session } from '@cs/utils/zod';
 
 export type Bindings = {
   DB: D1Database;
@@ -24,17 +24,6 @@ export type Variables = {
 };
 
 export type Env = { Bindings: Bindings; Variables: Variables };
-
-export type GoogleUser = {
-  sub: string;
-  name: string;
-  given_name: string;
-  family_name: string;
-  picture: string;
-  email: string;
-  email_verified: boolean;
-  locale: string;
-};
 
 export enum Provider {
   Google = 'Google',

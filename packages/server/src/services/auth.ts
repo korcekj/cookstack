@@ -5,14 +5,15 @@ import type { Env, AuthConfig } from '../types';
 import {
   users,
   sessions,
-  emailVerificationCodes,
   passwordResetTokens,
+  emailVerificationCodes,
 } from './db/schema';
 import { Google } from 'arctic';
 import { eq } from 'drizzle-orm';
 import { initializeDB } from './db';
+import { parseUrl } from '@cs/utils';
 import { sha256, pbkdf2 } from '../utils';
-import { omit, parseUrl } from '@cs/utils';
+import { userSchema } from '@cs/utils/zod';
 import { Lucia, generateIdFromEntropySize } from 'lucia';
 import { generateRandomString, alphabet } from 'oslo/crypto';
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
@@ -40,10 +41,11 @@ export const auth = {
     const adapter = new DrizzleSQLiteAdapter(
       initializeDB(bindings.DB),
       sessions,
-      users
+      users,
     );
     return new Lucia(adapter, {
-      getUserAttributes: (attributes) => omit(attributes, ['hashedPassword']),
+      getUserAttributes: attributes =>
+        userSchema.omit({ id: true }).parse(attributes),
       sessionExpiresIn: new TimeSpan(30, 'd'),
       sessionCookie: {
         attributes: {
@@ -59,7 +61,7 @@ export const auth = {
     return new Google(
       bindings.GOOGLE_CLIENT_ID!,
       bindings.GOOGLE_CLIENT_SECRET!,
-      bindings.GOOGLE_REDIRECT_URL!
+      bindings.GOOGLE_REDIRECT_URL!,
     );
   },
   hashPassword(password: string) {

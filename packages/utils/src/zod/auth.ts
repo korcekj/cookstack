@@ -1,5 +1,41 @@
 import { z } from 'zod';
 
+export const userSchema = z.object({
+  id: z.string(),
+  firstName: z.string().nullable(),
+  lastName: z.string().nullable(),
+  email: z.string().email(),
+  emailVerified: z.boolean(),
+  imageUrl: z.string().url().nullable(),
+  role: z.enum(['user', 'author']),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type User = z.infer<typeof userSchema>;
+
+export const sessionSchema = z.object({
+  id: z.string(),
+  fresh: z.boolean(),
+  userId: z.string(),
+  expiresAt: z.date(),
+});
+
+export type Session = z.infer<typeof sessionSchema>;
+
+export const googleUserSchema = z.object({
+  sub: z.string(),
+  name: z.string(),
+  given_name: z.string(),
+  family_name: z.string(),
+  picture: z.string().url(),
+  email: z.string().email(),
+  email_verified: z.boolean(),
+  locale: z.string(),
+});
+
+export type GoogleUser = z.infer<typeof googleUserSchema>;
+
 export const signInGoogleSchema = z.object({
   redirectUrl: z.string().url().optional(),
 });
