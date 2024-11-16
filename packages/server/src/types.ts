@@ -3,7 +3,7 @@ import type { User, Session } from '@cs/utils/zod';
 
 export type Bindings = {
   DB: D1Database;
-  ENV: 'dev' | 'production';
+  ENV: 'test' | 'dev' | 'production';
   BASE_URL: string;
   AUTH_AUTHOR_TOKEN: string;
   RESEND_API_KEY: string;

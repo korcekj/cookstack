@@ -24,21 +24,25 @@ app.use(i18n);
 app.use(
   csrf({
     origin: (origin, c: Context<Env>) =>
-      c.env.ENV === 'dev'
-        ? /^https?:\/\/localhost(:\d+)?$/.test(origin)
-        : origin.endsWith('korcek.com'),
+      c.env.ENV === 'test'
+        ? true
+        : c.env.ENV === 'dev'
+          ? /^https?:\/\/localhost(:\d+)?$/.test(origin)
+          : origin.endsWith('korcek.com'),
   }),
 );
 app.use(
   cors({
     origin: (origin, c: Context<Env>) =>
-      c.env.ENV === 'dev'
-        ? origin.startsWith('http://localhost')
-          ? origin
-          : null
-        : origin.endsWith('korcek.com')
-          ? origin
-          : null,
+      c.env.ENV === 'test'
+        ? origin
+        : c.env.ENV === 'dev'
+          ? origin.startsWith('http://localhost')
+            ? origin
+            : null
+          : origin.endsWith('korcek.com')
+            ? origin
+            : null,
     credentials: true,
   }),
 );

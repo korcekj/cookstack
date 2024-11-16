@@ -17,7 +17,7 @@ const identifier = (c: Context<Env>) => {
 };
 
 export const rateLimit = createMiddleware<Env>(async (c, next) => {
-  if (c.env.ENV === 'dev') return next();
+  if (c.env.ENV !== 'production') return next();
 
   const { t } = c.get('i18n');
   const key = identifier(c);

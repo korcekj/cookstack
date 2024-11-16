@@ -223,14 +223,16 @@ signUp.post('/', validator('json', confirmPassword(signUpSchema)), async c => {
     email,
   });
 
-  const mail = initializeEmail(c);
-  c.executionCtx.waitUntil(
-    mail.send({
-      to: email,
-      subject: t('emails.verificationCode.subject'),
-      html: mail.templates.verificationCode({ code }),
-    }),
-  );
+  if (c.env.ENV !== 'test') {
+    const mail = initializeEmail(c);
+    c.executionCtx.waitUntil(
+      mail.send({
+        to: email,
+        subject: t('emails.verificationCode.subject'),
+        html: mail.templates.verificationCode({ code }),
+      }),
+    );
+  }
 
   const session = await auth.lucia.createSession(userId, {});
   const cookie = auth.lucia.createSessionCookie(session.id);
@@ -276,14 +278,16 @@ verifyEmail.post('/', async c => {
 
   const code = await auth.verificationCode({ userId, email });
 
-  const mail = initializeEmail(c);
-  c.executionCtx.waitUntil(
-    mail.send({
-      to: email,
-      subject: t('emails.verificationCode.subject'),
-      html: mail.templates.verificationCode({ code }),
-    }),
-  );
+  if (c.env.ENV !== 'test') {
+    const mail = initializeEmail(c);
+    c.executionCtx.waitUntil(
+      mail.send({
+        to: email,
+        subject: t('emails.verificationCode.subject'),
+        html: mail.templates.verificationCode({ code }),
+      }),
+    );
+  }
 
   return c.body(null, 204);
 });
@@ -344,14 +348,16 @@ resetPassword.post(
       link = `${redirectUrl.replace(/\/+$/g, '')}/${token}`;
     }
 
-    const mail = initializeEmail(c);
-    c.executionCtx.waitUntil(
-      mail.send({
-        to: email,
-        subject: t('emails.resetPassword.subject'),
-        html: mail.templates.resetPassword({ link }),
-      }),
-    );
+    if (c.env.ENV !== 'test') {
+      const mail = initializeEmail(c);
+      c.executionCtx.waitUntil(
+        mail.send({
+          to: email,
+          subject: t('emails.resetPassword.subject'),
+          html: mail.templates.resetPassword({ link }),
+        }),
+      );
+    }
 
     return c.body(null, 204);
   },
