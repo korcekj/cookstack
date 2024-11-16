@@ -10,16 +10,33 @@
     "baseUrl": "./",
     "strict": true,
     "skipLibCheck": true,
-    "lib": ["ESNext"],
-    "types": ["@cloudflare/workers-types", "node"],
+    "lib": [
+      "ESNext"
+    ],
+    "types": [
+      "@cloudflare/workers-types",
+      "node"
+    ],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "paths": {
-      "@cs/utils": ["../utils/src"],
-      "@cs/utils/*": ["../utils/src/*"]
+      "@cs/utils": [
+        "../utils/src"
+      ],
+      "@cs/utils/*": [
+        "../utils/src/*"
+      ]
     }
   },
-  "include": ["**/*.ts"],
-  "exclude": ["dist"],
-  "references": [{ "path": "../utils" }]
+  "include": [
+    "**/*.ts"
+  ],
+  "exclude": [
+    "dist"
+  ],
+  "references": [
+    {
+      "path": "../utils"
+    }
+  ]
 }
