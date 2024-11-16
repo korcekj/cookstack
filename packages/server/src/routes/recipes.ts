@@ -1,11 +1,11 @@
 import type { Env } from '../types';
 
 import {
+  imageSchema,
   getRecipeSchema,
   getRecipesSchema,
   createRecipeSchema,
   updateRecipeSchema,
-  updateRecipeImageSchema,
 } from '@cs/utils/zod';
 import { Hono } from 'hono';
 import {
@@ -159,7 +159,7 @@ recipes.put(
   verifyAuthor,
   validator('param', getRecipeSchema),
   validateRecipe,
-  validator('form', updateRecipeImageSchema),
+  validator('form', imageSchema),
   async c => {
     const { recipeId } = c.req.valid('param');
     const { image: file } = c.req.valid('form');
@@ -173,7 +173,7 @@ recipes.put(
       eager: [{ secure_url: imageUrl }],
     } = await image.upload(file, {
       publicId: imageId,
-      folder: `cookstack/${c.env.ENV}`,
+      folder: `cookstack/${c.env.ENV}/recipes`,
       uploadPreset: 'cookstack',
     });
 
