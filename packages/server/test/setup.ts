@@ -1,6 +1,6 @@
 import app from '../src/index';
 import { applyD1Migrations, env } from 'cloudflare:test';
-import { afterEach } from 'vitest';
+import { afterEach, beforeEach, beforeAll } from 'vitest';
 
 declare module 'vitest' {
   export interface TestContext {
@@ -8,7 +8,10 @@ declare module 'vitest' {
   }
 }
 
-const headers: Record<string, string> = {};
+const headers: Record<string, string> = {
+  Origin: '',
+  'Accept-Language': 'en',
+};
 
 beforeAll(async () => {
   await applyD1Migrations(env.DB, env.MIGRATIONS);
@@ -29,8 +32,7 @@ beforeAll(async () => {
     env,
   );
 
-  const setCookie = res.headers.get('set-cookie');
-  if (setCookie) headers['Cookie'] = setCookie.split(';')[0];
+  headers['Cookie'] = res.headers.get('set-cookie') ?? '';
 
   await app.request(
     '/api/auth/sign-out',
@@ -62,8 +64,7 @@ beforeEach(async context => {
     env,
   );
 
-  const setCookie = res.headers.get('set-cookie');
-  if (setCookie) headers['Cookie'] = setCookie.split(';')[0];
+  headers['Cookie'] = res.headers.get('set-cookie') ?? '';
 
   context.headers = headers;
 });
