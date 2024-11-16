@@ -1,3 +1,5 @@
+import { customAlphabet } from 'nanoid';
+
 export const isURL = (value: string) => {
   let url: URL;
 
@@ -149,4 +151,14 @@ export const replaceValues = <T extends object>(obj: T, regex: RegExp) => {
   };
 
   return replacer(obj) as T;
+};
+
+export const generateId = (size: number) => {
+  const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz');
+  return nanoid(size);
+};
+
+export const generateNumbers = (size: number) => {
+  const nanoid = customAlphabet('1234567890');
+  return nanoid(size);
 };

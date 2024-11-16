@@ -1,4 +1,5 @@
-import type { Env, GoogleUser } from '../types';
+import type { Env } from '../types';
+import type { GoogleUser } from '@cs/utils/zod';
 
 import {
   signInSchema,
@@ -17,14 +18,13 @@ import {
   passwordResetTokens,
 } from '../services/db/schema';
 import { eq } from 'drizzle-orm';
-import { isURL } from '@cs/utils';
 import { sha256 } from '../utils';
 import { Provider } from '../types';
 import { OAuth2RequestError } from 'arctic';
+import { isURL, generateId } from '@cs/utils';
 import { initializeDB } from '../services/db';
 import { isWithinExpirationDate } from 'oslo';
 import { verifyAuth } from '../middlewares/auth';
-import { generateIdFromEntropySize } from 'lucia';
 import { initializeAuth } from '../services/auth';
 import { setCookie, getCookie } from 'hono/cookie';
 import { initializeImage } from '../services/image';
@@ -120,7 +120,7 @@ signIn.get(
           db
             .insert(users)
             .values({
-              id: generateIdFromEntropySize(10),
+              id: generateId(16),
               email: user.email,
               emailVerified: true,
               firstName: user.given_name,
@@ -210,7 +210,7 @@ signUp.post('/', validator('json', confirmPassword(signUpSchema)), async c => {
   const [{ id: userId }] = await db
     .insert(users)
     .values({
-      id: generateIdFromEntropySize(10),
+      id: generateId(16),
       email,
       hashedPassword,
       firstName,

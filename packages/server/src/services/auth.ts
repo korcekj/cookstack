@@ -8,14 +8,13 @@ import {
   passwordResetTokens,
   emailVerificationCodes,
 } from './db/schema';
+import { Lucia } from 'lucia';
 import { Google } from 'arctic';
 import { eq } from 'drizzle-orm';
 import { initializeDB } from './db';
-import { parseUrl } from '@cs/utils';
 import { sha256, pbkdf2 } from '../utils';
 import { userSchema } from '@cs/utils/zod';
-import { Lucia, generateIdFromEntropySize } from 'lucia';
-import { generateRandomString, alphabet } from 'oslo/crypto';
+import { parseUrl, generateId, generateNumbers } from '@cs/utils';
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
 import { TimeSpan, createDate, isWithinExpirationDate } from 'oslo';
 
@@ -76,8 +75,8 @@ export const auth = {
     await db
       .delete(emailVerificationCodes)
       .where(eq(emailVerificationCodes.userId, userId));
-    const id = generateIdFromEntropySize(10);
-    const code = generateRandomString(6, alphabet('0-9'));
+    const id = generateId(16);
+    const code = generateNumbers(6);
     await db.insert(emailVerificationCodes).values({
       id,
       userId,
@@ -116,7 +115,7 @@ export const auth = {
     await db
       .delete(passwordResetTokens)
       .where(eq(passwordResetTokens.userId, userId));
-    const token = generateIdFromEntropySize(25);
+    const token = generateId(40);
     const hashedToken = sha256(token);
     await db.insert(passwordResetTokens).values({
       hashedToken,

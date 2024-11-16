@@ -16,9 +16,9 @@ import {
   validateSection,
   validateInstruction,
 } from '../middlewares/validation';
+import { generateId } from '@cs/utils';
 import { eq, inArray } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
-import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { rateLimit } from '../middlewares/rate-limit';
 import { useInstructions } from '../services/db/queries';
@@ -40,7 +40,7 @@ instructions.post(
 
     const db = initializeDB(c.env.DB);
 
-    const instructionId = generateIdFromEntropySize(10);
+    const instructionId = generateId(16);
 
     try {
       const position = await db.$count(
@@ -104,7 +104,7 @@ instructions.put(
 
     const instructions = body.map(({ id, ...rest }) => ({
       ...rest,
-      id: id ?? generateIdFromEntropySize(10),
+      id: id ?? generateId(16),
     }));
 
     const translations = instructions

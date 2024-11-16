@@ -13,9 +13,8 @@ import {
   categoriesTranslations,
 } from '../services/db/schema';
 import { eq } from 'drizzle-orm';
-import { slugify } from '@cs/utils';
 import { initializeDB } from '../services/db';
-import { generateIdFromEntropySize } from 'lucia';
+import { generateId, slugify } from '@cs/utils';
 import { verifyAuthor } from '../middlewares/auth';
 import { rateLimit } from '../middlewares/rate-limit';
 import { getConflictUpdateSetter } from '../services/db/helpers';
@@ -47,7 +46,7 @@ categories.post(
 
     const db = initializeDB(c.env.DB);
 
-    const categoryId = generateIdFromEntropySize(10);
+    const categoryId = generateId(16);
 
     try {
       await db.batch([

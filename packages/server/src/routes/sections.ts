@@ -16,9 +16,9 @@ import {
   validateRecipe,
   validateSection,
 } from '../middlewares/validation';
+import { generateId } from '@cs/utils';
 import { eq, inArray } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
-import { generateIdFromEntropySize } from 'lucia';
 import { verifyAuthor } from '../middlewares/auth';
 import { useSections } from '../services/db/queries';
 import { rateLimit } from '../middlewares/rate-limit';
@@ -56,7 +56,7 @@ sections.post(
 
     const db = initializeDB(c.env.DB);
 
-    const sectionId = generateIdFromEntropySize(10);
+    const sectionId = generateId(16);
 
     try {
       const position = await db.$count(
@@ -104,7 +104,7 @@ sections.put(
 
     const sections = body.map(({ id, ...rest }) => ({
       ...rest,
-      id: id ?? generateIdFromEntropySize(10),
+      id: id ?? generateId(16),
     }));
 
     const translations = sections

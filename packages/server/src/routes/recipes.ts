@@ -13,9 +13,8 @@ import {
   recipes as recipesTable,
 } from '../services/db/schema';
 import { eq } from 'drizzle-orm';
-import { slugify } from '@cs/utils';
 import { initializeDB } from '../services/db';
-import { generateIdFromEntropySize } from 'lucia';
+import { generateId, slugify } from '@cs/utils';
 import { verifyAuthor } from '../middlewares/auth';
 import { useRecipes } from '../services/db/queries';
 import { initializeImage } from '../services/image';
@@ -51,7 +50,7 @@ recipes.post(
     const db = initializeDB(c.env.DB);
 
     const userId = c.get('user')!.id;
-    const recipeId = generateIdFromEntropySize(10);
+    const recipeId = generateId(16);
 
     try {
       await db.batch([
@@ -168,7 +167,7 @@ recipes.put(
     const db = initializeDB(c.env.DB);
     const image = initializeImage(c);
 
-    const imageId = generateIdFromEntropySize(10);
+    const imageId = generateId(16);
 
     const {
       eager: [{ secure_url: imageUrl }],
