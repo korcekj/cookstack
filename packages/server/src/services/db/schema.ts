@@ -23,10 +23,10 @@ export const users = sqliteTable('users', {
   imageUrl: text('image_url'),
   role: text('role', { enum: ['user', 'author'] }).default('user'),
   createdAt: integer('created_at', { mode: 'timestamp' }).default(
-    sql`(strftime('%s', 'now'))`
+    sql`(strftime('%s', 'now'))`,
   ),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-    sql`(strftime('%s', 'now'))`
+    sql`(strftime('%s', 'now'))`,
   ),
 });
 
@@ -49,9 +49,9 @@ export const oauthAccounts = sqliteTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
   },
-  (t) => ({
+  t => ({
     pk: primaryKey({ columns: [t.providerId, t.providerUserId] }),
-  })
+  }),
 );
 
 export type OAuthAccount = typeof oauthAccounts.$inferSelect;
@@ -76,18 +76,18 @@ export const passwordResetTokens = sqliteTable(
       .references(() => users.id, { onDelete: 'cascade' }),
     expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
   },
-  (t) => ({
+  t => ({
     userIdx: index('password_reset_tokens_user_idx').on(t.userId),
-  })
+  }),
 );
 
 export const categories = sqliteTable('categories', {
   id: text('id').notNull().primaryKey(),
   createdAt: integer('created_at', { mode: 'timestamp' }).default(
-    sql`(strftime('%s', 'now'))`
+    sql`(strftime('%s', 'now'))`,
   ),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-    sql`(strftime('%s', 'now'))`
+    sql`(strftime('%s', 'now'))`,
   ),
 });
 
@@ -103,10 +103,10 @@ export const categoriesTranslations = sqliteTable(
       .references(() => categories.id, { onDelete: 'cascade' }),
     language: text('language', { length: 2 }).notNull(),
   },
-  (t) => ({
+  t => ({
     pk: primaryKey({ columns: [t.categoryId, t.language] }),
     unq: uniqueIndex('categories_translations_unq').on(t.slug, t.language),
-  })
+  }),
 );
 
 export type CategoryTranslation = typeof categoriesTranslations.$inferSelect;
@@ -120,26 +120,26 @@ export const recipes = sqliteTable(
     cook: integer('cook').notNull(),
     total: integer('total').generatedAlwaysAs(
       (): SQL => sql`${recipes.preparation} + ${recipes.cook}`,
-      { mode: 'virtual' }
+      { mode: 'virtual' },
     ),
     yield: integer('yield').notNull(),
     userId: text('user_id')
       .notNull()
-      .references(() => users.id),
+      .references(() => users.id, { onDelete: 'set null' }),
     categoryId: text('category_id')
       .notNull()
       .references(() => categories.id),
     createdAt: integer('created_at', { mode: 'timestamp' }).default(
-      sql`(strftime('%s', 'now'))`
+      sql`(strftime('%s', 'now'))`,
     ),
     updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-      sql`(strftime('%s', 'now'))`
+      sql`(strftime('%s', 'now'))`,
     ),
   },
-  (t) => ({
+  t => ({
     userIdx: index('recipes_user_idx').on(t.userId),
     categoryIdx: index('recipes_category_idx').on(t.categoryId),
-  })
+  }),
 );
 
 export type Recipe = typeof recipes.$inferSelect;
@@ -155,11 +155,11 @@ export const recipesTranslations = sqliteTable(
       .references(() => recipes.id, { onDelete: 'cascade' }),
     language: text('language', { length: 2 }).notNull(),
   },
-  (t) => ({
+  t => ({
     pk: primaryKey({ columns: [t.recipeId, t.language] }),
     unq: uniqueIndex('recipes_translations_unq').on(t.slug, t.language),
     nameIdx: index('recipes_translations_name_idx').on(t.name),
-  })
+  }),
 );
 
 export type RecipeTranslation = typeof recipesTranslations.$inferSelect;
@@ -173,9 +173,9 @@ export const sections = sqliteTable(
       .notNull()
       .references(() => recipes.id, { onDelete: 'cascade' }),
   },
-  (t) => ({
+  t => ({
     unq: uniqueIndex('sections_unq').on(t.recipeId, t.position),
-  })
+  }),
 );
 
 export type Section = typeof sections.$inferSelect;
@@ -189,9 +189,9 @@ export const sectionsTranslations = sqliteTable(
       .references(() => sections.id, { onDelete: 'cascade' }),
     language: text('language', { length: 2 }).notNull(),
   },
-  (t) => ({
+  t => ({
     pk: primaryKey({ columns: [t.sectionId, t.language] }),
-  })
+  }),
 );
 
 export type SectionTranslation = typeof sectionsTranslations.$inferSelect;
@@ -205,9 +205,9 @@ export const ingredients = sqliteTable(
       .notNull()
       .references(() => sections.id, { onDelete: 'cascade' }),
   },
-  (t) => ({
+  t => ({
     unq: uniqueIndex('ingredients_unq').on(t.sectionId, t.position),
-  })
+  }),
 );
 
 export type Ingredient = typeof ingredients.$inferSelect;
@@ -223,9 +223,9 @@ export const ingredientsTranslations = sqliteTable(
       .references(() => ingredients.id, { onDelete: 'cascade' }),
     language: text('language', { length: 2 }).notNull(),
   },
-  (t) => ({
+  t => ({
     pk: primaryKey({ columns: [t.ingredientId, t.language] }),
-  })
+  }),
 );
 
 export type IngredientTranslation = typeof ingredientsTranslations.$inferSelect;
@@ -239,9 +239,9 @@ export const instructions = sqliteTable(
       .notNull()
       .references(() => sections.id, { onDelete: 'cascade' }),
   },
-  (t) => ({
+  t => ({
     unq: uniqueIndex('instructions_unq').on(t.sectionId, t.position),
-  })
+  }),
 );
 
 export type Instruction = typeof instructions.$inferSelect;
@@ -255,9 +255,9 @@ export const instructionsTranslations = sqliteTable(
       .references(() => instructions.id, { onDelete: 'cascade' }),
     language: text('language', { length: 2 }).notNull(),
   },
-  (t) => ({
+  t => ({
     pk: primaryKey({ columns: [t.instructionId, t.language] }),
-  })
+  }),
 );
 
 export type InstructionTranslation =
