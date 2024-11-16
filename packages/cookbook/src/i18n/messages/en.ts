@@ -1,4 +1,4 @@
-import en from '@cs/utils/zod/locales/en';
+import en from '@cs/utils/zod/messages/en';
 
 const messages = {
   ...en,

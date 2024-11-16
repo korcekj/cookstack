@@ -1,6 +1,6 @@
 import { replaceValues } from '@cs/utils';
 
-import sk from '@cs/utils/zod/locales/sk';
+import sk from '@cs/utils/zod/messages/sk';
 
 const messages = replaceValues(sk, /{([^{}]+)}/g);
 

@@ -1,6 +1,6 @@
 import { replaceValues } from '@cs/utils';
 
-import en from '@cs/utils/zod/locales/en';
+import en from '@cs/utils/zod/messages/en';
 
 const messages = replaceValues(en, /{([^{}]+)}/g);
 

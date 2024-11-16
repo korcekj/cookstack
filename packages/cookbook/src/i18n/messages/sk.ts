@@ -1,4 +1,4 @@
-import sk from '@cs/utils/zod/locales/sk';
+import sk from '@cs/utils/zod/messages/sk';
 
 const messages = {
   ...sk,
