@@ -224,11 +224,13 @@ signUp.post('/', validator('json', confirmPassword(signUpSchema)), async c => {
   });
 
   const mail = initializeEmail(c);
-  await mail.send({
-    to: email,
-    subject: t('emails.verificationCode.subject'),
-    html: mail.templates.verificationCode({ code }),
-  });
+  c.executionCtx.waitUntil(
+    mail.send({
+      to: email,
+      subject: t('emails.verificationCode.subject'),
+      html: mail.templates.verificationCode({ code }),
+    }),
+  );
 
   const session = await auth.lucia.createSession(userId, {});
   const cookie = auth.lucia.createSessionCookie(session.id);
@@ -275,11 +277,13 @@ verifyEmail.post('/', async c => {
   const code = await auth.verificationCode({ userId, email });
 
   const mail = initializeEmail(c);
-  await mail.send({
-    to: email,
-    subject: t('emails.verificationCode.subject'),
-    html: mail.templates.verificationCode({ code }),
-  });
+  c.executionCtx.waitUntil(
+    mail.send({
+      to: email,
+      subject: t('emails.verificationCode.subject'),
+      html: mail.templates.verificationCode({ code }),
+    }),
+  );
 
   return c.body(null, 204);
 });
@@ -341,11 +345,13 @@ resetPassword.post(
     }
 
     const mail = initializeEmail(c);
-    await mail.send({
-      to: email,
-      subject: t('emails.resetPassword.subject'),
-      html: mail.templates.resetPassword({ link }),
-    });
+    c.executionCtx.waitUntil(
+      mail.send({
+        to: email,
+        subject: t('emails.resetPassword.subject'),
+        html: mail.templates.resetPassword({ link }),
+      }),
+    );
 
     return c.body(null, 204);
   },
