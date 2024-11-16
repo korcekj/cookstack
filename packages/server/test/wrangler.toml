@@ -1,0 +1,9 @@
+name = "cookstack"
+compatibility_date = "2024-04-01"
+compatibility_flags = ["nodejs_compat"]
+
+[env.test]
+vars = { ENV = 'dev', BASE_URL = 'http://localhost:8787', GOOGLE_REDIRECT_URL = 'http://localhost:8787/api/auth/sign-in/google/callback' }
+d1_databases = [
+    { binding = "DB", database_name = 'cookstack', database_id = '22ec2f35-8298-49db-b1d6-78947a921ed0', migrations_dir = "../drizzle" }
+]
