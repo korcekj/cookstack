@@ -1,20 +1,20 @@
 name = "cookstack"
 compatibility_date = "2023-12-01"
-compatibility_flags = [ "nodejs_compat_v2" ]
+compatibility_flags = ["nodejs_compat_v2"]
 
 [env.dev]
-vars = { ENV='dev', BASE_URL='http://localhost:8787', GOOGLE_REDIRECT_URL='http://localhost:8787/api/auth/sign-in/google/callback' }
+vars = { ENV = 'dev', BASE_URL = 'http://localhost:8787', GOOGLE_REDIRECT_URL = 'http://localhost:8787/api/auth/sign-in/google/callback' }
 d1_databases = [
-  { binding="DB", database_name='cookstack', database_id='22ec2f35-8298-49db-b1d6-78947a921ed0' }
+    { binding = "DB", database_name = 'cookstack', database_id = '22ec2f35-8298-49db-b1d6-78947a921ed0', migrations_dir = "./drizzle" }
 ]
 
 [env.production]
 placement = { mode = 'smart' }
 observability = { enabled = true }
-vars = { ENV='production', BASE_URL='https://cookstack.korcek.com', GOOGLE_REDIRECT_URL='https://cookstack.korcek.com/api/auth/sign-in/google/callback' }
+vars = { ENV = 'production', BASE_URL = 'https://cookstack.korcek.com', GOOGLE_REDIRECT_URL = 'https://cookstack.korcek.com/api/auth/sign-in/google/callback' }
 d1_databases = [
-  { binding="DB", database_name='cookstack', database_id='22ec2f35-8298-49db-b1d6-78947a921ed0' }
+    { binding = "DB", database_name = 'cookstack', database_id = '22ec2f35-8298-49db-b1d6-78947a921ed0', migrations_dir = "./drizzle" }
 ]
 routes = [
-  { pattern='cookstack.korcek.com/*', zone_name='korcek.com' }
+    { pattern = 'cookstack.korcek.com/*', zone_name = 'korcek.com' }
 ]
