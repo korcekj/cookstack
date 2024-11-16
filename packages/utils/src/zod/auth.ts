@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 export const userSchema = z.object({
   id: z.string(),
-  firstName: z.string().nullable(),
-  lastName: z.string().nullable(),
+  firstName: z.string().max(16).nullable(),
+  lastName: z.string().max(32).nullable(),
   email: z.string().email(),
   emailVerified: z.boolean(),
   imageUrl: z.string().url().nullable(),
