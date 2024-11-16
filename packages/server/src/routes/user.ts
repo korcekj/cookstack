@@ -3,12 +3,14 @@ import type { Env } from '../types';
 import { Hono } from 'hono';
 import { eq } from 'drizzle-orm';
 import { setCookie } from 'hono/cookie';
-import { userSchema } from '@cs/utils/zod';
+import { generateId } from '@cs/utils';
 import { initializeDB } from '../services/db';
 import { users } from '../services/db/schema';
 import { initializeAuth } from '../services/auth';
+import { initializeImage } from '../services/image';
 import { rateLimit } from '../middlewares/rate-limit';
 import { validator } from '../middlewares/validation';
+import { userSchema, imageSchema } from '@cs/utils/zod';
 import { verifyAuth, makeAuthor } from '../middlewares/auth';
 
 const user = new Hono<Env>();
@@ -41,6 +43,7 @@ profile.get('/', async c => {
 
 profile.patch(
   '/',
+  rateLimit,
   validator('json', userSchema.pick({ firstName: true, lastName: true })),
   async c => {
     const user = c.get('user')!;
@@ -55,6 +58,28 @@ profile.patch(
     return c.json({ user: { ...user, firstName, lastName } });
   },
 );
+
+profile.put('/image', rateLimit, validator('form', imageSchema), async c => {
+  const user = c.get('user')!;
+  const { image: file } = c.req.valid('form');
+
+  const db = initializeDB(c.env.DB);
+  const image = initializeImage(c);
+
+  const imageId = generateId(16);
+
+  const {
+    eager: [{ secure_url: imageUrl }],
+  } = await image.upload(file, {
+    publicId: imageId,
+    folder: `cookstack/${c.env.ENV}/users`,
+    uploadPreset: 'cookstack',
+  });
+
+  await db.update(users).set({ imageUrl }).where(eq(users.id, user.id));
+
+  return c.json({ image: { id: imageId, url: imageUrl } });
+});
 
 user.use(verifyAuth);
 user.route('/author', author);
