@@ -25,9 +25,12 @@
     "rosetta": "^1.1.0"
   },
   "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.5.28",
     "@cloudflare/workers-types": "^4.20240821.1",
     "better-sqlite3": "^10.0.0",
+    "dotenv": "^16.4.5",
     "drizzle-kit": "^0.26.2",
+    "vitest": "2.0.5",
     "wrangler": "^3.80.4"
   }
 }
