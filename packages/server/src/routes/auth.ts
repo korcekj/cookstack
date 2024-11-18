@@ -12,26 +12,20 @@ import {
   signInGoogleCallbackSchema,
 } from '@cs/utils/zod';
 import { Hono } from 'hono';
-import {
-  users,
-  oauthAccounts,
-  passwordResetTokens,
-} from '../services/db/schema';
 import { eq } from 'drizzle-orm';
-import { sha256 } from '../utils';
 import { Provider } from '../types';
 import { OAuth2RequestError } from 'arctic';
 import { isURL, generateId } from '@cs/utils';
 import { initializeDB } from '../services/db';
-import { isWithinExpirationDate } from 'oslo';
 import { verifyAuth } from '../middlewares/auth';
 import { initializeAuth } from '../services/auth';
 import { setCookie, getCookie } from 'hono/cookie';
 import { initializeImage } from '../services/image';
 import { initializeEmail } from '../services/email';
 import { validator } from '../middlewares/validation';
-import { rateLimit } from '../middlewares/rate-limit';
+import { users, oauthAccounts } from '../services/db/schema';
 import { generateState, generateCodeVerifier } from 'arctic';
+import rateLimit, { rateLimiter } from '../middlewares/rate-limit';
 
 const auth = new Hono<Env>();
 const signIn = new Hono<Env>();
@@ -258,23 +252,14 @@ signOut.post('/', async c => {
   return c.json({ user: null });
 });
 
-verifyEmail.use(rateLimit);
 verifyEmail.use(verifyAuth);
-verifyEmail.post('/', async c => {
+verifyEmail.post('/', rateLimiter(1, '1 m'), async c => {
   const { t } = c.get('i18n');
   const { id: userId, email, emailVerified } = c.get('user')!;
 
   if (emailVerified) return c.json({ error: t('errors.badRequest') }, 400);
 
   const auth = initializeAuth(c);
-  const db = initializeDB(c.env.DB);
-  const lastSent = await db.query.emailVerificationCodes.findFirst({
-    where: (table, { eq }) => eq(table.userId, userId),
-    columns: { expiresAt: true },
-  });
-  if (lastSent && isWithinExpirationDate(lastSent.expiresAt)) {
-    return c.json({ error: t('errors.tryAgainInMinutes') }, 400);
-  }
 
   const code = await auth.verificationCode({ userId, email });
 
@@ -292,38 +277,43 @@ verifyEmail.post('/', async c => {
   return c.body(null, 204);
 });
 
-verifyEmail.post('/:code', validator('param', verifyEmailSchema), async c => {
-  const { t } = c.get('i18n');
-  const { code } = c.req.valid('param');
-  const { id: userId, email } = c.get('user')!;
+verifyEmail.post(
+  '/:code',
+  rateLimit,
+  validator('param', verifyEmailSchema),
+  async c => {
+    const { t } = c.get('i18n');
+    const { code } = c.req.valid('param');
+    const { id: userId, email } = c.get('user')!;
 
-  const auth = initializeAuth(c);
-  const db = initializeDB(c.env.DB);
-  const validCode = await auth.verifyCode({
-    userId,
-    email,
-    code,
-  });
-  if (!validCode) return c.json({ error: t('auth.invalidCode') }, 400);
+    const auth = initializeAuth(c);
+    const db = initializeDB(c.env.DB);
+    const validCode = await auth.verifyCode({
+      userId,
+      email,
+      code,
+    });
+    if (!validCode) return c.json({ error: t('auth.invalidCode') }, 400);
 
-  await auth.lucia.invalidateUserSessions(userId);
-  await db
-    .update(users)
-    .set({ emailVerified: true })
-    .where(eq(users.id, userId));
+    await auth.lucia.invalidateUserSessions(userId);
+    await db
+      .update(users)
+      .set({ emailVerified: true })
+      .where(eq(users.id, userId));
 
-  const session = await auth.lucia.createSession(userId, {});
-  const cookie = auth.lucia.createSessionCookie(session.id);
+    const session = await auth.lucia.createSession(userId, {});
+    const cookie = auth.lucia.createSessionCookie(session.id);
 
-  setCookie(c, cookie.name, cookie.value, cookie.attributes);
+    setCookie(c, cookie.name, cookie.value, cookie.attributes);
 
-  const { user: luciaUser } = await auth.lucia.validateSession(session.id);
-  return c.json({ user: luciaUser });
-});
+    const { user: luciaUser } = await auth.lucia.validateSession(session.id);
+    return c.json({ user: luciaUser });
+  },
+);
 
-resetPassword.use(rateLimit);
 resetPassword.post(
   '/',
+  rateLimiter(1, '1 m'),
   validator('query', forgotPasswordSchema.pick({ redirectUrl: true })),
   validator('json', forgotPasswordSchema.omit({ redirectUrl: true })),
   async c => {
@@ -365,6 +355,7 @@ resetPassword.post(
 
 resetPassword.post(
   '/:token',
+  rateLimit,
   validator('param', resetPasswordSchema.pick({ token: true })),
   validator('json', confirmPassword(resetPasswordSchema.omit({ token: true }))),
   async c => {
@@ -373,30 +364,15 @@ resetPassword.post(
     const { password } = c.req.valid('json');
 
     const auth = initializeAuth(c);
-    const db = initializeDB(c.env.DB);
-    const hashedToken = sha256(token);
-    const dbToken = await db.query.passwordResetTokens.findFirst({
-      where: (table, { eq }) => eq(table.hashedToken, hashedToken),
-    });
 
-    if (!dbToken || !isWithinExpirationDate(dbToken.expiresAt)) {
-      return c.json({ error: t('auth.invalidToken') }, 400);
-    }
+    const userId = await auth.verifyToken({ token });
+    if (!userId) return c.json({ error: t('auth.invalidToken') }, 400);
 
-    await auth.lucia.invalidateUserSessions(dbToken.userId);
+    await auth.lucia.invalidateUserSessions(userId);
 
-    const hashedPassword = await auth.hashPassword(password);
-    await db.batch([
-      db
-        .delete(passwordResetTokens)
-        .where(eq(passwordResetTokens.hashedToken, hashedToken)),
-      db
-        .update(users)
-        .set({ hashedPassword })
-        .where(eq(users.id, dbToken.userId)),
-    ]);
+    await auth.resetPassword({ token, userId, password });
 
-    const session = await auth.lucia.createSession(dbToken.userId, {});
+    const session = await auth.lucia.createSession(userId, {});
     const cookie = auth.lucia.createSessionCookie(session.id);
 
     setCookie(c, cookie.name, cookie.value, cookie.attributes);

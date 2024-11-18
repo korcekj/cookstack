@@ -15,10 +15,10 @@ import {
 import { eq } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
 import { generateId, slugify } from '@cs/utils';
+import rateLimit from '../middlewares/rate-limit';
 import { verifyAuthor } from '../middlewares/auth';
 import { useRecipes } from '../services/db/queries';
 import { initializeImage } from '../services/image';
-import { rateLimit } from '../middlewares/rate-limit';
 import { getConflictUpdateSetter } from '../services/db/helpers';
 import { validator, validateRecipe } from '../middlewares/validation';
 

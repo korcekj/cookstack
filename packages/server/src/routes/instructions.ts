@@ -19,8 +19,8 @@ import {
 import { generateId } from '@cs/utils';
 import { eq, inArray } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
+import rateLimit from '../middlewares/rate-limit';
 import { verifyAuthor } from '../middlewares/auth';
-import { rateLimit } from '../middlewares/rate-limit';
 import { useInstructions } from '../services/db/queries';
 
 const instructions = new Hono<Env>();

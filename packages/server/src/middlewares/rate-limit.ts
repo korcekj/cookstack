@@ -1,5 +1,6 @@
 import type { Context } from 'hono';
 import type { Env } from '../types';
+import type { Duration } from '@upstash/ratelimit';
 
 import { getIp, getCountry } from '../utils';
 import { Ratelimit } from '@upstash/ratelimit';
@@ -16,28 +17,31 @@ const identifier = (c: Context<Env>) => {
   return user?.id ?? `${ip ?? 'global'}:${url.pathname}${url.search}`;
 };
 
-export const rateLimit = createMiddleware<Env>(async (c, next) => {
-  if (c.env.ENV !== 'production') return next();
+export const rateLimiter = (tokens: number, duration: Duration) =>
+  createMiddleware<Env>(async (c, next) => {
+    if (c.env.ENV !== 'production') return next();
 
-  const { t } = c.get('i18n');
-  const key = identifier(c);
+    const key = identifier(c);
+    const { t } = c.get('i18n');
 
-  const redis = Redis.fromEnv(c.env);
-  const limiter = new Ratelimit({
-    redis,
-    analytics: true,
-    ephemeralCache: cache,
-    limiter: Ratelimit.slidingWindow(10, '10 s'),
+    const redis = Redis.fromEnv(c.env);
+    const limiter = new Ratelimit({
+      redis,
+      analytics: true,
+      ephemeralCache: cache,
+      limiter: Ratelimit.slidingWindow(tokens, duration),
+    });
+
+    const ip = getIp(c);
+    const country = getCountry(c);
+    const { success, pending } = await limiter.limit(key, { ip, country });
+    c.executionCtx.waitUntil(pending);
+
+    if (!success) {
+      throw new HTTPException(429, { message: t('errors.tooManyRequests') });
+    }
+
+    return next();
   });
 
-  const ip = getIp(c);
-  const country = getCountry(c);
-  const { success, pending } = await limiter.limit(key, { ip, country });
-  c.executionCtx.waitUntil(pending);
-
-  if (!success) {
-    throw new HTTPException(429, { message: t('errors.tooManyRequests') });
-  }
-
-  return next();
-});
+export default rateLimiter(10, '10 s');
