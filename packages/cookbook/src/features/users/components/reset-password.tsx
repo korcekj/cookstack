@@ -4,8 +4,8 @@ import React from 'react';
 import { cn } from '@cs/ui/utils';
 import { REDIRECTS } from '@/lib/constants';
 import { useI18nForm } from '@/hooks/use-i18n-form';
-import { resetPasswordSchema } from '@cs/utils/zod';
 import { resetPassword } from '@/features/users/actions';
+import { confirmPassword, resetPasswordSchema } from '@cs/utils/zod';
 
 import {
   Form,
@@ -26,11 +26,15 @@ type Props = {
 };
 
 export const ResetPassword: React.FC<Props> = ({ token, className }) => {
-  const [form, formAction] = useI18nForm(resetPassword, resetPasswordSchema, {
-    token,
-    password: '',
-    passwordConfirm: '',
-  });
+  const [form, formAction] = useI18nForm(
+    resetPassword,
+    confirmPassword(resetPasswordSchema),
+    {
+      token,
+      password: '',
+      passwordConfirm: '',
+    },
+  );
 
   return (
     <div className={cn('space-y-6', className)}>

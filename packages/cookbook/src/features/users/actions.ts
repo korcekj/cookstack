@@ -3,6 +3,7 @@
 import {
   signInSchema,
   signUpSchema,
+  confirmPassword,
   verifyEmailSchema,
   resetPasswordSchema,
   forgotPasswordSchema,
@@ -32,23 +33,26 @@ export const signIn = withI18nZod(signInSchema, async data => {
   redirect({ href: REDIRECTS.home, locale });
 });
 
-export const signUp = withI18nZod(signUpSchema, async (data, entries) => {
-  const locale = await getLocale();
-  try {
-    const response = await fetch.post('api/auth/sign-up', { json: data });
-    setResponseCookies(response.headers);
-    revalidateTag('user');
-  } catch (err) {
-    if (err instanceof HTTPError) {
-      const { error } = await err.response.json<{
-        error: string | Record<string, string>;
-      }>();
-      if (typeof error === 'string') return { error };
-      return { fields: formDataEntries(entries), fieldErrors: error };
+export const signUp = withI18nZod(
+  confirmPassword(signUpSchema),
+  async (data, entries) => {
+    const locale = await getLocale();
+    try {
+      const response = await fetch.post('api/auth/sign-up', { json: data });
+      setResponseCookies(response.headers);
+      revalidateTag('user');
+    } catch (err) {
+      if (err instanceof HTTPError) {
+        const { error } = await err.response.json<{
+          error: string | Record<string, string>;
+        }>();
+        if (typeof error === 'string') return { error };
+        return { fields: formDataEntries(entries), fieldErrors: error };
+      }
     }
-  }
-  redirect({ href: REDIRECTS.verify, locale });
-});
+    redirect({ href: REDIRECTS.verify, locale });
+  },
+);
 
 export const signOut = withUser(async () => {
   const locale = await getLocale();
@@ -113,20 +117,23 @@ export const forgotPassword = withI18nZod(
   },
 );
 
-export const resetPassword = withI18nZod(resetPasswordSchema, async data => {
-  const locale = await getLocale();
-  try {
-    const { token, ...rest } = data;
-    const response = await fetch.post(`api/auth/reset-password/${token}`, {
-      json: rest,
-    });
-    setResponseCookies(response.headers);
-    revalidateTag('user');
-  } catch (err) {
-    if (err instanceof HTTPError) {
-      const { error } = await err.response.json<{ error: string }>();
-      return { error };
+export const resetPassword = withI18nZod(
+  confirmPassword(resetPasswordSchema),
+  async data => {
+    const locale = await getLocale();
+    try {
+      const { token, ...rest } = data;
+      const response = await fetch.post(`api/auth/reset-password/${token}`, {
+        json: rest,
+      });
+      setResponseCookies(response.headers);
+      revalidateTag('user');
+    } catch (err) {
+      if (err instanceof HTTPError) {
+        const { error } = await err.response.json<{ error: string }>();
+        return { error };
+      }
     }
-  }
-  redirect({ href: REDIRECTS.home, locale });
-});
+    redirect({ href: REDIRECTS.home, locale });
+  },
+);
