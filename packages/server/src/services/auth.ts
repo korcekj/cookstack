@@ -111,17 +111,19 @@ export const auth = {
   },
   async resetToken({ userId }: { userId: string }) {
     const { bindings } = this.config;
-    const db = initializeDB(bindings.DB);
-    await db
-      .delete(passwordResetTokens)
-      .where(eq(passwordResetTokens.userId, userId));
     const token = generateId(40);
     const hashedToken = sha256(token);
-    await db.insert(passwordResetTokens).values({
-      hashedToken,
-      userId,
-      expiresAt: createDate(new TimeSpan(2, 'h')),
-    });
+    const db = initializeDB(bindings.DB);
+    await db.batch([
+      db
+        .delete(passwordResetTokens)
+        .where(eq(passwordResetTokens.userId, userId)),
+      db.insert(passwordResetTokens).values({
+        hashedToken,
+        userId,
+        expiresAt: createDate(new TimeSpan(2, 'h')),
+      }),
+    ]);
     return token;
   },
   async verifyToken({ token }: { token: string }) {
