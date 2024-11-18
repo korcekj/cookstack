@@ -124,6 +124,40 @@ export const auth = {
     });
     return token;
   },
+  async verifyToken({ token }: { token: string }) {
+    const { bindings } = this.config;
+    const db = initializeDB(bindings.DB);
+    const hashedToken = sha256(token);
+    const dbToken = await db.query.passwordResetTokens.findFirst({
+      where: (table, { eq }) => eq(table.hashedToken, hashedToken),
+    });
+
+    if (!dbToken || !isWithinExpirationDate(dbToken.expiresAt)) {
+      return null;
+    }
+
+    return dbToken.userId;
+  },
+  async resetPassword({
+    token,
+    userId,
+    password,
+  }: {
+    token: string;
+    userId: string;
+    password: string;
+  }) {
+    const { bindings } = this.config;
+    const db = initializeDB(bindings.DB);
+    const hashedToken = sha256(token);
+    const hashedPassword = await this.hashPassword(password);
+    await db.batch([
+      db
+        .delete(passwordResetTokens)
+        .where(eq(passwordResetTokens.hashedToken, hashedToken)),
+      db.update(users).set({ hashedPassword }).where(eq(users.id, userId)),
+    ]);
+  },
 };
 
 export const initializeAuth = (c: Context<Env>) => {
