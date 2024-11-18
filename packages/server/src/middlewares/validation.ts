@@ -1,5 +1,4 @@
 import type {
-  z,
   GetRecipeInput,
   GetSectionInput,
   GetCategoryInput,
@@ -9,6 +8,7 @@ import type {
 import type { Env } from '../types';
 import type { ValidationTargets } from 'hono';
 
+import { z } from 'zod';
 import { parseError } from '@cs/utils/zod';
 import { initializeDB } from '../services/db';
 import { createMiddleware } from 'hono/factory';
