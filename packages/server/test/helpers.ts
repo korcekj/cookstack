@@ -7,6 +7,11 @@ import { createDate, TimeSpan } from 'oslo';
 import { initializeDB } from '../src/services/db';
 import { passwordResetTokens } from '../src/services/db/schema';
 
+export const executionCtx = {
+  waitUntil: (promise: Promise<unknown>) => {},
+  passThroughOnException: () => {},
+};
+
 export const signUp = async (email: string, password: string, headers = {}) => {
   return app.request(
     '/api/auth/sign-up',
@@ -23,6 +28,7 @@ export const signUp = async (email: string, password: string, headers = {}) => {
       }),
     },
     env,
+    executionCtx,
   );
 };
 
@@ -41,6 +47,7 @@ export const signIn = async (email: string, password: string, headers = {}) => {
       }),
     },
     env,
+    executionCtx,
   );
 };
 
@@ -54,6 +61,7 @@ export const signOut = async (headers = {}) => {
       },
     },
     env,
+    executionCtx,
   );
 };
 

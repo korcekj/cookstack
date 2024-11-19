@@ -2,6 +2,7 @@ import {
   signUp,
   signIn,
   signOut,
+  executionCtx,
   getVerificationCode,
   getResetPasswordToken,
 } from './helpers';
@@ -13,10 +14,12 @@ let cookie: string | null = null;
 
 describe('Auth module', () => {
   it('Should register a user - POST /api/auth/sign-up', async ({ headers }) => {
+    const spy = vi.spyOn(executionCtx, 'waitUntil');
     const res = await signUp('john.doe@example.com', 'password123', headers);
 
     const json = await res.json<{ user: { id: string } }>();
     expect(res.status).toBe(201);
+    expect(spy).toHaveBeenCalled();
     expect(json).toMatchObject({
       user: {
         emailVerified: false,
@@ -67,6 +70,7 @@ describe('Auth module', () => {
   it('Should resend a verification code - POST /api/auth/verify-email', async ({
     headers,
   }) => {
+    const spy = vi.spyOn(executionCtx, 'waitUntil');
     const res = await app.request(
       '/api/auth/verify-email',
       {
@@ -77,9 +81,11 @@ describe('Auth module', () => {
         },
       },
       env,
+      executionCtx,
     );
 
     expect(res.status).toBe(204);
+    expect(spy).toHaveBeenCalled();
   });
 
   it('Should not verify a user - POST /api/auth/verify-email/:code', async ({
@@ -95,6 +101,7 @@ describe('Auth module', () => {
         },
       },
       env,
+      executionCtx,
     );
 
     expect(res.status).toBe(400);
@@ -119,6 +126,7 @@ describe('Auth module', () => {
         }),
       },
       env,
+      executionCtx,
     );
 
     expect(res.status).toBe(400);
@@ -142,6 +150,7 @@ describe('Auth module', () => {
         },
       },
       env,
+      executionCtx,
     );
 
     expect(res.status).toBe(200);
@@ -158,6 +167,7 @@ describe('Auth module', () => {
   it('Should generate a reset token - POST /api/auth/reset-password', async ({
     headers,
   }) => {
+    const spy = vi.spyOn(executionCtx, 'waitUntil');
     const res = await app.request(
       '/api/auth/reset-password',
       {
@@ -171,9 +181,11 @@ describe('Auth module', () => {
         }),
       },
       env,
+      executionCtx,
     );
 
     expect(res.status).toBe(204);
+    expect(spy).toHaveBeenCalled();
   });
 
   it('Should not reset a password - POST /api/auth/reset-password/:token', async ({
@@ -193,6 +205,7 @@ describe('Auth module', () => {
         }),
       },
       env,
+      executionCtx,
     );
 
     expect(res.status).toBe(400);
@@ -220,6 +233,7 @@ describe('Auth module', () => {
         }),
       },
       env,
+      executionCtx,
     );
 
     expect(res.status).toBe(200);
