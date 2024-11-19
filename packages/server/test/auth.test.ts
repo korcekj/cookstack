@@ -1,35 +1,19 @@
+import {
+  signUp,
+  signIn,
+  signOut,
+  getVerificationCode,
+  getResetPasswordToken,
+} from './helpers';
 import app from '../src/index';
-import { eq } from 'drizzle-orm';
-import { sha256 } from '../src/utils';
 import { env } from 'cloudflare:test';
-import { generateId } from '@cs/utils';
-import { createDate, TimeSpan } from 'oslo';
-import { initializeDB } from '../src/services/db';
-import { passwordResetTokens } from '../src/services/db/schema';
 
 let userId: string | null = null;
 let cookie: string | null = null;
 
 describe('Auth module', () => {
   it('Should register a user - POST /api/auth/sign-up', async ({ headers }) => {
-    const res = await app.request(
-      '/api/auth/sign-up',
-      {
-        method: 'POST',
-        headers: {
-          ...headers,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: 'John',
-          lastName: 'Doe',
-          email: 'john.doe@example.com',
-          password: 'password123',
-          passwordConfirm: 'password123',
-        }),
-      },
-      env,
-    );
+    const res = await signUp('john.doe@example.com', 'password123', headers);
 
     const json = await res.json<{ user: { id: string } }>();
     expect(res.status).toBe(201);
@@ -46,22 +30,7 @@ describe('Auth module', () => {
   it('Should not register a user - POST /api/auth/sign-up', async ({
     headers,
   }) => {
-    const res = await app.request(
-      '/api/auth/sign-up',
-      {
-        method: 'POST',
-        headers: {
-          ...headers,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: 'john.doe@example.com',
-          password: 'password123',
-          passwordConfirm: 'password123',
-        }),
-      },
-      env,
-    );
+    const res = await signUp('john.doe@example.com', 'password123', headers);
 
     expect(res.status).toBe(400);
     expect(await res.json()).toMatchObject({
@@ -74,21 +43,7 @@ describe('Auth module', () => {
   it('Should not login a user - POST /api/auth/sign-in', async ({
     headers,
   }) => {
-    const res = await app.request(
-      '/api/auth/sign-in',
-      {
-        method: 'POST',
-        headers: {
-          ...headers,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: 'john.doe@example.com',
-          password: 'password',
-        }),
-      },
-      env,
-    );
+    const res = await signIn('john.doe@example.com', 'password', headers);
 
     expect(res.status).toBe(400);
     expect(await res.json()).toMatchObject({
@@ -97,21 +52,7 @@ describe('Auth module', () => {
   });
 
   it('Should login a user - POST /api/auth/sign-in', async ({ headers }) => {
-    const res = await app.request(
-      '/api/auth/sign-in',
-      {
-        method: 'POST',
-        headers: {
-          ...headers,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: 'john.doe@example.com',
-          password: 'password123',
-        }),
-      },
-      env,
-    );
+    const res = await signIn('john.doe@example.com', 'password123', headers);
 
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({
@@ -189,13 +130,10 @@ describe('Auth module', () => {
   it('Should verify a user - POST /api/auth/verify-email/:code', async ({
     headers,
   }) => {
-    const db = initializeDB(env.DB);
-    const record = await db.query.emailVerificationCodes.findFirst({
-      where: (t, { eq }) => eq(t.userId, userId!),
-    });
+    const code = await getVerificationCode(userId!);
 
     const res = await app.request(
-      `/api/auth/verify-email/${record?.code}`,
+      `/api/auth/verify-email/${code}`,
       {
         method: 'POST',
         headers: {
@@ -266,19 +204,7 @@ describe('Auth module', () => {
   it('Should reset a password - POST /api/auth/reset-password/:token', async ({
     headers,
   }) => {
-    const db = initializeDB(env.DB);
-    const token = generateId(40);
-    const hashedToken = sha256(token);
-    await db.batch([
-      db
-        .delete(passwordResetTokens)
-        .where(eq(passwordResetTokens.userId, userId!)),
-      db.insert(passwordResetTokens).values({
-        hashedToken,
-        userId: userId!,
-        expiresAt: createDate(new TimeSpan(2, 'h')),
-      }),
-    ]);
+    const token = await getResetPasswordToken(userId!);
 
     const res = await app.request(
       `/api/auth/reset-password/${token}`,
@@ -307,17 +233,7 @@ describe('Auth module', () => {
   });
 
   it('Should logout a user - POST /api/auth/sign-out', async ({ headers }) => {
-    const res = await app.request(
-      '/api/auth/sign-out',
-      {
-        method: 'POST',
-        headers: {
-          ...headers,
-          Cookie: cookie ?? '',
-        },
-      },
-      env,
-    );
+    const res = await signOut({ ...headers, Cookie: cookie ?? '' });
 
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({

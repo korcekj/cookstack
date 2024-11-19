@@ -1,4 +1,4 @@
-import app from '../src/index';
+import { signUp, signIn, signOut } from './helpers';
 import { applyD1Migrations, env } from 'cloudflare:test';
 import { afterEach, beforeEach, beforeAll } from 'vitest';
 
@@ -16,53 +16,17 @@ const headers: Record<string, string> = {
 beforeAll(async () => {
   await applyD1Migrations(env.DB, env.MIGRATIONS);
 
-  const res = await app.request(
-    '/api/auth/sign-up',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: 'test@example.com',
-        password: 'password123',
-        passwordConfirm: 'password123',
-      }),
-    },
-    env,
-  );
+  const res = await signUp('test@example.com', 'password123', headers);
 
   headers['Cookie'] = res.headers.get('set-cookie') ?? '';
 
-  await app.request(
-    '/api/auth/sign-out',
-    {
-      method: 'POST',
-      headers: {
-        ...headers,
-      },
-    },
-    env,
-  );
+  await signOut(headers);
 
   delete headers['Cookie'];
 });
 
 beforeEach(async context => {
-  const res = await app.request(
-    '/api/auth/sign-in',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: 'test@example.com',
-        password: 'password123',
-      }),
-    },
-    env,
-  );
+  const res = await signIn('test@example.com', 'password123', headers);
 
   headers['Cookie'] = res.headers.get('set-cookie') ?? '';
 
@@ -70,16 +34,7 @@ beforeEach(async context => {
 });
 
 afterEach(async () => {
-  await app.request(
-    '/api/auth/sign-out',
-    {
-      method: 'POST',
-      headers: {
-        ...headers,
-      },
-    },
-    env,
-  );
+  await signOut(headers);
 
   delete headers['Cookie'];
 });
