@@ -7,8 +7,7 @@ import type {
 } from '../types';
 import { Context } from 'hono';
 
-import { sha256 } from '../utils';
-import { snakeCaseifyKeys, combineEntries } from '@cs/utils';
+import { sha256, snakeCaseifyKeys, combineEntries } from '@cs/utils';
 
 export const cloudinary = {
   uploadUrl: 'https://api.cloudinary.com',
@@ -44,7 +43,7 @@ export const cloudinary = {
 
     const url = new URL(
       `v1_1/${cloudName}/${resourceType}/upload`,
-      this.uploadUrl
+      this.uploadUrl,
     );
 
     const { timestamp, hash } = this.sign(options);
@@ -88,7 +87,7 @@ export const cloudinary = {
       .sort()
       .reduce(
         (reducer, acc) => ({ ...reducer, [acc]: obj[acc as keyof T] }),
-        {} as T
+        {} as T,
       );
   },
 };
