@@ -2,6 +2,7 @@ import {
   signUp,
   signIn,
   signOut,
+  verifyEmail,
   executionCtx,
   getVerificationCode,
   getResetPasswordToken,
@@ -138,20 +139,7 @@ describe('Auth module', () => {
   it('Should verify a user - POST /api/auth/verify-email/:code', async ({
     headers,
   }) => {
-    const code = await getVerificationCode(userId!);
-
-    const res = await app.request(
-      `/api/auth/verify-email/${code}`,
-      {
-        method: 'POST',
-        headers: {
-          ...headers,
-          Cookie: cookie ?? '',
-        },
-      },
-      env,
-      executionCtx,
-    );
+    const res = await verifyEmail(userId!, { ...headers, Cookie: cookie });
 
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({
@@ -247,7 +235,7 @@ describe('Auth module', () => {
   });
 
   it('Should logout a user - POST /api/auth/sign-out', async ({ headers }) => {
-    const res = await signOut({ ...headers, Cookie: cookie ?? '' });
+    const res = await signOut({ ...headers, Cookie: cookie });
 
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({
