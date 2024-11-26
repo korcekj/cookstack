@@ -18,7 +18,7 @@ export default defineWorkersProject(async () => {
     },
     test: {
       globals: true,
-      setupFiles: ['./test/setup.ts'],
+      setupFiles: ['./test/mocks.ts', './test/setup.ts'],
       poolOptions: {
         workers: {
           singleWorker: true,
