@@ -1,6 +1,6 @@
 import app from '../src/index';
 import { env } from 'cloudflare:test';
-import { executionCtx } from './mocks';
+import { executionCtx, imageUpload } from './mocks';
 import { verifyEmail, generateImage } from './helpers';
 
 let userId: string | null = null;
@@ -208,12 +208,19 @@ describe('User module', () => {
       executionCtx,
     );
 
+    const json = await res.json<{ image: { id: string } }>();
+
     expect(res.status).toBe(200);
-    expect(await res.json()).toMatchObject({
+    expect(json).toMatchObject({
       image: {
         id: expect.any(String),
         url: expect.any(String),
       },
+    });
+    expect(imageUpload).toHaveBeenCalledWith(expect.any(File), {
+      publicId: json.image.id,
+      folder: `cookstack/${env.ENV}/users`,
+      uploadPreset: 'cookstack',
     });
   });
 });

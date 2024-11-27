@@ -7,7 +7,7 @@ import {
 } from './helpers';
 import app from '../src/index';
 import { env } from 'cloudflare:test';
-import { executionCtx } from './mocks';
+import { executionCtx, emailSend } from './mocks';
 
 let userId: string | null = null;
 let cookie: string | null = null;
@@ -17,12 +17,18 @@ describe('Auth module', () => {
     const res = await signUp('john.doe@example.com', 'password123', headers);
 
     const json = await res.json<{ user: { id: string } }>();
+
     expect(res.status).toBe(201);
     expect(json).toMatchObject({
       user: {
         emailVerified: false,
         email: 'john.doe@example.com',
       },
+    });
+    expect(emailSend).toHaveBeenCalledWith({
+      to: 'john.doe@example.com',
+      subject: 'Verification code',
+      html: expect.any(String),
     });
 
     userId = json.user.id;
@@ -82,6 +88,11 @@ describe('Auth module', () => {
     );
 
     expect(res.status).toBe(204);
+    expect(emailSend).toHaveBeenCalledWith({
+      to: 'john.doe@example.com',
+      subject: 'Verification code',
+      html: expect.any(String),
+    });
   });
 
   it('Should not verify a user - POST /api/auth/verify-email/:code', async ({
@@ -167,6 +178,11 @@ describe('Auth module', () => {
     );
 
     expect(res.status).toBe(204);
+    expect(emailSend).toHaveBeenCalledWith({
+      to: 'john.doe@example.com',
+      subject: 'Password reset',
+      html: expect.any(String),
+    });
   });
 
   it('Should not reset a password - POST /api/auth/reset-password/:token', async ({
