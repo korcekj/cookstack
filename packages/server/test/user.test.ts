@@ -1,12 +1,13 @@
 import app from '../src/index';
 import { env } from 'cloudflare:test';
+import { executionCtx } from './mocks';
 import { verifyEmail, generateImage } from './helpers';
 
 let userId: string | null = null;
 
 describe('User module', () => {
   it('Should not return a user - POST /api/user/profile', async () => {
-    const res = await app.request('/api/user/profile', {}, env);
+    const res = await app.request('/api/user/profile', {}, env, executionCtx);
 
     expect(res.status).toBe(401);
     expect(await res.json()).toMatchObject({
@@ -23,6 +24,7 @@ describe('User module', () => {
         },
       },
       env,
+      executionCtx,
     );
 
     const json = await res.json<{ user: { id: string } }>();
@@ -49,6 +51,7 @@ describe('User module', () => {
         },
       },
       env,
+      executionCtx,
     );
 
     expect(res.status).toBe(400);
@@ -70,6 +73,7 @@ describe('User module', () => {
         },
       },
       env,
+      executionCtx,
     );
 
     expect(res.status).toBe(400);
@@ -93,6 +97,7 @@ describe('User module', () => {
         },
       },
       env,
+      executionCtx,
     );
 
     expect(res.status).toBe(200);
@@ -117,6 +122,7 @@ describe('User module', () => {
         },
       },
       env,
+      executionCtx,
     );
 
     expect(res.status).toBe(400);
@@ -142,6 +148,7 @@ describe('User module', () => {
         }),
       },
       env,
+      executionCtx,
     );
 
     expect(res.status).toBe(200);
@@ -170,6 +177,7 @@ describe('User module', () => {
         body: formData,
       },
       env,
+      executionCtx,
     );
 
     expect(res.status).toBe(400);
@@ -197,6 +205,7 @@ describe('User module', () => {
         body: formData,
       },
       env,
+      executionCtx,
     );
 
     expect(res.status).toBe(200);

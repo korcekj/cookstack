@@ -1,15 +1,11 @@
 import app from '../src/index';
 import { eq } from 'drizzle-orm';
 import { env } from 'cloudflare:test';
+import { executionCtx } from './mocks';
 import { createDate, TimeSpan } from 'oslo';
 import { sha256, generateId } from '@cs/utils';
 import { initializeDB } from '../src/services/db';
 import { passwordResetTokens } from '../src/services/db/schema';
-
-export const executionCtx = {
-  waitUntil: (promise: Promise<unknown>) => {},
-  passThroughOnException: () => {},
-};
 
 export const signUp = async (email: string, password: string, headers = {}) => {
   return app.request(

@@ -3,11 +3,11 @@ import {
   signIn,
   signOut,
   verifyEmail,
-  executionCtx,
   getResetPasswordToken,
 } from './helpers';
 import app from '../src/index';
 import { env } from 'cloudflare:test';
+import { executionCtx } from './mocks';
 
 let userId: string | null = null;
 let cookie: string | null = null;

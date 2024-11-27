@@ -1,3 +1,8 @@
+export const executionCtx = {
+  waitUntil: vi.fn(),
+  passThroughOnException: vi.fn(),
+};
+
 vi.mock('../src/services/email', () => {
   return {
     initializeEmail: () => ({
