@@ -8,9 +8,12 @@ import { setCookie, getCookie } from 'hono/cookie';
 import { HTTPException } from 'hono/http-exception';
 
 export const handleAuth = createMiddleware<Env>(async (c, next) => {
+  const sentry = c.get('sentry');
+
   const { lucia } = initializeAuth(c);
   const sessionId = getCookie(c, lucia.sessionCookieName) ?? null;
   if (!sessionId) {
+    sentry.setUser(null);
     c.set('user', null);
     c.set('session', null);
     return next();
@@ -26,6 +29,7 @@ export const handleAuth = createMiddleware<Env>(async (c, next) => {
     setCookie(c, cookie.name, cookie.value, cookie.attributes);
   }
 
+  sentry.setUser(user);
   c.set('user', user);
   c.set('session', session);
 

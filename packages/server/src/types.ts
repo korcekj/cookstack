@@ -5,6 +5,7 @@ export type Bindings = {
   DB: D1Database;
   ENV: 'test' | 'dev' | 'production';
   BASE_URL: string;
+  SENTRY_DSN: string;
   AUTH_AUTHOR_TOKEN: string;
   RESEND_API_KEY: string;
   GOOGLE_CLIENT_ID: string;
@@ -15,6 +16,7 @@ export type Bindings = {
   CLOUDINARY_CLOUD_NAME: string;
   CLOUDINARY_API_KEY: string;
   CLOUDINARY_API_SECRET: string;
+  CF_VERSION_METADATA: WorkerVersionMetadata;
 };
 
 export type Variables = {

@@ -9,6 +9,7 @@ import { HTTPException } from 'hono/http-exception';
 
 import { i18n } from './middlewares/i18n';
 import { handleAuth } from './middlewares/auth';
+import { analytics } from './middlewares/analytics';
 
 import auth from './routes/auth';
 import user from './routes/user';
@@ -18,6 +19,8 @@ import categories from './routes/categories';
 const app = new Hono<Env>();
 
 app.use(logger());
+
+app.use(analytics);
 
 app.use(i18n);
 
