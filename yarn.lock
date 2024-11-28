@@ -760,6 +760,13 @@
   dependencies:
     tslib "^2.4.0"
 
+"@hono/sentry@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@hono/sentry/-/sentry-1.2.0.tgz#1af4dceaeaabb475776d5912ac10f797a4da851a"
+  integrity sha512-9mS8GrkGtR4YxM1CViL4Ft8LFQ9YhCoXeqKnUA1AUmrvA5PhUU/V+xoo8Autw0nVriin3liX5/lPrwWz3muwiw==
+  dependencies:
+    toucan-js "^4.0.0"
+
 "@hono/zod-validator@^0.2.2":
   version "0.2.2"
   resolved "https://registry.npmjs.org/@hono/zod-validator/-/zod-validator-0.2.2.tgz"
@@ -1940,6 +1947,26 @@
   dependencies:
     domhandler "^5.0.3"
     selderee "^0.11.0"
+
+"@sentry/core@8.9.2":
+  version "8.9.2"
+  resolved "https://registry.yarnpkg.com/@sentry/core/-/core-8.9.2.tgz#af0f2ec25b88da5467cf327d2ffcd555323c30e6"
+  integrity sha512-ixm8NISFlPlEo3FjSaqmq4nnd13BRHoafwJ5MG+okCz6BKGZ1SexEggP42/QpGvDprUUHnfncG6WUMgcarr1zA==
+  dependencies:
+    "@sentry/types" "8.9.2"
+    "@sentry/utils" "8.9.2"
+
+"@sentry/types@8.9.2":
+  version "8.9.2"
+  resolved "https://registry.yarnpkg.com/@sentry/types/-/types-8.9.2.tgz#d143383fc35552d9f153042cc6d56c5ee8ec2fa6"
+  integrity sha512-+LFOyQGl+zk5SZRGZD2MEURf7i5RHgP/mt3s85Rza+vz8M211WJ0YsjkIGUJFSY842nged5QLx4JysLaBlLymg==
+
+"@sentry/utils@8.9.2":
+  version "8.9.2"
+  resolved "https://registry.yarnpkg.com/@sentry/utils/-/utils-8.9.2.tgz#58b003d9c1302f61192e7c99ea42bf1cd5cad7f7"
+  integrity sha512-A4srR9mEBFdVXwSEKjQ94msUbVkMr8JeFiEj9ouOFORw/Y/ux/WV2bWVD/ZI9wq0TcTNK8L1wBgU8UMS5lIq3A==
+  dependencies:
+    "@sentry/types" "8.9.2"
 
 "@sigstore/bundle@^2.3.2":
   version "2.3.2"
@@ -8061,6 +8088,15 @@ to-regex-range@^5.0.1:
   integrity sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==
   dependencies:
     is-number "^7.0.0"
+
+toucan-js@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/toucan-js/-/toucan-js-4.0.0.tgz#736247f0560aff3c1e9bebcc4ef99a4a43d53ecb"
+  integrity sha512-FkF7uBztiyjs2WxVt54akH3pFWDcu61RwHsdH2oB0KGailstKEB/xmgMHiE6mft4YCnZi88uM2RPWZVZrA5r1w==
+  dependencies:
+    "@sentry/core" "8.9.2"
+    "@sentry/types" "8.9.2"
+    "@sentry/utils" "8.9.2"
 
 tr46@~0.0.3:
   version "0.0.3"
