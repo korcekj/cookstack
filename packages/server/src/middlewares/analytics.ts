@@ -7,8 +7,8 @@ import { createMiddleware } from 'hono/factory';
 export const analytics = every(
   createMiddleware<Env>(async (c, next) => {
     const service = sentry({
-      dsn: c.env.SENTRY_DSN,
       environment: c.env.ENV,
+      dsn: c.env.ENV !== 'test' ? c.env.SENTRY_DSN : undefined,
       tracesSampleRate: c.env.ENV === 'production' ? 0.3 : 1.0,
     });
     return service(c, next);
