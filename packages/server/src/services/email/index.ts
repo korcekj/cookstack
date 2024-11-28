@@ -7,8 +7,10 @@ import { objectEntries } from '@cs/utils';
 
 export const resend = {
   config: {} as ResendConfig,
+  instance: new Resend('re_123'),
   templates: {} as Record<keyof typeof templates, (...args: any[]) => string>,
   configure(config: ResendConfig) {
+    this.instance = new Resend(config.apiKey);
     this.config = {
       ...this.config,
       ...config,
@@ -17,9 +19,7 @@ export const resend = {
   },
   async send(email: Email) {
     try {
-      const { apiKey } = this.config;
-      const resend = new Resend(apiKey);
-      await resend.emails.send({
+      await this.instance.emails.send({
         from: 'CookStack <cookstack@korcek.com>',
         ...email,
       });
