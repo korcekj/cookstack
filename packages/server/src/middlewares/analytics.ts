@@ -15,10 +15,11 @@ export const analytics = every(
   }),
   createMiddleware<Env>(async (c, next) => {
     const sentry = c.get('sentry');
+    const { id: version } = c.env.CF_VERSION_METADATA;
 
     sentry.setContext('runtime', {
       name: 'Cloudflare Workers',
-      version: c.env.CF_VERSION_METADATA.id,
+      version,
     });
     sentry.setTransactionName(`${c.req.method} ${c.req.url}`);
 

@@ -1,5 +1,6 @@
 import type { Env } from '../types';
 
+import { getIp } from '../utils';
 import { every } from 'hono/combine';
 import { bearerAuth } from 'hono/bearer-auth';
 import { createMiddleware } from 'hono/factory';
@@ -10,10 +11,11 @@ import { HTTPException } from 'hono/http-exception';
 export const handleAuth = createMiddleware<Env>(async (c, next) => {
   const sentry = c.get('sentry');
 
+  const ip = getIp(c);
   const { lucia } = initializeAuth(c);
   const sessionId = getCookie(c, lucia.sessionCookieName) ?? null;
   if (!sessionId) {
-    sentry.setUser(null);
+    sentry.setUser({ ip_address: ip });
     c.set('user', null);
     c.set('session', null);
     return next();
@@ -29,7 +31,7 @@ export const handleAuth = createMiddleware<Env>(async (c, next) => {
     setCookie(c, cookie.name, cookie.value, cookie.attributes);
   }
 
-  sentry.setUser(user);
+  sentry.setUser({ ...user, ip_address: ip });
   c.set('user', user);
   c.set('session', session);
 
