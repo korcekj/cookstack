@@ -21,11 +21,15 @@ import { setResponseCookies } from '@/utils/cookies';
 import { withI18nZod, withUser } from '@/lib/actions';
 
 export const signIn = withI18nZod(signInSchema, async data => {
-  let user: User;
+  let user: User | null = null;
   const locale = await getLocale();
   try {
     const response = await fetch.post<User>('api/auth/sign-in', { json: data });
     user = await response.json();
+
+    // TODO: remove
+    console.log({ user });
+
     setResponseCookies(response.headers);
     revalidateTag('user');
   } catch (err) {
@@ -35,7 +39,7 @@ export const signIn = withI18nZod(signInSchema, async data => {
     }
   }
 
-  if (user!.emailVerified) redirect({ href: REDIRECTS.home, locale });
+  if (!user || user.emailVerified) redirect({ href: REDIRECTS.home, locale });
   else redirect({ href: REDIRECTS.verify, locale });
 });
 
