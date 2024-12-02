@@ -1,5 +1,3 @@
-'use client';
-
 import type { ActionResponse } from '@/types';
 import type { UseFormReturn, DefaultValues, Path } from 'react-hook-form';
 
