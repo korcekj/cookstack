@@ -1,3 +1,4 @@
+import type { User } from '@cs/utils/zod';
 import type { Options } from '@/utils/fetch';
 
 import { unstable_cache } from 'next/cache';
@@ -13,7 +14,7 @@ export const fetchUser = async (
       const cookie = getAuthCookie();
       headers = { ...headers, Cookie: cookie };
     }
-    return await fetcher('api/user/profile', {
+    return await fetcher<User>('api/user/profile', {
       ...options,
       headers,
     }).json();
