@@ -3,6 +3,7 @@
 import React from 'react';
 import { cn } from '@cs/ui/utils';
 import { REDIRECTS } from '@/lib/constants';
+import { useTimer } from '@/hooks/use-timer';
 import { useI18nForm } from '@/hooks/use-i18n-form';
 import { forgotPasswordSchema } from '@cs/utils/zod';
 import { forgotPassword } from '@/features/users/actions';
@@ -18,14 +19,14 @@ import {
   SubmitButton,
 } from '@cs/ui/components';
 import { Link } from '@/i18n/routing';
-import { RotateCcw } from 'lucide-react';
 
 type Props = {
   className?: string | string[];
 };
 
 export const ForgotPassword: React.FC<Props> = ({ className }) => {
-  const [email, setEmail] = React.useState('');
+  const [disabled, setDisabled] = React.useState(true);
+  const { remaining, start, set } = useTimer('forgot-password');
   const [form, formAction] = useI18nForm(
     forgotPassword,
     forgotPasswordSchema.omit({ redirectUrl: true }),
@@ -34,15 +35,19 @@ export const ForgotPassword: React.FC<Props> = ({ className }) => {
     },
   );
 
-  const onSubmit = (formData: FormData) => {
-    setEmail(formData.get('email') as string);
-    formAction(formData);
+  const onSubmit = async (formData: FormData) => {
+    const isValid = await form.trigger();
+    if (isValid) {
+      set(60);
+      start();
+      formAction(formData);
+    }
   };
 
-  const onResubmit = (formData: FormData) => {
-    formData.set('email', email);
-    formAction(formData);
-  };
+  React.useEffect(() => {
+    start();
+    setDisabled(false);
+  }, [start]);
 
   return (
     <div className={cn('space-y-6', className)}>
@@ -73,16 +78,12 @@ export const ForgotPassword: React.FC<Props> = ({ className }) => {
               )}
             />
             <div className="flex flex-col gap-4 sm:flex-row">
-              <SubmitButton className="w-full">Odoslať</SubmitButton>
-              {email && (
-                <SubmitButton
-                  className="w-full"
-                  variant="secondary"
-                  formAction={onResubmit}
-                >
-                  <RotateCcw /> Znovu odoslať
-                </SubmitButton>
-              )}
+              <SubmitButton
+                className="w-full"
+                disabled={disabled || remaining > 0}
+              >
+                Odoslať {remaining > 0 && `(${remaining}s)`}
+              </SubmitButton>
             </div>
           </form>
         </Form>

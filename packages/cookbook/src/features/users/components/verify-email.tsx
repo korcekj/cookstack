@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { cn } from '@cs/ui/utils';
+import { useTimer } from '@/hooks/use-timer';
 import { verifyEmailSchema } from '@cs/utils/zod';
 import { useI18nForm } from '@/hooks/use-i18n-form';
 import { verifyEmail, resendVerificationEmail } from '@/features/users/actions';
@@ -25,10 +26,23 @@ type Props = {
 };
 
 export const VerifyEmail: React.FC<Props> = ({ className }) => {
+  const [disabled, setDisabled] = React.useState(true);
+  const { remaining, start, set } = useTimer('verify-email');
   const [_, resendAction] = useI18nForm(resendVerificationEmail);
   const [form, verifyAction] = useI18nForm(verifyEmail, verifyEmailSchema, {
     code: '',
   });
+
+  const onResubmit = (formData: FormData) => {
+    set(60);
+    start();
+    resendAction(formData);
+  };
+
+  React.useEffect(() => {
+    start();
+    setDisabled(false);
+  }, [start]);
 
   return (
     <div className={cn('space-y-6', className)}>
@@ -69,9 +83,13 @@ export const VerifyEmail: React.FC<Props> = ({ className }) => {
             <SubmitButton className="w-full">Overiť</SubmitButton>
           </form>
         </Form>
-        <form action={resendAction}>
-          <SubmitButton variant="secondary" className="w-full">
-            <RotateCcw /> Znovu odoslať
+        <form action={onResubmit}>
+          <SubmitButton
+            variant="secondary"
+            className="w-full"
+            disabled={disabled || remaining > 0}
+          >
+            <RotateCcw /> Znovu odoslať {remaining > 0 && `(${remaining}s)`}
           </SubmitButton>
         </form>
       </div>
