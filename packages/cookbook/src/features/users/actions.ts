@@ -26,10 +26,6 @@ export const signIn = withI18nZod(signInSchema, async data => {
   try {
     const response = await fetch.post<User>('api/auth/sign-in', { json: data });
     user = await response.json();
-
-    // TODO: remove
-    console.log({ user });
-
     setResponseCookies(response.headers);
     revalidateTag('user');
   } catch (err) {
