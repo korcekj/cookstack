@@ -16,14 +16,12 @@ describe('Auth module', () => {
   it('Should register a user - POST /api/auth/sign-up', async ({ headers }) => {
     const res = await signUp('john.doe@example.com', 'password123', headers);
 
-    const json = await res.json<{ user: { id: string } }>();
+    const json = await res.json<{ id: string }>();
 
     expect(res.status).toBe(201);
     expect(json).toMatchObject({
-      user: {
-        emailVerified: false,
-        email: 'john.doe@example.com',
-      },
+      emailVerified: false,
+      email: 'john.doe@example.com',
     });
     expect(emailSend).toHaveBeenCalledWith({
       to: 'john.doe@example.com',
@@ -31,7 +29,7 @@ describe('Auth module', () => {
       html: expect.any(String),
     });
 
-    userId = json.user.id;
+    userId = json.id;
   });
 
   it('Should not register a user - POST /api/auth/sign-up', async ({
@@ -63,9 +61,7 @@ describe('Auth module', () => {
 
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({
-      user: {
-        email: 'john.doe@example.com',
-      },
+      email: 'john.doe@example.com',
     });
 
     cookie = res.headers.get('set-cookie');
@@ -149,10 +145,8 @@ describe('Auth module', () => {
 
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({
-      user: {
-        emailVerified: true,
-        email: 'john.doe@example.com',
-      },
+      emailVerified: true,
+      email: 'john.doe@example.com',
     });
 
     cookie = res.headers.get('set-cookie');
@@ -235,9 +229,7 @@ describe('Auth module', () => {
 
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({
-      user: {
-        email: 'john.doe@example.com',
-      },
+      email: 'john.doe@example.com',
     });
 
     cookie = res.headers.get('set-cookie');
@@ -246,10 +238,7 @@ describe('Auth module', () => {
   it('Should logout a user - POST /api/auth/sign-out', async ({ headers }) => {
     const res = await signOut({ ...headers, Cookie: cookie });
 
-    expect(res.status).toBe(200);
-    expect(await res.json()).toMatchObject({
-      user: null,
-    });
+    expect(res.status).toBe(204);
 
     userId = null;
     cookie = null;

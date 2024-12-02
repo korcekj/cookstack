@@ -27,15 +27,13 @@ describe('User module', () => {
       executionCtx,
     );
 
-    const json = await res.json<{ user: { id: string } }>();
+    const json = await res.json<{ id: string }>();
     expect(res.status).toBe(200);
     expect(json).toMatchObject({
-      user: {
-        email: 'test@example.com',
-      },
+      email: 'test@example.com',
     });
 
-    userId = json.user.id;
+    userId = json.id;
   });
 
   it('Should not make an author due to invalid token - POST /api/user/author', async ({
@@ -102,10 +100,8 @@ describe('User module', () => {
 
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({
-      user: {
-        role: 'author',
-        emailVerified: true,
-      },
+      role: 'author',
+      emailVerified: true,
     });
   });
 
@@ -153,10 +149,8 @@ describe('User module', () => {
 
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({
-      user: {
-        firstName: 'John',
-        lastName: 'Doe',
-      },
+      firstName: 'John',
+      lastName: 'Doe',
     });
   });
 
@@ -208,17 +202,15 @@ describe('User module', () => {
       executionCtx,
     );
 
-    const json = await res.json<{ image: { id: string } }>();
+    const json = await res.json<{ id: string }>();
 
     expect(res.status).toBe(200);
     expect(json).toMatchObject({
-      image: {
-        id: expect.any(String),
-        url: expect.any(String),
-      },
+      id: expect.any(String),
+      url: expect.any(String),
     });
     expect(imageUpload).toHaveBeenCalledWith(expect.any(File), {
-      publicId: json.image.id,
+      publicId: json.id,
       folder: `cookstack/${env.ENV}/users`,
       uploadPreset: 'cookstack',
     });
