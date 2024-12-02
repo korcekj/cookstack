@@ -183,7 +183,7 @@ signIn.post('/', rateLimit, validator('json', signInSchema), async c => {
   setCookie(c, cookie.name, cookie.value, cookie.attributes);
 
   const { user: luciaUser } = await auth.lucia.validateSession(session.id);
-  return c.json({ user: luciaUser });
+  return c.json(luciaUser);
 });
 
 signUp.use(rateLimit);
@@ -232,7 +232,7 @@ signUp.post('/', validator('json', confirmPassword(signUpSchema)), async c => {
   setCookie(c, cookie.name, cookie.value, cookie.attributes);
 
   const { user: luciaUser } = await auth.lucia.validateSession(session.id);
-  return c.json({ user: luciaUser }, 201);
+  return c.json(luciaUser, 201);
 });
 
 signOut.use(rateLimit);
@@ -247,7 +247,7 @@ signOut.post('/', async c => {
 
   setCookie(c, cookie.name, cookie.value, cookie.attributes);
 
-  return c.json({ user: null });
+  return c.body(null, 204);
 });
 
 verifyEmail.use(verifyAuth);
@@ -303,7 +303,7 @@ verifyEmail.post(
     setCookie(c, cookie.name, cookie.value, cookie.attributes);
 
     const { user: luciaUser } = await auth.lucia.validateSession(session.id);
-    return c.json({ user: luciaUser });
+    return c.json(luciaUser);
   },
 );
 
@@ -372,7 +372,7 @@ resetPassword.post(
     setCookie(c, cookie.name, cookie.value, cookie.attributes);
 
     const { user: luciaUser } = await auth.lucia.validateSession(session.id);
-    return c.json({ user: luciaUser });
+    return c.json(luciaUser);
   },
 );
 

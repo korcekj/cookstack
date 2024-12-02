@@ -33,12 +33,12 @@ author.post('/', makeAuthor, async c => {
   setCookie(c, cookie.name, cookie.value, cookie.attributes);
 
   const { user: luciaUser } = await lucia.validateSession(session.id);
-  return c.json({ user: luciaUser });
+  return c.json(luciaUser);
 });
 
 profile.get('/', async c => {
   const user = c.get('user')!;
-  return c.json({ user });
+  return c.json(user);
 });
 
 profile.patch(
@@ -55,7 +55,7 @@ profile.patch(
       .set({ firstName, lastName })
       .where(eq(users.id, user.id));
 
-    return c.json({ user: { ...user, firstName, lastName } });
+    return c.json({ ...user, firstName, lastName });
   },
 );
 
@@ -78,7 +78,7 @@ profile.put('/image', rateLimit, validator('form', imageSchema), async c => {
 
   await db.update(users).set({ imageUrl }).where(eq(users.id, user.id));
 
-  return c.json({ image: { id: imageId, url: imageUrl } });
+  return c.json({ id: imageId, url: imageUrl });
 });
 
 user.use(verifyAuth);
