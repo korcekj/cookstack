@@ -1,5 +1,7 @@
 'use server';
 
+import type { User } from '@cs/utils/zod';
+
 import {
   signInSchema,
   signUpSchema,
@@ -19,9 +21,11 @@ import { setResponseCookies } from '@/utils/cookies';
 import { withI18nZod, withUser } from '@/lib/actions';
 
 export const signIn = withI18nZod(signInSchema, async data => {
+  let user: User;
   const locale = await getLocale();
   try {
-    const response = await fetch.post('api/auth/sign-in', { json: data });
+    const response = await fetch.post<User>('api/auth/sign-in', { json: data });
+    user = await response.json();
     setResponseCookies(response.headers);
     revalidateTag('user');
   } catch (err) {
@@ -30,7 +34,9 @@ export const signIn = withI18nZod(signInSchema, async data => {
       return { error };
     }
   }
-  redirect({ href: REDIRECTS.home, locale });
+
+  if (user!.emailVerified) redirect({ href: REDIRECTS.home, locale });
+  else redirect({ href: REDIRECTS.verify, locale });
 });
 
 export const signUp = withI18nZod(
