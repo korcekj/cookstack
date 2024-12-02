@@ -32,7 +32,7 @@ export const getUserCached = async () => {
     ['user'],
     {
       tags: ['user'],
-      revalidate: 3600,
+      revalidate: 60 * 10, // 10 minutes,
     },
   )(cookie);
 };
