@@ -7,7 +7,7 @@ import {
   verifyEmail,
   getResetPasswordToken,
 } from './helpers';
-import app from '../src/index';
+import app from '../src';
 import { env } from 'cloudflare:test';
 import { executionCtx, emailSend } from './mocks';
 

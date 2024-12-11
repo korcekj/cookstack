@@ -1,6 +1,6 @@
 import type { User } from '@cs/utils/zod';
 
-import app from '../src/index';
+import app from '../src';
 import { env } from 'cloudflare:test';
 import { executionCtx, imageUpload } from './mocks';
 import { getUser, makeAuthor, verifyEmail, generateImage } from './helpers';

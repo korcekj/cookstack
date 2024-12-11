@@ -1,4 +1,4 @@
-import app from '../src/index';
+import app from '../src';
 import { eq } from 'drizzle-orm';
 import { env } from 'cloudflare:test';
 import { executionCtx } from './mocks';
