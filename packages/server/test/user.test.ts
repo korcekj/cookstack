@@ -1,13 +1,13 @@
 import app from '../src/index';
 import { env } from 'cloudflare:test';
 import { executionCtx, imageUpload } from './mocks';
-import { makeAuthor, verifyEmail, generateImage } from './helpers';
+import { getUser, makeAuthor, verifyEmail, generateImage } from './helpers';
 
 let userId: string | null = null;
 
 describe('User route', () => {
   it('Should not return a user - POST /api/user/profile', async () => {
-    const res = await app.request('/api/user/profile', {}, env, executionCtx);
+    const res = await getUser();
 
     expect(res.status).toBe(401);
     expect(await res.json()).toMatchObject({
@@ -16,16 +16,7 @@ describe('User route', () => {
   });
 
   it('Should return a user - POST /api/user/profile', async ({ headers }) => {
-    const res = await app.request(
-      '/api/user/profile',
-      {
-        headers: {
-          ...headers,
-        },
-      },
-      env,
-      executionCtx,
-    );
+    const res = await getUser(headers);
 
     const json = await res.json<{ id: string }>();
     expect(res.status).toBe(200);
@@ -61,18 +52,7 @@ describe('User route', () => {
   it('Should not make an author due to unverified email - POST /api/user/author', async ({
     headers,
   }) => {
-    const res = await app.request(
-      '/api/user/author',
-      {
-        method: 'POST',
-        headers: {
-          ...headers,
-          Authorization: `Bearer ${env.AUTH_AUTHOR_TOKEN}`,
-        },
-      },
-      env,
-      executionCtx,
-    );
+    const res = await makeAuthor(headers);
 
     expect(res.status).toBe(400);
     expect(await res.json()).toMatchObject({
@@ -96,18 +76,7 @@ describe('User route', () => {
   it('Should not make an author due to its existence - POST /api/user/author', async ({
     headers,
   }) => {
-    const res = await app.request(
-      '/api/user/author',
-      {
-        method: 'POST',
-        headers: {
-          ...headers,
-          Authorization: `Bearer ${env.AUTH_AUTHOR_TOKEN}`,
-        },
-      },
-      env,
-      executionCtx,
-    );
+    const res = await makeAuthor({ ...headers });
 
     expect(res.status).toBe(400);
     expect(await res.json()).toMatchObject({

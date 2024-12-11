@@ -58,6 +58,17 @@ export const signOut = async (headers = {}) => {
   );
 };
 
+export const getUser = async (headers = {}) => {
+  return app.request(
+    '/api/user/profile',
+    {
+      headers,
+    },
+    env,
+    executionCtx,
+  );
+};
+
 export const makeAuthor = async (headers = {}) => {
   return app.request(
     '/api/user/author',
