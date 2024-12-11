@@ -1,3 +1,5 @@
+import type { User } from '@cs/utils/zod';
+
 import app from '../src/index';
 import { env } from 'cloudflare:test';
 import { executionCtx, imageUpload } from './mocks';
@@ -18,7 +20,7 @@ describe('User route', () => {
   it('Should return a user - POST /api/user/profile', async ({ headers }) => {
     const res = await getUser(headers);
 
-    const json = await res.json<{ id: string }>();
+    const json = await res.json<User>();
     expect(res.status).toBe(200);
     expect(json).toMatchObject({
       email: 'test@example.com',

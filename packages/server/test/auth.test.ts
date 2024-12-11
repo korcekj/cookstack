@@ -1,3 +1,5 @@
+import type { User } from '@cs/utils/zod';
+
 import {
   signUp,
   signIn,
@@ -16,7 +18,7 @@ describe('Auth route', () => {
   it('Should register a user - POST /api/auth/sign-up', async ({ headers }) => {
     const res = await signUp('john.doe@example.com', 'password123', headers);
 
-    const json = await res.json<{ id: string }>();
+    const json = await res.json<User>();
 
     expect(res.status).toBe(201);
     expect(json).toMatchObject({
