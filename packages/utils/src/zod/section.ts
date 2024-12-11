@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+export const sectionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  position: z.number(),
+});
+
+export type Section = z.infer<typeof sectionSchema>;
+
 export const createSectionSchema = z.object({
   translations: z
     .array(

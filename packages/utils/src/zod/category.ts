@@ -1,6 +1,16 @@
 import { z } from 'zod';
 import { joinValues } from '../index';
 
+export const categorySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type Category = z.infer<typeof categorySchema>;
+
 export const createCategorySchema = z.object({
   translations: z
     .array(

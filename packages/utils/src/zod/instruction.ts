@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+export const instructionSchema = z.object({
+  id: z.string(),
+  text: z.string(),
+  position: z.number(),
+});
+
+export type Instruction = z.infer<typeof instructionSchema>;
+
 export const createInstructionSchema = z.object({
   translations: z
     .array(

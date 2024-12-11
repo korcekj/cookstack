@@ -1,5 +1,23 @@
 import { z } from 'zod';
 import { joinValues } from '../index';
+import { categorySchema } from './category';
+
+export const recipeSchema = z.object({
+  id: z.string(),
+  imageUrl: z.string().url().nullable(),
+  preparation: z.number(),
+  cook: z.number(),
+  total: z.number(),
+  yield: z.number(),
+  name: z.string(),
+  slug: z.string(),
+  description: z.string().nullable(),
+  category: categorySchema.pick({ id: true, name: true, slug: true }),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type Recipe = z.infer<typeof recipeSchema>;
 
 export const createRecipeSchema = z.object({
   imageUrl: z.string().url().optional(),

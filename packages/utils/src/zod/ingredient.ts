@@ -1,5 +1,15 @@
 import { z } from 'zod';
 
+export const ingredientSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  unit: z.string().nullable(),
+  amount: z.number().nullable(),
+  position: z.number(),
+});
+
+export type Ingredient = z.infer<typeof ingredientSchema>;
+
 export const createIngredientSchema = z.object({
   translations: z
     .array(
