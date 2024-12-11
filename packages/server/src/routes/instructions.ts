@@ -71,7 +71,7 @@ instructions.post(
       throw err;
     }
 
-    return c.json({ instruction: { id: instructionId } }, 201);
+    return c.json({ id: instructionId }, 201);
   },
 );
 
@@ -84,7 +84,7 @@ instructions.get(
 
     const instructions = await useInstructions(c, options);
 
-    return c.json({ instructions });
+    return c.json(instructions);
   },
 );
 
@@ -139,7 +139,7 @@ instructions.put(
         useInstructions(c, options),
       ]);
 
-      return c.json({ ingredients: results });
+      return c.json(results);
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {

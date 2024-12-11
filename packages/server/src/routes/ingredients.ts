@@ -71,7 +71,7 @@ ingredients.post(
       throw err;
     }
 
-    return c.json({ ingredient: { id: ingredientId } }, 201);
+    return c.json({ id: ingredientId }, 201);
   },
 );
 
@@ -84,7 +84,7 @@ ingredients.get(
 
     const ingredients = await useIngredients(c, options);
 
-    return c.json({ ingredients });
+    return c.json(ingredients);
   },
 );
 
@@ -139,7 +139,7 @@ ingredients.put(
         useIngredients(c, options),
       ]);
 
-      return c.json({ ingredients: results });
+      return c.json(results);
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {

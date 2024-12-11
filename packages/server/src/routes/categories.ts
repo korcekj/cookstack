@@ -71,7 +71,7 @@ categories.post(
       throw err;
     }
 
-    return c.json({ category: { id: categoryId } }, 201);
+    return c.json({ id: categoryId }, 201);
   },
 );
 
@@ -84,7 +84,7 @@ categories.get(
 
     const { categories } = await useCategories(c, options);
 
-    return c.json({ category: categories[0] });
+    return c.json(categories[0]);
   },
 );
 

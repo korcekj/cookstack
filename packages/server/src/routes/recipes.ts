@@ -79,7 +79,7 @@ recipes.post(
       throw err;
     }
 
-    return c.json({ recipe: { id: recipeId } }, 201);
+    return c.json({ id: recipeId }, 201);
   },
 );
 
@@ -89,8 +89,10 @@ recipes.get(
   validateRecipe,
   async c => {
     const options = c.req.valid('param');
+
     const { recipes } = await useRecipes(c, options);
-    return c.json({ recipe: recipes[0] });
+
+    return c.json(recipes[0]);
   },
 );
 
@@ -182,7 +184,7 @@ recipes.put(
       .set({ imageUrl, updatedAt: new Date() })
       .where(eq(recipesTable.id, recipeId));
 
-    return c.json({ image: { id: imageId, url: imageUrl } });
+    return c.json({ id: imageId, url: imageUrl });
   },
 );
 

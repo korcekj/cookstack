@@ -39,7 +39,7 @@ sections.get(
 
     const sections = await useSections(c, options);
 
-    return c.json({ sections });
+    return c.json(sections);
   },
 );
 
@@ -84,7 +84,7 @@ sections.post(
       throw err;
     }
 
-    return c.json({ section: { id: sectionId } }, 201);
+    return c.json({ id: sectionId }, 201);
   },
 );
 
@@ -139,7 +139,7 @@ sections.put(
         useSections(c, options),
       ]);
 
-      return c.json({ sections: results });
+      return c.json(results);
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {
