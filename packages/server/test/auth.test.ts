@@ -12,7 +12,7 @@ import { executionCtx, emailSend } from './mocks';
 let userId: string | null = null;
 let cookie: string | null = null;
 
-describe('Auth module', () => {
+describe('Auth route', () => {
   it('Should register a user - POST /api/auth/sign-up', async ({ headers }) => {
     const res = await signUp('john.doe@example.com', 'password123', headers);
 

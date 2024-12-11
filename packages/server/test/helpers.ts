@@ -58,6 +58,21 @@ export const signOut = async (headers = {}) => {
   );
 };
 
+export const makeAuthor = async (headers = {}) => {
+  return app.request(
+    '/api/user/author',
+    {
+      method: 'POST',
+      headers: {
+        ...headers,
+        Authorization: `Bearer ${env.AUTH_AUTHOR_TOKEN}`,
+      },
+    },
+    env,
+    executionCtx,
+  );
+};
+
 export const verifyEmail = async (userId: string, headers = {}) => {
   const code = await getVerificationCode(userId);
 

@@ -1,11 +1,11 @@
 import app from '../src/index';
 import { env } from 'cloudflare:test';
 import { executionCtx, imageUpload } from './mocks';
-import { verifyEmail, generateImage } from './helpers';
+import { makeAuthor, verifyEmail, generateImage } from './helpers';
 
 let userId: string | null = null;
 
-describe('User module', () => {
+describe('User route', () => {
   it('Should not return a user - POST /api/user/profile', async () => {
     const res = await app.request('/api/user/profile', {}, env, executionCtx);
 
@@ -84,19 +84,7 @@ describe('User module', () => {
     let res = await verifyEmail(userId!, headers);
     const cookie = res.headers.get('set-cookie') ?? '';
 
-    res = await app.request(
-      '/api/user/author',
-      {
-        method: 'POST',
-        headers: {
-          ...headers,
-          Cookie: cookie,
-          Authorization: `Bearer ${env.AUTH_AUTHOR_TOKEN}`,
-        },
-      },
-      env,
-      executionCtx,
-    );
+    res = await makeAuthor({ ...headers, Cookie: cookie });
 
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({
