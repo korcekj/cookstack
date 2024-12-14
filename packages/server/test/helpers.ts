@@ -124,9 +124,21 @@ export const createCategory = async (headers = {}, name = 'Test 1') => {
   );
 };
 
+export const deleteCategory = async (categoryId: string, headers = {}) => {
+  return app.request(
+    `/api/categories/${categoryId}`,
+    {
+      method: 'DELETE',
+      headers,
+    },
+    env,
+    executionCtx,
+  );
+};
+
 export const createRecipe = async (
-  headers = {},
   categoryId: string,
+  headers = {},
   name = 'Test 1',
 ) => {
   return app.request(
@@ -149,6 +161,18 @@ export const createRecipe = async (
           },
         ],
       }),
+    },
+    env,
+    executionCtx,
+  );
+};
+
+export const deleteRecipe = async (recipeId: string, headers = {}) => {
+  return app.request(
+    `/api/recipes/${recipeId}`,
+    {
+      method: 'DELETE',
+      headers,
     },
     env,
     executionCtx,

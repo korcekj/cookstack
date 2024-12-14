@@ -5,7 +5,9 @@ import {
   makeAuthor,
   verifyEmail,
   createRecipe,
+  deleteRecipe,
   createCategory,
+  deleteCategory,
 } from './helpers';
 import app from '../src';
 import { env } from 'cloudflare:test';
@@ -141,7 +143,7 @@ describe('Categories route - /api/categories', () => {
   it('Should return recipes - GET /api/categories/:categoryId/recipes', async ({
     headers,
   }) => {
-    let res = await createRecipe(headers, categoryId!);
+    let res = await createRecipe(categoryId!, headers);
     recipeId = (await res.json<{ id: string }>()).id;
 
     res = await app.request(
@@ -250,15 +252,7 @@ describe('Categories route - /api/categories', () => {
   it('Should not delete a category - DELETE /api/categories/:categoryId', async ({
     headers,
   }) => {
-    const res = await app.request(
-      `/api/categories/0000000000000000`,
-      {
-        method: 'DELETE',
-        headers,
-      },
-      env,
-      executionCtx,
-    );
+    const res = await deleteCategory('0000000000000000', headers);
 
     expect(res.status).toBe(404);
     expect(await res.json()).toMatchObject({
@@ -269,15 +263,7 @@ describe('Categories route - /api/categories', () => {
   it('Should not delete a category due to linked recipes - DELETE /api/categories/:categoryId', async ({
     headers,
   }) => {
-    const res = await app.request(
-      `/api/categories/${categoryId}`,
-      {
-        method: 'DELETE',
-        headers,
-      },
-      env,
-      executionCtx,
-    );
+    const res = await deleteCategory(categoryId!, headers);
 
     expect(res.status).toBe(409);
     expect(await res.json()).toMatchObject({
@@ -288,25 +274,9 @@ describe('Categories route - /api/categories', () => {
   it('Should delete a category - DELETE /api/categories/:categoryId', async ({
     headers,
   }) => {
-    await app.request(
-      `/api/recipes/${recipeId}`,
-      {
-        method: 'DELETE',
-        headers,
-      },
-      env,
-      executionCtx,
-    );
+    await deleteRecipe(recipeId!, headers);
 
-    const res = await app.request(
-      `/api/categories/${categoryId}`,
-      {
-        method: 'DELETE',
-        headers,
-      },
-      env,
-      executionCtx,
-    );
+    const res = await deleteCategory(categoryId!, headers);
 
     expect(res.status).toBe(204);
 
