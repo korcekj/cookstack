@@ -6,16 +6,19 @@
     "composite": true,
     "declarationMap": true,
     "outDir": "dist",
-    "rootDir": "src",
-    "baseUrl": "./",
+    "rootDir": ".",
+    "baseUrl": ".",
     "strict": true,
     "skipLibCheck": true,
     "lib": [
       "ESNext"
     ],
     "types": [
+      "node",
+      "vitest/globals",
       "@cloudflare/workers-types",
-      "node"
+      "@cloudflare/vitest-pool-workers",
+      "@cloudflare/workers-types/experimental"
     ],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
