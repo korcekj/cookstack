@@ -177,7 +177,7 @@ categories.delete(
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: FOREIGN KEY')) {
-          return c.json({ error: t('category.containsRecipe') }, 404);
+          return c.json({ error: t('category.containsRecipes') }, 409);
         }
       }
 

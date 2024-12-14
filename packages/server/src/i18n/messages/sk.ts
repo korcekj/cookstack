@@ -44,7 +44,7 @@ export default {
   category: {
     duplicate: 'Kategória už existuje',
     notFound: 'Kategória nebola nájdená',
-    containsRecipe: 'Kategória obsahuje recept',
+    containsRecipes: 'Kategória obsahuje recepty',
   },
   image: {
     notFound: 'Obrázok nebol nájdený',
