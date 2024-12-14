@@ -7,7 +7,7 @@ import { getUser, makeAuthor, verifyEmail, generateImage } from './helpers';
 
 let userId: string | null = null;
 
-describe('User route', () => {
+describe('User route - /api/user', () => {
   it('Should not return a user - POST /api/user/profile', async () => {
     const res = await getUser();
 
