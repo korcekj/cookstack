@@ -6,7 +6,7 @@ import {
   signOut,
   verifyEmail,
   getResetPasswordToken,
-} from './helpers';
+} from './utils/auth';
 import app from '../src';
 import { env } from 'cloudflare:test';
 import { executionCtx, emailSend } from './mocks';

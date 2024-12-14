@@ -1,11 +1,11 @@
-import app from '../src';
+import app from '../../src';
 import { eq } from 'drizzle-orm';
 import { env } from 'cloudflare:test';
-import { executionCtx } from './mocks';
+import { executionCtx } from '../mocks';
 import { createDate, TimeSpan } from 'oslo';
 import { sha256, generateId } from '@cs/utils';
-import { initializeDB } from '../src/services/db';
-import { passwordResetTokens } from '../src/services/db/schema';
+import { initializeDB } from '../../src/services/db';
+import { passwordResetTokens } from '../../src/services/db/schema';
 
 export const signUp = async (email: string, password: string, headers = {}) => {
   return app.request(
@@ -101,84 +101,6 @@ export const verifyEmail = async (userId: string, headers = {}) => {
   );
 };
 
-export const createCategory = async (headers = {}, name = 'Test 1') => {
-  return app.request(
-    '/api/categories',
-    {
-      method: 'POST',
-      headers: {
-        ...headers,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        translations: [
-          {
-            name,
-            language: 'en',
-          },
-        ],
-      }),
-    },
-    env,
-    executionCtx,
-  );
-};
-
-export const deleteCategory = async (categoryId: string, headers = {}) => {
-  return app.request(
-    `/api/categories/${categoryId}`,
-    {
-      method: 'DELETE',
-      headers,
-    },
-    env,
-    executionCtx,
-  );
-};
-
-export const createRecipe = async (
-  categoryId: string,
-  headers = {},
-  name = 'Test 1',
-) => {
-  return app.request(
-    '/api/recipes',
-    {
-      method: 'POST',
-      headers: {
-        ...headers,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        cook: 1,
-        yield: 1,
-        preparation: 1,
-        categoryId,
-        translations: [
-          {
-            name,
-            language: 'en',
-          },
-        ],
-      }),
-    },
-    env,
-    executionCtx,
-  );
-};
-
-export const deleteRecipe = async (recipeId: string, headers = {}) => {
-  return app.request(
-    `/api/recipes/${recipeId}`,
-    {
-      method: 'DELETE',
-      headers,
-    },
-    env,
-    executionCtx,
-  );
-};
-
 export const getVerificationCode = async (userId: string) => {
   const db = initializeDB(env.DB);
   const { code } =
@@ -204,14 +126,4 @@ export const getResetPasswordToken = async (userId: string) => {
     }),
   ]);
   return token;
-};
-
-export const generateImage = () => {
-  const base64Image =
-    '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=';
-  const binary = atob(base64Image);
-  const bytes = new Uint8Array(binary.length).map((_, i) =>
-    binary.charCodeAt(i),
-  );
-  return new Blob([bytes], { type: 'image/jpeg' });
 };

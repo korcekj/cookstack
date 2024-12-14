@@ -1,4 +1,4 @@
-import { signUp, signIn, signOut } from './helpers';
+import { signUp, signIn, signOut } from './utils/auth';
 import { applyD1Migrations, env } from 'cloudflare:test';
 import { afterEach, beforeEach, beforeAll } from 'vitest';
 

@@ -2,14 +2,14 @@ import type { User } from '@cs/utils/zod';
 
 import {
   signUp,
-  getUser,
   signOut,
+  getUser,
   makeAuthor,
   verifyEmail,
-  generateImage,
-} from './helpers';
+} from './utils/auth';
 import app from '../src';
 import { env } from 'cloudflare:test';
+import { generateImage } from './utils/image';
 import { executionCtx, imageUpload } from './mocks';
 
 let userId: string | null = null;
@@ -24,7 +24,7 @@ describe('User route - /api/user', () => {
     userId = json.id;
     cookie = res.headers.get('set-cookie') ?? '';
   });
-  
+
   afterAll(async () => {
     await signOut({ Cookie: cookie });
     userId = null;
