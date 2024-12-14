@@ -32,18 +32,7 @@ describe('User route - /api/user', () => {
   it('Should not make an author due to invalid token - POST /api/user/author', async ({
     headers,
   }) => {
-    const res = await app.request(
-      '/api/user/author',
-      {
-        method: 'POST',
-        headers: {
-          ...headers,
-          Authorization: 'Bearer test',
-        },
-      },
-      env,
-      executionCtx,
-    );
+    const res = await makeAuthor(headers, 'test');
 
     expect(res.status).toBe(400);
     expect(await res.json()).toMatchObject({

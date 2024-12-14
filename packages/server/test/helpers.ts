@@ -69,14 +69,17 @@ export const getUser = async (headers = {}) => {
   );
 };
 
-export const makeAuthor = async (headers = {}) => {
+export const makeAuthor = async (
+  headers = {},
+  bearer = env.AUTH_AUTHOR_TOKEN,
+) => {
   return app.request(
     '/api/user/author',
     {
       method: 'POST',
       headers: {
         ...headers,
-        Authorization: `Bearer ${env.AUTH_AUTHOR_TOKEN}`,
+        Authorization: `Bearer ${bearer}`,
       },
     },
     env,
