@@ -98,43 +98,6 @@ export const verifyEmail = async (userId: string, headers = {}) => {
   );
 };
 
-export const getVerificationCode = async (userId: string) => {
-  const db = initializeDB(env.DB);
-  const { code } =
-    (await db.query.emailVerificationCodes.findFirst({
-      where: (t, { eq }) => eq(t.userId, userId),
-    })) ?? {};
-
-  return code;
-};
-
-export const getResetPasswordToken = async (userId: string) => {
-  const token = generateId(40);
-  const hashedToken = sha256(token);
-  const db = initializeDB(env.DB);
-  await db.batch([
-    db
-      .delete(passwordResetTokens)
-      .where(eq(passwordResetTokens.userId, userId!)),
-    db.insert(passwordResetTokens).values({
-      userId,
-      hashedToken,
-      expiresAt: createDate(new TimeSpan(2, 'h')),
-    }),
-  ]);
-  return token;
-};
-
-export const generateImage = () => {
-  const base64Image =
-    '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=';
-  const binary = atob(base64Image);
-  const bytes = new Uint8Array(binary.length).map((_, i) =>
-    binary.charCodeAt(i),
-  );
-  return new Blob([bytes], { type: 'image/jpeg' });
-};
-
 export const createCategory = async (headers = {}, name = 'Test 1') => {
   return app.request(
     '/api/categories',
@@ -172,9 +135,9 @@ export const createRecipe = async (
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        cook: 10,
-        yield: 10,
-        preparation: 10,
+        cook: 1,
+        yield: 1,
+        preparation: 1,
         categoryId,
         translations: [
           {
@@ -187,4 +150,41 @@ export const createRecipe = async (
     env,
     executionCtx,
   );
+};
+
+export const getVerificationCode = async (userId: string) => {
+  const db = initializeDB(env.DB);
+  const { code } =
+    (await db.query.emailVerificationCodes.findFirst({
+      where: (t, { eq }) => eq(t.userId, userId),
+    })) ?? {};
+
+  return code;
+};
+
+export const getResetPasswordToken = async (userId: string) => {
+  const token = generateId(40);
+  const hashedToken = sha256(token);
+  const db = initializeDB(env.DB);
+  await db.batch([
+    db
+      .delete(passwordResetTokens)
+      .where(eq(passwordResetTokens.userId, userId!)),
+    db.insert(passwordResetTokens).values({
+      userId,
+      hashedToken,
+      expiresAt: createDate(new TimeSpan(2, 'h')),
+    }),
+  ]);
+  return token;
+};
+
+export const generateImage = () => {
+  const base64Image =
+    '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=';
+  const binary = atob(base64Image);
+  const bytes = new Uint8Array(binary.length).map((_, i) =>
+    binary.charCodeAt(i),
+  );
+  return new Blob([bytes], { type: 'image/jpeg' });
 };
