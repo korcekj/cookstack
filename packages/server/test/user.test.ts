@@ -1,13 +1,36 @@
 import type { User } from '@cs/utils/zod';
 
+import {
+  signUp,
+  getUser,
+  signOut,
+  makeAuthor,
+  verifyEmail,
+  generateImage,
+} from './helpers';
 import app from '../src';
 import { env } from 'cloudflare:test';
 import { executionCtx, imageUpload } from './mocks';
-import { getUser, makeAuthor, verifyEmail, generateImage } from './helpers';
 
 let userId: string | null = null;
+let cookie: string | null = null;
 
 describe('User route - /api/user', () => {
+  beforeAll(async () => {
+    const res = await signUp('test2@example.com', 'password123');
+
+    const json = await res.json<User>();
+
+    userId = json.id;
+    cookie = res.headers.get('set-cookie') ?? '';
+  });
+  
+  afterAll(async () => {
+    await signOut({ Cookie: cookie });
+    userId = null;
+    cookie = null;
+  });
+
   it('Should not return a user - POST /api/user/profile', async () => {
     const res = await getUser();
 
@@ -18,21 +41,19 @@ describe('User route - /api/user', () => {
   });
 
   it('Should return a user - POST /api/user/profile', async ({ headers }) => {
-    const res = await getUser(headers);
+    const res = await getUser({ ...headers, Cookie: cookie });
 
     const json = await res.json<User>();
     expect(res.status).toBe(200);
     expect(json).toMatchObject({
-      email: 'test@example.com',
+      email: 'test2@example.com',
     });
-
-    userId = json.id;
   });
 
   it('Should not make an author due to invalid token - POST /api/user/author', async ({
     headers,
   }) => {
-    const res = await makeAuthor(headers, 'test');
+    const res = await makeAuthor({ ...headers, Cookie: cookie }, 'test');
 
     expect(res.status).toBe(400);
     expect(await res.json()).toMatchObject({
@@ -43,7 +64,7 @@ describe('User route - /api/user', () => {
   it('Should not make an author due to unverified email - POST /api/user/author', async ({
     headers,
   }) => {
-    const res = await makeAuthor(headers);
+    const res = await makeAuthor({ ...headers, Cookie: cookie });
 
     expect(res.status).toBe(400);
     expect(await res.json()).toMatchObject({
@@ -52,10 +73,11 @@ describe('User route - /api/user', () => {
   });
 
   it('Should make an author - POST /api/user/author', async ({ headers }) => {
-    let res = await verifyEmail(userId!, headers);
-    const cookie = res.headers.get('set-cookie') ?? '';
+    let res = await verifyEmail(userId!, { ...headers, Cookie: cookie });
+    cookie = res.headers.get('set-cookie') ?? '';
 
     res = await makeAuthor({ ...headers, Cookie: cookie });
+    cookie = res.headers.get('set-cookie') ?? '';
 
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({
@@ -67,7 +89,7 @@ describe('User route - /api/user', () => {
   it('Should not make an author due to its existence - POST /api/user/author', async ({
     headers,
   }) => {
-    const res = await makeAuthor({ ...headers });
+    const res = await makeAuthor({ ...headers, Cookie: cookie });
 
     expect(res.status).toBe(400);
     expect(await res.json()).toMatchObject({
@@ -84,6 +106,7 @@ describe('User route - /api/user', () => {
         method: 'PATCH',
         headers: {
           ...headers,
+          Cookie: cookie!,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -115,6 +138,7 @@ describe('User route - /api/user', () => {
         method: 'PUT',
         headers: {
           ...headers,
+          Cookie: cookie!,
         },
         body: formData,
       },
@@ -143,6 +167,7 @@ describe('User route - /api/user', () => {
         method: 'PUT',
         headers: {
           ...headers,
+          Cookie: cookie!,
         },
         body: formData,
       },

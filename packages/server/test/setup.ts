@@ -16,7 +16,7 @@ const headers: Record<string, string> = {
 beforeAll(async () => {
   await applyD1Migrations(env.DB, env.MIGRATIONS);
 
-  const res = await signUp('test@example.com', 'password123', headers);
+  const res = await signUp('test1@example.com', 'password123', headers);
 
   headers['Cookie'] = res.headers.get('set-cookie') ?? '';
 
@@ -26,7 +26,7 @@ beforeAll(async () => {
 });
 
 beforeEach(async context => {
-  const res = await signIn('test@example.com', 'password123', headers);
+  const res = await signIn('test1@example.com', 'password123', headers);
 
   headers['Cookie'] = res.headers.get('set-cookie') ?? '';
 
