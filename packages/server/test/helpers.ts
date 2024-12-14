@@ -134,3 +134,57 @@ export const generateImage = () => {
   );
   return new Blob([bytes], { type: 'image/jpeg' });
 };
+
+export const createCategory = async (headers = {}, name = 'Test 1') => {
+  return app.request(
+    '/api/categories',
+    {
+      method: 'POST',
+      headers: {
+        ...headers,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        translations: [
+          {
+            name,
+            language: 'en',
+          },
+        ],
+      }),
+    },
+    env,
+    executionCtx,
+  );
+};
+
+export const createRecipe = async (
+  headers = {},
+  categoryId: string,
+  name = 'Test 1',
+) => {
+  return app.request(
+    '/api/recipes',
+    {
+      method: 'POST',
+      headers: {
+        ...headers,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        cook: 10,
+        yield: 10,
+        preparation: 10,
+        categoryId,
+        translations: [
+          {
+            name,
+            language: 'en',
+          },
+        ],
+      }),
+    },
+    env,
+    executionCtx,
+  );
+};
