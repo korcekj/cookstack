@@ -1,4 +1,4 @@
-import type { User } from '@cs/utils/zod';
+import type { User, Category } from '@cs/utils/zod';
 
 import {
   getUser,
@@ -114,7 +114,7 @@ describe('Categories route - /api/categories', () => {
     );
 
     expect(res.status).toBe(200);
-    expect(await res.json()).toMatchObject({
+    expect(await res.json<Category>()).toMatchObject({
       id: categoryId,
       name: expect.any(String),
       slug: expect.any(String),
