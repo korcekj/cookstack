@@ -19,8 +19,8 @@ import {
 import { generateId } from '@cs/utils';
 import { eq, inArray } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
+import { verifyRole } from '../middlewares/auth';
 import rateLimit from '../middlewares/rate-limit';
-import { verifyAuthor } from '../middlewares/auth';
 import { useIngredients } from '../services/db/queries';
 
 const ingredients = new Hono<Env>();
@@ -29,7 +29,7 @@ ingredients.use(rateLimit);
 
 ingredients.post(
   '/',
-  verifyAuthor,
+  verifyRole('author'),
   validator('param', getSectionSchema),
   validateSection,
   validator('json', createIngredientSchema),
@@ -90,7 +90,7 @@ ingredients.get(
 
 ingredients.put(
   '/',
-  verifyAuthor,
+  verifyRole('author'),
   validator('param', getSectionSchema),
   validateSection,
   validator('json', updateIngredientSchema),
@@ -154,7 +154,7 @@ ingredients.put(
 
 ingredients.delete(
   '/:ingredientId',
-  verifyAuthor,
+  verifyRole('author'),
   validator('param', getIngredientSchema),
   validateIngredient,
   async c => {

@@ -23,7 +23,7 @@ export default {
     invalidHeader: 'Invalid header',
     unverifiedEmail: 'Unverified email',
     existsEmail: 'Email cannot be used',
-    existsAuthor: 'Author already exists',
+    roleRequested: 'Role already requested',
   },
   recipe: {
     duplicate: 'Recipe already exists',
@@ -60,6 +60,11 @@ export default {
       heading: 'Reset your password',
       body: 'Please use the link below to reset your password.',
       button: 'Reset your password',
+    },
+    roleRequest: {
+      subject: 'Role request',
+      heading: 'Another role request',
+      body: 'Please review the request <{{id}}> with the role <{{role}}>.',
     },
   },
 };

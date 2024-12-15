@@ -15,8 +15,8 @@ import {
 import { eq } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
 import { generateId, slugify } from '@cs/utils';
+import { verifyRole } from '../middlewares/auth';
 import rateLimit from '../middlewares/rate-limit';
-import { verifyAuthor } from '../middlewares/auth';
 import { getConflictUpdateSetter } from '../services/db/helpers';
 import { useCategories, useRecipes } from '../services/db/queries';
 import { validator, validateCategory } from '../middlewares/validation';
@@ -38,7 +38,7 @@ categories.get('/', validator('query', getCategoriesSchema), async c => {
 
 categories.post(
   '/',
-  verifyAuthor,
+  verifyRole('author'),
   validator('json', createCategorySchema),
   async c => {
     const { t } = c.get('i18n');
@@ -108,7 +108,7 @@ categories.get(
 
 categories.patch(
   '/:categoryId',
-  verifyAuthor,
+  verifyRole('author'),
   validator('param', getCategorySchema),
   validateCategory,
   validator('json', updateCategorySchema),
@@ -161,7 +161,7 @@ categories.patch(
 
 categories.delete(
   '/:categoryId',
-  verifyAuthor,
+  verifyRole('author'),
   validator('param', getCategorySchema),
   validateCategory,
   async c => {

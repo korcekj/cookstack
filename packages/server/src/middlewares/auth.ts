@@ -1,4 +1,5 @@
 import type { Env } from '../types';
+import type { Role } from '@cs/utils/zod';
 
 import { getIp } from '../utils';
 import { every } from 'hono/combine';
@@ -65,35 +66,14 @@ export const verifyAuth = createMiddleware<Env>(async (c, next) => {
   return next();
 });
 
-export const verifyAuthor = every(
+export const verifyRole = (role: Role) => every(
   verifyAuth,
   createMiddleware<Env>(async (c, next) => {
     const { t } = c.get('i18n');
 
     const user = c.get('user')!;
-    if (user.role !== 'author') {
+    if (user.role !== role) {
       throw new HTTPException(403, { message: t('auth.forbidden') });
-    }
-
-    return next();
-  }),
-);
-
-export const makeAuthor = every(
-  verifyAuth,
-  createMiddleware<Env>(async (c, next) => {
-    const bearer = handleBearerAuth(c.env.AUTH_AUTHOR_TOKEN);
-    return bearer(c, next);
-  }),
-  createMiddleware<Env>(async (c, next) => {
-    const { t } = c.get('i18n');
-
-    const user = c.get('user')!;
-    if (!user.emailVerified) {
-      throw new HTTPException(400, { message: t('auth.unverifiedEmail') });
-    }
-    if (user.role === 'author') {
-      throw new HTTPException(400, { message: t('auth.existsAuthor') });
     }
 
     return next();

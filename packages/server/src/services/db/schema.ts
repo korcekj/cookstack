@@ -21,7 +21,7 @@ export const users = sqliteTable('users', {
   firstName: text('first_name'),
   lastName: text('last_name'),
   imageUrl: text('image_url'),
-  role: text('role', { enum: ['user', 'author'] }).default('user'),
+  role: text('role', { enum: ['user', 'author', 'admin'] }).default('user'),
   createdAt: integer('created_at', { mode: 'timestamp' }).default(
     sql`(strftime('%s', 'now'))`,
   ),
@@ -78,6 +78,29 @@ export const passwordResetTokens = sqliteTable(
   },
   t => ({
     userIdx: index('password_reset_tokens_user_idx').on(t.userId),
+  }),
+);
+
+export const roleRequests = sqliteTable(
+  'role_requests',
+  {
+    id: text('id').notNull().primaryKey(),
+    role: text('role', { enum: ['user', 'author', 'admin'] }).notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    status: text('status', {
+      enum: ['pending', 'approved', 'rejected'],
+    }).default('pending'),
+    createdAt: integer('created_at', { mode: 'timestamp' }).default(
+      sql`(strftime('%s', 'now'))`,
+    ),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
+      sql`(strftime('%s', 'now'))`,
+    ),
+  },
+  t => ({
+    unq: uniqueIndex('role_requests_unq').on(t.role, t.userId, t.status),
   }),
 );
 

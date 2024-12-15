@@ -1,5 +1,15 @@
 import { z } from 'zod';
 
+export const roleSchema = z.enum(['user', 'author', 'admin']);
+
+export type Role = z.infer<typeof roleSchema>;
+
+export const roleRequestSchema = z.object({
+  role: roleSchema,
+});
+
+export type RoleRequest = z.infer<typeof roleRequestSchema>;
+
 export const userSchema = z.object({
   id: z.string(),
   firstName: z.string().max(16).nullable(),
@@ -7,7 +17,7 @@ export const userSchema = z.object({
   email: z.string().email(),
   emailVerified: z.boolean(),
   imageUrl: z.string().url().nullable(),
-  role: z.enum(['user', 'author']),
+  role: roleSchema,
   createdAt: z.date(),
   updatedAt: z.date(),
 });

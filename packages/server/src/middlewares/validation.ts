@@ -1,4 +1,5 @@
 import type {
+  RoleRequest,
   GetRecipeInput,
   GetSectionInput,
   GetCategoryInput,
@@ -25,6 +26,18 @@ export const validator = <T extends z.ZodType<any, z.ZodTypeDef, any>>(
       return c.json({ error }, 400);
     }
   });
+
+export const validateRole = createMiddleware<Env>(async (c, next) => {
+  const { t } = c.get('i18n');
+  const user = c.get('user')!;
+  const { role } = (await c.req.json()) as RoleRequest;
+
+  if (user.role === role) {
+    throw new HTTPException(400, { message: t('errors.badRequest') });
+  }
+
+  return next();
+});
 
 export const validateCategory = createMiddleware<Env>(async (c, next) => {
   const { t } = c.get('i18n');

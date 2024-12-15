@@ -6,7 +6,6 @@ export type Bindings = {
   ENV: 'test' | 'dev' | 'production';
   BASE_URL: string;
   SENTRY_DSN: string;
-  AUTH_AUTHOR_TOKEN: string;
   RESEND_API_KEY: string;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;

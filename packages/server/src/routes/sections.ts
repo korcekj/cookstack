@@ -19,8 +19,8 @@ import {
 import { generateId } from '@cs/utils';
 import { eq, inArray } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
+import { verifyRole } from '../middlewares/auth';
 import rateLimit from '../middlewares/rate-limit';
-import { verifyAuthor } from '../middlewares/auth';
 import { useSections } from '../services/db/queries';
 
 import ingredients from './ingredients';
@@ -45,7 +45,7 @@ sections.get(
 
 sections.post(
   '/',
-  verifyAuthor,
+  verifyRole('author'),
   validator('param', getRecipeSchema),
   validateRecipe,
   validator('json', createSectionSchema),
@@ -90,7 +90,7 @@ sections.post(
 
 sections.put(
   '/',
-  verifyAuthor,
+  verifyRole('author'),
   validator('param', getRecipeSchema),
   validateRecipe,
   validator('json', updateSectionSchema),
@@ -154,7 +154,7 @@ sections.put(
 
 sections.delete(
   '/:sectionId',
-  verifyAuthor,
+  verifyRole('author'),
   validator('param', getSectionSchema),
   validateSection,
   async c => {

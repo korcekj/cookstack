@@ -23,7 +23,7 @@ export default {
     invalidHeader: 'Neplatná hlavička',
     unverifiedEmail: 'Neoverený email',
     existsEmail: 'Zvolený email nie je možné použiť',
-    existsAuthor: 'Autor už existuje',
+    roleRequested: 'Rola je už vyžiadaná',
   },
   recipe: {
     duplicate: 'Recept už existuje',
@@ -60,6 +60,11 @@ export default {
       heading: 'Resetovanie hesla',
       body: 'Pre resetovanie hesla použite následujúcú odkaz.',
       button: 'Resetovať heslo',
+    },
+    roleRequest: {
+      subject: 'Požiadavka o rolu',
+      heading: 'Ďalšia požiadavka o rolu',
+      body: 'Prosím skontrolujte požiadavku <{{id}}> s rolou <{{role}}>.',
     },
   },
 };

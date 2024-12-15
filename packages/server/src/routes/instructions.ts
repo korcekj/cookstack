@@ -19,8 +19,8 @@ import {
 import { generateId } from '@cs/utils';
 import { eq, inArray } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
+import { verifyRole } from '../middlewares/auth';
 import rateLimit from '../middlewares/rate-limit';
-import { verifyAuthor } from '../middlewares/auth';
 import { useInstructions } from '../services/db/queries';
 
 const instructions = new Hono<Env>();
@@ -29,7 +29,7 @@ instructions.use(rateLimit);
 
 instructions.post(
   '/',
-  verifyAuthor,
+  verifyRole('author'),
   validator('param', getSectionSchema),
   validateSection,
   validator('json', createInstructionSchema),
@@ -90,7 +90,7 @@ instructions.get(
 
 instructions.put(
   '/',
-  verifyAuthor,
+  verifyRole('author'),
   validator('param', getSectionSchema),
   validateSection,
   validator('json', updateInstructionSchema),
@@ -154,7 +154,7 @@ instructions.put(
 
 instructions.delete(
   '/:instructionId',
-  verifyAuthor,
+  verifyRole('author'),
   validator('param', getInstructionSchema),
   validateInstruction,
   async c => {
