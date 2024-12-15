@@ -2,10 +2,9 @@ import type { Env } from '../types';
 
 import { z } from 'zod';
 import { get } from '@cs/utils';
-import { translation } from '../i18n';
-import { DEFAULT_LOCALE } from '../constants';
 import { createMiddleware } from 'hono/factory';
 import { makeZodI18nMap } from '@cs/utils/zod';
+import { translation, DEFAULT_LOCALE } from '../i18n';
 
 export const i18n = createMiddleware<Env>(async (c, next) => {
   const sentry = c.get('sentry');
