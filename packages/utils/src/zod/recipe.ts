@@ -12,7 +12,7 @@ export const recipeSchema = z.object({
   name: z.string(),
   slug: z.string(),
   description: z.string().nullable(),
-  category: categorySchema.pick({ id: true, name: true, slug: true }),
+  category: categorySchema,
   createdAt: z.date(),
   updatedAt: z.date(),
 });
