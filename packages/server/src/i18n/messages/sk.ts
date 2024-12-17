@@ -23,7 +23,6 @@ export default {
     invalidHeader: 'Neplatná hlavička',
     unverifiedEmail: 'Neoverený email',
     existsEmail: 'Zvolený email nie je možné použiť',
-    roleRequested: 'Rola je už vyžiadaná',
   },
   recipe: {
     duplicate: 'Recept už existuje',
@@ -46,8 +45,9 @@ export default {
     notFound: 'Kategória nebola nájdená',
     containsRecipes: 'Kategória obsahuje recepty',
   },
-  image: {
-    notFound: 'Obrázok nebol nájdený',
+  roleRequest: {
+    duplicate: 'Rola je už vyžiadaná',
+    notFound: 'Požiadavka o rolu nebola nájdená',
   },
   emails: {
     verificationCode: {

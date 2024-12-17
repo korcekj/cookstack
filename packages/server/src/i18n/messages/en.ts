@@ -23,7 +23,6 @@ export default {
     invalidHeader: 'Invalid header',
     unverifiedEmail: 'Unverified email',
     existsEmail: 'Email cannot be used',
-    roleRequested: 'Role already requested',
   },
   recipe: {
     duplicate: 'Recipe already exists',
@@ -46,8 +45,9 @@ export default {
     notFound: 'Category not found',
     containsRecipes: 'Category contains recipes',
   },
-  image: {
-    notFound: 'Image not found',
+  roleRequest: {
+    duplicate: 'Role already requested',
+    notFound: 'Role request not found',
   },
   emails: {
     verificationCode: {
