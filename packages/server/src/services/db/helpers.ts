@@ -4,7 +4,7 @@ import type { SQLiteColumn, SQLiteTable } from 'drizzle-orm/sqlite-core';
 import { sql, asc, desc, getTableColumns } from 'drizzle-orm';
 
 export const getOrderByClauses = <T extends string>(
-  orderBy: string | undefined,
+  orderBy: string | null | undefined,
   getter: (v: T) => SQLiteColumn | SQL,
 ) => {
   return (
