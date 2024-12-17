@@ -51,7 +51,8 @@ export const getCategoriesSchema = z.object({
   offset: z.coerce.number().min(0).default(0),
   orderBy: z
     .string()
-    .optional()
+    .min(1)
+    .nullish()
     .refine(
       v =>
         v
