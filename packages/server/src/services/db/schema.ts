@@ -54,8 +54,6 @@ export const oauthAccounts = sqliteTable(
   }),
 );
 
-export type OAuthAccount = typeof oauthAccounts.$inferSelect;
-
 export const emailVerificationCodes = sqliteTable('email_verification_codes', {
   id: text('id').notNull().primaryKey(),
   code: text('code').notNull(),
@@ -104,8 +102,6 @@ export const roleRequests = sqliteTable(
   }),
 );
 
-export type RoleRequest = typeof roleRequests.$inferSelect;
-
 export const categories = sqliteTable('categories', {
   id: text('id').notNull().primaryKey(),
   createdAt: integer('created_at', { mode: 'timestamp' }).default(
@@ -133,8 +129,6 @@ export const categoriesTranslations = sqliteTable(
     unq: uniqueIndex('categories_translations_unq').on(t.slug, t.language),
   }),
 );
-
-export type CategoryTranslation = typeof categoriesTranslations.$inferSelect;
 
 export const recipes = sqliteTable(
   'recipes',
@@ -187,8 +181,6 @@ export const recipesTranslations = sqliteTable(
   }),
 );
 
-export type RecipeTranslation = typeof recipesTranslations.$inferSelect;
-
 export const sections = sqliteTable(
   'sections',
   {
@@ -218,8 +210,6 @@ export const sectionsTranslations = sqliteTable(
     pk: primaryKey({ columns: [t.sectionId, t.language] }),
   }),
 );
-
-export type SectionTranslation = typeof sectionsTranslations.$inferSelect;
 
 export const ingredients = sqliteTable(
   'ingredients',
@@ -253,8 +243,6 @@ export const ingredientsTranslations = sqliteTable(
   }),
 );
 
-export type IngredientTranslation = typeof ingredientsTranslations.$inferSelect;
-
 export const instructions = sqliteTable(
   'instructions',
   {
@@ -284,6 +272,3 @@ export const instructionsTranslations = sqliteTable(
     pk: primaryKey({ columns: [t.instructionId, t.language] }),
   }),
 );
-
-export type InstructionTranslation =
-  typeof instructionsTranslations.$inferSelect;

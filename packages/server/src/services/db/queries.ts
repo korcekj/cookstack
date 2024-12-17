@@ -1,9 +1,4 @@
 import type {
-  RoleRequest,
-  RecipeTranslation,
-  Recipe as RecipeTable,
-} from './schema';
-import type {
   GetRecipeInput,
   GetRecipesInput,
   GetSectionInput,
@@ -109,33 +104,29 @@ export const useRecipes = async (
 
   const recipesQuery = db
     .select({
-      id: sql<RecipeTable['id']>`${recipesTable.id}`.as('r_id'),
+      id: sql`${recipesTable.id}`.mapWith(recipesTable.id).as('r_id'),
       imageUrl: recipesTable.imageUrl,
       preparation: recipesTable.preparation,
       cook: recipesTable.cook,
       total: recipesTable.total,
       yield: recipesTable.yield,
-      name: sql<RecipeTranslation['name']>`${recipesTranslations.name}`.as(
-        'rt_name',
-      ),
-      slug: sql<RecipeTranslation['slug']>`${recipesTranslations.slug}`.as(
-        'rt_slug',
-      ),
+      name: sql`${recipesTranslations.name}`
+        .mapWith(recipesTranslations.name)
+        .as('rt_name'),
+      slug: sql`${recipesTranslations.slug}`
+        .mapWith(recipesTranslations.slug)
+        .as('rt_slug'),
       description: recipesTranslations.description,
       category: {
         ...categoryColumns,
         ...categoryTranslationsColumns,
       },
-      createdAt: sql<
-        RecipeTable['createdAt']
-      >`strftime('%Y-%m-%dT%H:%M:%S.000Z', DATETIME(${recipesTable.createdAt}, 'auto'))`.as(
-        'r_created_at',
-      ),
-      updatedAt: sql<
-        RecipeTable['updatedAt']
-      >`strftime('%Y-%m-%dT%H:%M:%S.000Z', DATETIME(${recipesTable.updatedAt}, 'auto'))`.as(
-        'r_updated_at',
-      ),
+      createdAt: sql`${recipesTable.createdAt}`
+        .mapWith(recipesTable.createdAt)
+        .as('r_created_at'),
+      updatedAt: sql`${recipesTable.updatedAt}`
+        .mapWith(recipesTable.updatedAt)
+        .as('r_updated_at'),
     })
     .from(recipesTable)
     .innerJoin(
@@ -286,20 +277,16 @@ export const useRoleRequests = async (
 
   const requestsQuery = db
     .select({
-      id: sql<RoleRequest['id']>`${roleRequests.id}`.as('r_id'),
-      role: sql<RoleRequest['role']>`${roleRequests.role}`.as('r_role'),
+      id: sql`${roleRequests.id}`.mapWith(roleRequests.id).as('r_id'),
+      role: sql`${roleRequests.role}`.mapWith(roleRequests.role).as('r_role'),
       user: columns,
       status: roleRequests.status,
-      createdAt: sql<
-        RoleRequest['createdAt']
-      >`strftime('%Y-%m-%dT%H:%M:%S.000Z', DATETIME(${roleRequests.createdAt}, 'auto'))`.as(
-        'r_created_at',
-      ),
-      updatedAt: sql<
-        RoleRequest['updatedAt']
-      >`strftime('%Y-%m-%dT%H:%M:%S.000Z', DATETIME(${roleRequests.updatedAt}, 'auto'))`.as(
-        'r_updated_at',
-      ),
+      createdAt: sql`${roleRequests.createdAt}`
+        .mapWith(roleRequests.updatedAt)
+        .as('r_created_at'),
+      updatedAt: sql`${roleRequests.updatedAt}`
+        .mapWith(roleRequests.updatedAt)
+        .as('r_updated_at'),
     })
     .from(roleRequests)
     .innerJoin(users, eq(roleRequests.userId, users.id))
