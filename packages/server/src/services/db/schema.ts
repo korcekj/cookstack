@@ -104,6 +104,8 @@ export const roleRequests = sqliteTable(
   }),
 );
 
+export type RoleRequest = typeof roleRequests.$inferSelect;
+
 export const categories = sqliteTable('categories', {
   id: text('id').notNull().primaryKey(),
   createdAt: integer('created_at', { mode: 'timestamp' }).default(
