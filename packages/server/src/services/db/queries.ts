@@ -1,6 +1,6 @@
 import type {
+  RoleRequest,
   RecipeTranslation,
-  CategoryTranslation,
   Recipe as RecipeTable,
 } from './schema';
 import type {
@@ -9,13 +9,17 @@ import type {
   GetSectionInput,
   GetCategoryInput,
   GetCategoriesInput,
+  GetRoleRequestsInput,
   RecipesOrderByColumns,
   CategoriesOrderByColumns,
+  RoleRequestsOrderByColumns,
 } from '@cs/utils/zod';
 import type { Context } from 'hono';
 import type { Env } from '../../types';
 
 import {
+  users,
+  roleRequests,
   recipesTranslations,
   sectionsTranslations,
   categoriesTranslations,
@@ -29,7 +33,7 @@ import {
 } from './schema';
 import { initializeDB } from '.';
 import { getOrderByClauses } from './helpers';
-import { sql, count, eq, and, asc } from 'drizzle-orm';
+import { getTableColumns, sql, count, eq, and, asc } from 'drizzle-orm';
 
 export const useCategories = async (
   c: Context<Env>,
@@ -99,6 +103,10 @@ export const useRecipes = async (
 
   const db = initializeDB(c.env.DB);
 
+  const categoryColumns = getTableColumns(categoriesTable);
+  const { categoryId, language, ...categoryTranslationsColumns } =
+    getTableColumns(categoriesTranslations);
+
   const recipesQuery = db
     .select({
       id: sql<RecipeTable['id']>`${recipesTable.id}`.as('r_id'),
@@ -115,18 +123,19 @@ export const useRecipes = async (
       ),
       description: recipesTranslations.description,
       category: {
-        id: sql<RecipeTable['categoryId']>`${recipesTable.categoryId}`.as(
-          'c_id',
-        ),
-        name: sql<
-          CategoryTranslation['name']
-        >`${categoriesTranslations.name}`.as('ct_name'),
-        slug: sql<
-          CategoryTranslation['slug']
-        >`${categoriesTranslations.slug}`.as('ct_slug'),
+        ...categoryColumns,
+        ...categoryTranslationsColumns,
       },
-      createdAt: recipesTable.createdAt,
-      updatedAt: recipesTable.updatedAt,
+      createdAt: sql<
+        RecipeTable['createdAt']
+      >`strftime('%Y-%m-%dT%H:%M:%S.000Z', DATETIME(${recipesTable.createdAt}, 'auto'))`.as(
+        'r_created_at',
+      ),
+      updatedAt: sql<
+        RecipeTable['updatedAt']
+      >`strftime('%Y-%m-%dT%H:%M:%S.000Z', DATETIME(${recipesTable.updatedAt}, 'auto'))`.as(
+        'r_updated_at',
+      ),
     })
     .from(recipesTable)
     .innerJoin(
@@ -136,6 +145,7 @@ export const useRecipes = async (
         eq(recipesTranslations.language, locale()),
       ),
     )
+    .innerJoin(categoriesTable, eq(categoriesTable.id, recipesTable.categoryId))
     .innerJoin(
       categoriesTranslations,
       and(
@@ -264,4 +274,68 @@ export const useInstructions = (c: Context<Env>, options: GetSectionInput) => {
     )
     .where(eq(instructionsTable.sectionId, options.sectionId))
     .orderBy(asc(instructionsTable.position));
+};
+
+export const useRoleRequests = async (
+  c: Context<Env>,
+  options: GetRoleRequestsInput,
+) => {
+  const db = initializeDB(c.env.DB);
+
+  const { hashedPassword, ...columns } = getTableColumns(users);
+
+  const requestsQuery = db
+    .select({
+      id: sql<RoleRequest['id']>`${roleRequests.id}`.as('r_id'),
+      role: sql<RoleRequest['role']>`${roleRequests.role}`.as('r_role'),
+      user: columns,
+      status: roleRequests.status,
+      createdAt: sql<
+        RoleRequest['createdAt']
+      >`strftime('%Y-%m-%dT%H:%M:%S.000Z', DATETIME(${roleRequests.createdAt}, 'auto'))`.as(
+        'r_created_at',
+      ),
+      updatedAt: sql<
+        RoleRequest['updatedAt']
+      >`strftime('%Y-%m-%dT%H:%M:%S.000Z', DATETIME(${roleRequests.updatedAt}, 'auto'))`.as(
+        'r_updated_at',
+      ),
+    })
+    .from(roleRequests)
+    .innerJoin(users, eq(roleRequests.userId, users.id))
+    .where(eq(roleRequests.status, options.status));
+
+  if ('orderBy' in options) {
+    console.log({ orderBy: options.orderBy });
+    const orderByClauses = getOrderByClauses<RoleRequestsOrderByColumns>(
+      options.orderBy,
+      value => {
+        switch (value) {
+          case 'role':
+            return roleRequests.role;
+          case 'createdAt':
+            return roleRequests.createdAt;
+          default:
+            throw new Error(`Invalid column name: ${value}`);
+        }
+      },
+    );
+    requestsQuery.$dynamic().orderBy(...orderByClauses);
+  }
+
+  if ('limit' in options && 'offset' in options) {
+    requestsQuery.$dynamic().limit(options.limit).offset(options.offset);
+  }
+
+  const totalQuery = db
+    .select({ total: count() })
+    .from(roleRequests)
+    .where(eq(roleRequests.status, options.status));
+
+  const [requests, [{ total: total }]] = await db.batch([
+    requestsQuery,
+    totalQuery,
+  ]);
+
+  return { requests, total };
 };
