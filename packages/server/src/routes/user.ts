@@ -124,7 +124,7 @@ roleRequests.post('/', validator('json', roleRequestSchema), async c => {
       ),
     );
 
-    return c.json({ id, role, status: request.status });
+    return c.json({ id, role, status: request.status }, 201);
   } catch (err) {
     if (err instanceof Error) {
       if (err.message.includes('D1_ERROR: UNIQUE')) {
