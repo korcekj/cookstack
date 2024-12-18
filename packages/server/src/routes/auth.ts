@@ -339,8 +339,8 @@ resetPassword.post(
     c.executionCtx.waitUntil(
       mail.send({
         to: email,
-        subject: t('emails.resetPassword.subject'),
-        html: mail.templates.resetPassword({ link }),
+        subject: t('emails.passwordReset.subject'),
+        html: mail.templates.passwordReset({ link }),
       }),
     );
 
