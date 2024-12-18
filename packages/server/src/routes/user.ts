@@ -1,5 +1,11 @@
 import type { Env } from '../types';
 
+import {
+  userSchema,
+  imageSchema,
+  roleRequestSchema,
+  getRoleRequestsSchema,
+} from '@cs/utils/zod';
 import { Hono } from 'hono';
 import {
   users,
@@ -13,14 +19,14 @@ import rateLimit from '../middlewares/rate-limit';
 import { initializeEmail } from '../services/email';
 import { initializeImage } from '../services/image';
 import { validator } from '../middlewares/validation';
-import { userSchema, roleRequestSchema, imageSchema } from '@cs/utils/zod';
+import { useRoleRequests } from '../services/db/queries';
 
 const user = new Hono<Env>();
 const profile = new Hono<Env>();
 const roleRequests = new Hono<Env>();
 
 profile.get('/', async c => {
-  const user = c.get('user')!;
+  const user = c.get('user');
   return c.json(user);
 });
 
@@ -66,6 +72,22 @@ profile.put('/image', rateLimit, validator('form', imageSchema), async c => {
 
 roleRequests.use(rateLimit);
 
+roleRequests.get('/', validator('query', getRoleRequestsSchema), async c => {
+  const user = c.get('user')!;
+  const options = c.req.valid('query');
+
+  const { limit, offset } = options;
+
+  const { requests, total } = await useRoleRequests(c, {
+    ...options,
+    userId: user.id,
+  });
+  const page = Math.floor(offset / limit) + 1;
+  const pages = Math.ceil(total / limit);
+
+  return c.json({ requests, total, page, pages });
+});
+
 roleRequests.post('/', validator('json', roleRequestSchema), async c => {
   const { t } = c.get('i18n');
   const user = c.get('user')!;
@@ -109,20 +131,6 @@ roleRequests.post('/', validator('json', roleRequestSchema), async c => {
 
     throw err;
   }
-});
-
-roleRequests.get('/', async c => {
-  const user = c.get('user')!;
-
-  const db = initializeDB(c.env.DB);
-
-  const requests = await db.query.roleRequests.findMany({
-    columns: { id: true, role: true, status: true, createdAt: true },
-    where: (t, { and, eq }) =>
-      and(eq(t.userId, user.id), eq(t.status, 'pending')),
-  });
-
-  return c.json(requests);
 });
 
 user.use(verifyAuth);
