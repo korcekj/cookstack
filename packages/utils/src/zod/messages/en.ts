@@ -107,4 +107,14 @@ export default {
     map: 'map',
     set: 'set',
   },
+  roles: {
+    user: 'user',
+    admin: 'admin',
+    author: 'author',
+  },
+  status: {
+    pending: 'pending',
+    approved: 'approved',
+    rejected: 'rejected',
+  },
 };

@@ -55,7 +55,7 @@ export default {
       heading: 'Potvrďte Vašu emailovú adresu',
       body: 'Prosim zadajte Váš verifikačný kód pri vyžiadaní.',
     },
-    resetPassword: {
+    passwordReset: {
       subject: 'Reset hesla',
       heading: 'Resetovanie hesla',
       body: 'Pre resetovanie hesla použite následujúcú odkaz.',
@@ -64,7 +64,16 @@ export default {
     roleRequest: {
       subject: 'Požiadavka o rolu',
       heading: 'Ďalšia požiadavka o rolu',
-      body: 'Prosím skontrolujte požiadavku <{{id}}> s rolou <{{role}}>.',
+      body: (obj: { id: string; role: string }) =>
+        // @ts-ignore
+        `Prosím skontrolujte požiadavku <${obj.id}> s rolou <${messages.roles[obj.role]}>.`,
+    },
+    roleRequestStatus: {
+      subject: 'Tvoja požiadavka o rolu',
+      heading: 'Status požiadavky o rolu',
+      body: (obj: { id: string; role: string; status: string }) =>
+        // @ts-ignore
+        `Požiadavka o rolu <${obj.id}> s rolou <${messages.roles[obj.role]}> bola <${messages.status[obj.status]}>.`,
     },
   },
 };

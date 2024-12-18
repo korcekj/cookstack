@@ -55,7 +55,7 @@ export default {
       heading: 'Confirm your email address',
       body: 'Please enter your verification code when prompted.',
     },
-    resetPassword: {
+    passwordReset: {
       subject: 'Password reset',
       heading: 'Reset your password',
       body: 'Please use the link below to reset your password.',
@@ -64,7 +64,16 @@ export default {
     roleRequest: {
       subject: 'Role request',
       heading: 'Another role request',
-      body: 'Please review the request <{{id}}> with the role <{{role}}>.',
+      body: (obj: { id: string; role: string }) =>
+        // @ts-ignore
+        `Please review the request <${obj.id}> with the role <${messages.roles[obj.role]}>.`,
+    },
+    roleRequestStatus: {
+      subject: 'Your role request',
+      heading: 'Role request status',
+      body: (obj: { id: string; role: string; status: string }) =>
+        // @ts-ignore
+        `The role request <${obj.id}> with the role <${messages.roles[obj.role]}> has been <${messages.status[obj.status]}>.`,
     },
   },
 };

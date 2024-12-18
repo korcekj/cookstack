@@ -107,4 +107,14 @@ export default {
     map: 'mapa',
     set: 'množina',
   },
+  roles: {
+    user: 'používatel',
+    admin: 'admin',
+    author: 'autor',
+  },
+  status: {
+    pending: 'čakajúci',
+    approved: 'schvalený',
+    rejected: 'zamietnutý',
+  },
 };
