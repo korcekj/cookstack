@@ -4,6 +4,7 @@ import type {
   GetSectionInput,
   GetCategoryInput,
   GetCategoriesInput,
+  GetRoleRequestInput,
   GetRoleRequestsInput,
   RecipesOrderByColumns,
   CategoriesOrderByColumns,
@@ -36,6 +37,12 @@ export const useCategories = async (
 ) => {
   const { locale } = c.get('i18n');
 
+  const whereClauses = [
+    'categoryId' in options
+      ? eq(categoriesTable.id, options.categoryId)
+      : undefined,
+  ];
+
   const db = initializeDB(c.env.DB);
 
   const categoriesQuery = db
@@ -53,15 +60,13 @@ export const useCategories = async (
         eq(categoriesTranslations.categoryId, categoriesTable.id),
         eq(categoriesTranslations.language, locale()),
       ),
-    );
-  const totalQuery = db.select({ total: count() }).from(categoriesTable);
+    )
+    .where(and(...whereClauses));
 
-  if ('categoryId' in options) {
-    categoriesQuery
-      .$dynamic()
-      .where(eq(categoriesTable.id, options.categoryId));
-    totalQuery.$dynamic().where(eq(categoriesTable.id, options.categoryId));
-  }
+  const totalQuery = db
+    .select({ total: count() })
+    .from(categoriesTable)
+    .where(and(...whereClauses));
 
   if ('orderBy' in options) {
     const orderByClauses = getOrderByClauses<CategoriesOrderByColumns>(
@@ -97,6 +102,13 @@ export const useRecipes = async (
   const { locale } = c.get('i18n');
 
   const db = initializeDB(c.env.DB);
+
+  const whereClauses = [
+    'recipeId' in options ? eq(recipesTable.id, options.recipeId) : undefined,
+    'categoryId' in options
+      ? eq(recipesTable.categoryId, options.categoryId)
+      : undefined,
+  ];
 
   const categoryColumns = getTableColumns(categoriesTable);
   const { categoryId, language, ...categoryTranslationsColumns } =
@@ -143,22 +155,13 @@ export const useRecipes = async (
         eq(categoriesTranslations.categoryId, recipesTable.categoryId),
         eq(categoriesTranslations.language, locale()),
       ),
-    );
-  const totalQuery = db.select({ total: count() }).from(recipesTable);
+    )
+    .where(and(...whereClauses));
 
-  if ('recipeId' in options) {
-    recipesQuery.$dynamic().where(eq(recipesTable.id, options.recipeId));
-    totalQuery.$dynamic().where(eq(recipesTable.id, options.recipeId));
-  }
-
-  if ('categoryId' in options) {
-    recipesQuery
-      .$dynamic()
-      .where(eq(recipesTable.categoryId, options.categoryId));
-    totalQuery
-      .$dynamic()
-      .where(eq(recipesTable.categoryId, options.categoryId));
-  }
+  const totalQuery = db
+    .select({ total: count() })
+    .from(recipesTable)
+    .where(and(...whereClauses));
 
   if ('orderBy' in options) {
     const orderByClauses = getOrderByClauses<RecipesOrderByColumns>(
@@ -269,9 +272,17 @@ export const useInstructions = (c: Context<Env>, options: GetSectionInput) => {
 
 export const useRoleRequests = async (
   c: Context<Env>,
-  options: Prettify<GetRoleRequestsInput & { userId?: string }>,
+  options:
+    | GetRoleRequestInput
+    | Prettify<GetRoleRequestsInput & { userId?: string }>,
 ) => {
   const db = initializeDB(c.env.DB);
+
+  const whereClauses = [
+    'status' in options ? eq(roleRequests.status, options.status) : undefined,
+    'userId' in options ? eq(roleRequests.userId, options.userId!) : undefined,
+    'requestId' in options ? eq(roleRequests.id, options.requestId) : undefined,
+  ];
 
   const { hashedPassword, ...columns } = getTableColumns(users);
 
@@ -279,7 +290,7 @@ export const useRoleRequests = async (
     .select({
       id: sql`${roleRequests.id}`.mapWith(roleRequests.id).as('r_id'),
       role: sql`${roleRequests.role}`.mapWith(roleRequests.role).as('r_role'),
-      ...(options.userId ? {} : { user: columns }),
+      ...('userId' in options ? {} : { user: columns }),
       status: roleRequests.status,
       createdAt: sql`${roleRequests.createdAt}`
         .mapWith(roleRequests.updatedAt)
@@ -289,22 +300,15 @@ export const useRoleRequests = async (
         .as('r_updated_at'),
     })
     .from(roleRequests)
-    .innerJoin(users, eq(roleRequests.userId, users.id));
+    .innerJoin(users, eq(roleRequests.userId, users.id))
+    .where(and(...whereClauses));
 
-  if (options.userId) {
-    requestsQuery
-      .$dynamic()
-      .where(
-        and(
-          eq(roleRequests.userId, options.userId),
-          eq(roleRequests.status, options.status),
-        ),
-      );
-  } else {
-    requestsQuery.$dynamic().where(eq(roleRequests.status, options.status));
-  }
+  const totalQuery = db
+    .select({ total: count() })
+    .from(roleRequests)
+    .where(and(...whereClauses));
 
-  if (options.orderBy) {
+  if ('orderBy' in options) {
     console.log({ orderBy: options.orderBy });
     const orderByClauses = getOrderByClauses<RoleRequestsOrderByColumns>(
       options.orderBy,
@@ -322,14 +326,9 @@ export const useRoleRequests = async (
     requestsQuery.$dynamic().orderBy(...orderByClauses);
   }
 
-  if (options.limit && options.offset) {
+  if ('limit' in options && 'offset' in options) {
     requestsQuery.$dynamic().limit(options.limit).offset(options.offset);
   }
-
-  const totalQuery = db
-    .select({ total: count() })
-    .from(roleRequests)
-    .where(eq(roleRequests.status, options.status));
 
   const [requests, [{ total: total }]] = await db.batch([
     requestsQuery,
