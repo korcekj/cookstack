@@ -15,7 +15,7 @@ import {
 import { eq } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
 import { generateId, slugify } from '@cs/utils';
-import { verifyRole } from '../middlewares/auth';
+import { verifyRoles } from '../middlewares/auth';
 import rateLimit from '../middlewares/rate-limit';
 import { useRecipes } from '../services/db/queries';
 import { initializeImage } from '../services/image';
@@ -41,7 +41,7 @@ recipes.get('/', validator('query', getRecipesSchema), async c => {
 
 recipes.post(
   '/',
-  verifyRole('author'),
+  verifyRoles(['author', 'admin']),
   validator('json', createRecipeSchema),
   async c => {
     const { t } = c.get('i18n');
@@ -98,7 +98,7 @@ recipes.get(
 
 recipes.patch(
   '/:recipeId',
-  verifyRole('author'),
+  verifyRoles(['author', 'admin']),
   validator('param', getRecipeSchema),
   validateRecipe,
   validator('json', updateRecipeSchema),
@@ -158,7 +158,7 @@ recipes.patch(
 
 recipes.put(
   '/:recipeId/image',
-  verifyRole('author'),
+  verifyRoles(['author', 'admin']),
   validator('param', getRecipeSchema),
   validateRecipe,
   validator('form', imageSchema),
@@ -190,7 +190,7 @@ recipes.put(
 
 recipes.delete(
   '/:recipeId',
-  verifyRole('author'),
+  verifyRoles(['author', 'admin']),
   validator('param', getRecipeSchema),
   validateRecipe,
   async c => {

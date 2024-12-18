@@ -19,7 +19,7 @@ import {
 import { generateId } from '@cs/utils';
 import { eq, inArray } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
-import { verifyRole } from '../middlewares/auth';
+import { verifyRoles } from '../middlewares/auth';
 import rateLimit from '../middlewares/rate-limit';
 import { useIngredients } from '../services/db/queries';
 
@@ -29,7 +29,7 @@ ingredients.use(rateLimit);
 
 ingredients.post(
   '/',
-  verifyRole('author'),
+  verifyRoles(['author', 'admin']),
   validator('param', getSectionSchema),
   validateSection,
   validator('json', createIngredientSchema),
@@ -90,7 +90,7 @@ ingredients.get(
 
 ingredients.put(
   '/',
-  verifyRole('author'),
+  verifyRoles(['author', 'admin']),
   validator('param', getSectionSchema),
   validateSection,
   validator('json', updateIngredientSchema),
@@ -154,7 +154,7 @@ ingredients.put(
 
 ingredients.delete(
   '/:ingredientId',
-  verifyRole('author'),
+  verifyRoles(['author', 'admin']),
   validator('param', getIngredientSchema),
   validateIngredient,
   async c => {
