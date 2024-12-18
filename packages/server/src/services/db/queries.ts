@@ -10,7 +10,7 @@ import type {
   RoleRequestsOrderByColumns,
 } from '@cs/utils/zod';
 import type { Context } from 'hono';
-import type { Env } from '../../types';
+import type { Env, Prettify } from '../../types';
 
 import {
   users,
@@ -269,7 +269,7 @@ export const useInstructions = (c: Context<Env>, options: GetSectionInput) => {
 
 export const useRoleRequests = async (
   c: Context<Env>,
-  options: GetRoleRequestsInput,
+  options: Prettify<GetRoleRequestsInput & { userId?: string }>,
 ) => {
   const db = initializeDB(c.env.DB);
 
@@ -279,7 +279,7 @@ export const useRoleRequests = async (
     .select({
       id: sql`${roleRequests.id}`.mapWith(roleRequests.id).as('r_id'),
       role: sql`${roleRequests.role}`.mapWith(roleRequests.role).as('r_role'),
-      user: columns,
+      ...(options.userId ? {} : { user: columns }),
       status: roleRequests.status,
       createdAt: sql`${roleRequests.createdAt}`
         .mapWith(roleRequests.updatedAt)
@@ -289,10 +289,22 @@ export const useRoleRequests = async (
         .as('r_updated_at'),
     })
     .from(roleRequests)
-    .innerJoin(users, eq(roleRequests.userId, users.id))
-    .where(eq(roleRequests.status, options.status));
+    .innerJoin(users, eq(roleRequests.userId, users.id));
 
-  if ('orderBy' in options) {
+  if (options.userId) {
+    requestsQuery
+      .$dynamic()
+      .where(
+        and(
+          eq(roleRequests.userId, options.userId),
+          eq(roleRequests.status, options.status),
+        ),
+      );
+  } else {
+    requestsQuery.$dynamic().where(eq(roleRequests.status, options.status));
+  }
+
+  if (options.orderBy) {
     console.log({ orderBy: options.orderBy });
     const orderByClauses = getOrderByClauses<RoleRequestsOrderByColumns>(
       options.orderBy,
@@ -310,7 +322,7 @@ export const useRoleRequests = async (
     requestsQuery.$dynamic().orderBy(...orderByClauses);
   }
 
-  if ('limit' in options && 'offset' in options) {
+  if (options.limit && options.offset) {
     requestsQuery.$dynamic().limit(options.limit).offset(options.offset);
   }
 
