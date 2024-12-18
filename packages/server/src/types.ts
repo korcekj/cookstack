@@ -1,6 +1,10 @@
 import type { Translation } from './i18n';
 import type { User, Session } from '@cs/utils/zod';
 
+export type Prettify<T> = {
+  [K in keyof T]: T[K];
+} & {};
+
 export type Bindings = {
   DB: D1Database;
   ENV: 'test' | 'dev' | 'production';
