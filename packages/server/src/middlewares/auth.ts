@@ -66,16 +66,17 @@ export const verifyAuth = createMiddleware<Env>(async (c, next) => {
   return next();
 });
 
-export const verifyRole = (role: Role) => every(
-  verifyAuth,
-  createMiddleware<Env>(async (c, next) => {
-    const { t } = c.get('i18n');
+export const verifyRoles = (roles: Role[]) =>
+  every(
+    verifyAuth,
+    createMiddleware<Env>(async (c, next) => {
+      const { t } = c.get('i18n');
 
-    const user = c.get('user')!;
-    if (user.role !== role) {
-      throw new HTTPException(403, { message: t('auth.forbidden') });
-    }
+      const user = c.get('user')!;
+      if (!roles.includes(user.role)) {
+        throw new HTTPException(403, { message: t('auth.forbidden') });
+      }
 
-    return next();
-  }),
-);
+      return next();
+    }),
+  );
