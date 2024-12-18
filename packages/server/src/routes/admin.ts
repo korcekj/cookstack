@@ -46,44 +46,39 @@ roleRequests.post(
       requests: [request],
     } = await useRoleRequests(c, { requestId });
 
-    try {
-      await db.batch([
-        db
-          .update(roleRequestsTable)
-          .set({ status, updatedAt: new Date() })
-          .where(eq(roleRequestsTable.id, requestId)),
-        ...(status === 'approved'
-          ? [
-              db
-                .update(users)
-                .set({ role: request!.role, updatedAt: new Date() })
-                .where(eq(users.id, request.user!.id)),
-            ]
-          : []),
-      ]);
+    await db.batch([
+      db
+        .update(roleRequestsTable)
+        .set({ status, updatedAt: new Date() })
+        .where(eq(roleRequestsTable.id, requestId)),
+      ...(status === 'approved'
+        ? [
+            db
+              .update(users)
+              .set({ role: request!.role, updatedAt: new Date() })
+              .where(eq(users.id, request.user!.id)),
+          ]
+        : []),
+    ]);
 
-      if (status === 'approved') {
-        const { lucia } = initializeAuth(c);
-        await lucia.invalidateUserSessions(request.user!.id);
-      }
-
-      c.executionCtx.waitUntil(
-        mail.send({
-          to: request.user!.email,
-          subject: t('emails.roleRequestStatus.subject'),
-          html: mail.templates.roleRequestStatus({
-            id: requestId,
-            role: request.role,
-            status,
-          }),
-        }),
-      );
-
-      return c.json({ id: requestId, role: request.role, status });
-    } catch (err) {
-      // FIX: D1_ERROR: UNIQUE constraint failed: role_requests.role, role_requests.user_id, role_requests.status
-      throw err;
+    if (status === 'approved') {
+      const { lucia } = initializeAuth(c);
+      await lucia.invalidateUserSessions(request.user!.id);
     }
+
+    c.executionCtx.waitUntil(
+      mail.send({
+        to: request.user!.email,
+        subject: t('emails.roleRequestStatus.subject'),
+        html: mail.templates.roleRequestStatus({
+          id: requestId,
+          role: request.role,
+          status,
+        }),
+      }),
+    );
+
+    return c.json({ id: requestId, role: request.role, status });
   },
 );
 

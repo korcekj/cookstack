@@ -98,7 +98,9 @@ export const roleRequests = sqliteTable(
     ),
   },
   t => ({
-    unq: uniqueIndex('role_requests_unq').on(t.role, t.userId, t.status),
+    unq: uniqueIndex('role_requests_unq')
+      .on(t.role, t.userId)
+      .where(sql`${t.status} = 'pending'`),
   }),
 );
 
