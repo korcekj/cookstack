@@ -19,7 +19,7 @@ import { verifyRoles } from '../middlewares/auth';
 import rateLimit from '../middlewares/rate-limit';
 import { useRecipes } from '../services/db/queries';
 import { initializeImage } from '../services/image';
-import { getConflictUpdateSetter } from '../services/db/helpers';
+import { getConflictUpdateSetter } from '../services/db/utils';
 import { validator, validateRecipe } from '../middlewares/validation';
 
 import sections from './sections';

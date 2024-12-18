@@ -28,7 +28,7 @@ import {
   instructions as instructionsTable,
 } from './schema';
 import { initializeDB } from '.';
-import { getOrderByClauses } from './helpers';
+import { getOrderByClauses } from './utils';
 import { getTableColumns, sql, count, eq, and, asc } from 'drizzle-orm';
 
 export const useCategories = async (

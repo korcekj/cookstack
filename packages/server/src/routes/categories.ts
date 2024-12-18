@@ -17,7 +17,7 @@ import { initializeDB } from '../services/db';
 import { generateId, slugify } from '@cs/utils';
 import { verifyRoles } from '../middlewares/auth';
 import rateLimit from '../middlewares/rate-limit';
-import { getConflictUpdateSetter } from '../services/db/helpers';
+import { getConflictUpdateSetter } from '../services/db/utils';
 import { useCategories, useRecipes } from '../services/db/queries';
 import { validator, validateCategory } from '../middlewares/validation';
 
