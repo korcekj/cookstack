@@ -13,6 +13,7 @@ import { analytics } from './middlewares/analytics';
 
 import auth from './routes/auth';
 import user from './routes/user';
+import admin from './routes/admin';
 import recipes from './routes/recipes';
 import categories from './routes/categories';
 
@@ -55,6 +56,7 @@ const api = app.basePath('/api');
 api.use('*', handleAuth);
 api.route('/auth', auth);
 api.route('/user', user);
+api.route('/admin', admin);
 api.route('/recipes', recipes);
 api.route('/categories', categories);
 

@@ -11,6 +11,9 @@ export const roleRequestSchema = z.object({
 
 export const getRoleRequestSchema = z.object({
   requestId: z.string().length(16),
+});
+
+export const createRoleRequestSchema = getRoleRequestSchema.extend({
   status: z.enum(['approved', 'rejected']),
 });
 

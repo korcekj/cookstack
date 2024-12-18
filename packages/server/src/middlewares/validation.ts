@@ -1,10 +1,10 @@
 import type {
-  RoleRequest,
   GetRecipeInput,
   GetSectionInput,
   GetCategoryInput,
   GetIngredientInput,
   GetInstructionInput,
+  GetRoleRequestInput,
 } from '@cs/utils/zod';
 import type { Env } from '../types';
 import type { ValidationTargets } from 'hono';
@@ -27,14 +27,19 @@ export const validator = <T extends z.ZodType<any, z.ZodTypeDef, any>>(
     }
   });
 
-export const validateRole = createMiddleware<Env>(async (c, next) => {
+export const validateRoleRequest = createMiddleware<Env>(async (c, next) => {
   const { t } = c.get('i18n');
-  const user = c.get('user')!;
-  const { role } = (await c.req.json()) as RoleRequest;
+  const { requestId } = c.req.param() as GetRoleRequestInput;
 
-  if (user.role === role) {
-    throw new HTTPException(400, { message: t('errors.badRequest') });
-  }
+  const db = initializeDB(c.env.DB);
+
+  const request = await db.query.roleRequests.findFirst({
+    columns: { id: true },
+    where: (t, { and, eq }) =>
+      and(eq(t.id, requestId), eq(t.status, 'pending')),
+  });
+  if (!request)
+    throw new HTTPException(404, { message: t('roleRequest.notFound') });
 
   return next();
 });
