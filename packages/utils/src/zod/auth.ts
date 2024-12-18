@@ -105,19 +105,21 @@ export const roleRequestSchema = z.object({
   updatedAt: z.date(),
 });
 
-export const createRoleRequestSchema = z.object({
-  role: roleSchema,
-});
+export type RoleRequest = z.infer<typeof roleRequestSchema>;
 
 export const getRoleRequestSchema = z.object({
   requestId: z.string().length(16),
 });
 
+export type GetRoleRequestInput = z.infer<typeof getRoleRequestSchema>;
+
+export const createRoleRequestSchema = z.object({
+  role: roleSchema,
+});
+
 export const updateRoleRequestSchema = getRoleRequestSchema.extend({
   status: z.enum(['approved', 'rejected']),
 });
-
-export type GetRoleRequestInput = z.infer<typeof getRoleRequestSchema>;
 
 export const roleRequestsOrderBySchema = z.enum([
   'role',
