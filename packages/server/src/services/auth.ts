@@ -162,7 +162,10 @@ export const auth = {
       db
         .delete(passwordResetTokens)
         .where(eq(passwordResetTokens.hashedToken, hashedToken)),
-      db.update(users).set({ hashedPassword }).where(eq(users.id, userId)),
+      db
+        .update(users)
+        .set({ hashedPassword, updatedAt: new Date() })
+        .where(eq(users.id, userId)),
     ]);
   },
 };

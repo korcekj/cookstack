@@ -124,10 +124,11 @@ signIn.get(
             .onConflictDoUpdate({
               target: users.email,
               set: {
+                imageUrl,
                 emailVerified: true,
                 firstName: user.given_name,
                 lastName: user.family_name,
-                imageUrl,
+                updatedAt: new Date(),
               },
             })
             .returning({ id: users.id }),
@@ -294,7 +295,7 @@ verifyEmail.post(
     await auth.lucia.invalidateUserSessions(userId);
     await db
       .update(users)
-      .set({ emailVerified: true })
+      .set({ emailVerified: true, updatedAt: new Date() })
       .where(eq(users.id, userId));
 
     const session = await auth.lucia.createSession(userId, {});

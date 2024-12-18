@@ -41,7 +41,7 @@ profile.patch(
     const db = initializeDB(c.env.DB);
     await db
       .update(users)
-      .set({ firstName, lastName })
+      .set({ firstName, lastName, updatedAt: new Date() })
       .where(eq(users.id, user.id));
 
     return c.json({ ...user, firstName, lastName });
@@ -65,7 +65,10 @@ profile.put('/image', rateLimit, validator('form', imageSchema), async c => {
     uploadPreset: 'cookstack',
   });
 
-  await db.update(users).set({ imageUrl }).where(eq(users.id, user.id));
+  await db
+    .update(users)
+    .set({ imageUrl, updatedAt: new Date() })
+    .where(eq(users.id, user.id));
 
   return c.json({ id: imageId, url: imageUrl });
 });
@@ -95,8 +98,8 @@ roleRequests.post('/', validator('json', roleRequestSchema), async c => {
 
   if (user.role === role) return c.json({ error: t('errors.badRequest') }, 400);
 
-  const db = initializeDB(c.env.DB);
   const mail = initializeEmail(c);
+  const db = initializeDB(c.env.DB);
 
   const id = generateId(16);
 
