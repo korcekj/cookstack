@@ -13,7 +13,7 @@ import { initializeEmail } from '../services/email';
 import { useRoleRequests } from '../services/db/queries';
 import { verifyAuth, verifyRoles } from '../middlewares/auth';
 import { validator, validateRoleRequest } from '../middlewares/validation';
-import { createRoleRequestSchema, getRoleRequestsSchema } from '@cs/utils/zod';
+import { updateRoleRequestSchema, getRoleRequestsSchema } from '@cs/utils/zod';
 
 const admin = new Hono<Env>();
 const roleRequests = new Hono<Env>();
@@ -33,7 +33,7 @@ roleRequests.get('/', validator('query', getRoleRequestsSchema), async c => {
 
 roleRequests.post(
   '/:requestId/:status',
-  validator('param', createRoleRequestSchema),
+  validator('param', updateRoleRequestSchema),
   validateRoleRequest,
   async c => {
     const { t } = c.get('i18n');

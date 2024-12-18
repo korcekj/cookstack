@@ -3,18 +3,18 @@ import type { Env } from '../types';
 import {
   userSchema,
   imageSchema,
-  roleRequestSchema,
   getRoleRequestsSchema,
+  createRoleRequestSchema,
 } from '@cs/utils/zod';
 import { Hono } from 'hono';
 import {
   users,
   roleRequests as roleRequestsTable,
 } from '../services/db/schema';
-import { eq } from 'drizzle-orm';
 import { generateId } from '@cs/utils';
 import { initializeDB } from '../services/db';
 import { verifyAuth } from '../middlewares/auth';
+import { eq, getTableColumns } from 'drizzle-orm';
 import rateLimit from '../middlewares/rate-limit';
 import { initializeEmail } from '../services/email';
 import { initializeImage } from '../services/image';
@@ -91,7 +91,7 @@ roleRequests.get('/', validator('query', getRoleRequestsSchema), async c => {
   return c.json({ requests, total, page, pages });
 });
 
-roleRequests.post('/', validator('json', roleRequestSchema), async c => {
+roleRequests.post('/', validator('json', createRoleRequestSchema), async c => {
   const { t } = c.get('i18n');
   const user = c.get('user')!;
   const { role } = c.req.valid('json');
@@ -102,13 +102,14 @@ roleRequests.post('/', validator('json', roleRequestSchema), async c => {
   const db = initializeDB(c.env.DB);
 
   const id = generateId(16);
+  const { userId, ...columns } = getTableColumns(roleRequestsTable);
 
   try {
     const [[request], admins] = await db.batch([
       db
         .insert(roleRequestsTable)
         .values({ id, role, userId: user.id })
-        .returning({ status: roleRequestsTable.status }),
+        .returning(columns),
       db.query.users.findMany({ where: (t, { eq }) => eq(t.role, 'admin') }),
     ]);
 
@@ -124,7 +125,7 @@ roleRequests.post('/', validator('json', roleRequestSchema), async c => {
       ),
     );
 
-    return c.json({ id, role, status: request.status }, 201);
+    return c.json(request, 201);
   } catch (err) {
     if (err instanceof Error) {
       if (err.message.includes('D1_ERROR: UNIQUE')) {

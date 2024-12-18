@@ -5,64 +5,6 @@ export const roleSchema = z.enum(['user', 'author', 'admin']);
 
 export type Role = z.infer<typeof roleSchema>;
 
-export const roleRequestSchema = z.object({
-  role: roleSchema,
-});
-
-export const getRoleRequestSchema = z.object({
-  requestId: z.string().length(16),
-});
-
-export const createRoleRequestSchema = getRoleRequestSchema.extend({
-  status: z.enum(['approved', 'rejected']),
-});
-
-export type GetRoleRequestInput = z.infer<typeof getRoleRequestSchema>;
-
-export const roleRequestsOrderBySchema = z.enum([
-  'role',
-  '-role',
-  'createdAt',
-  '-createdAt',
-]);
-
-export type RoleRequestsOrderByInput = z.infer<
-  typeof roleRequestsOrderBySchema
->;
-
-export type RoleRequestsOrderByColumns<T = RoleRequestsOrderByInput> =
-  T extends `-${string}` ? never : T;
-
-export const getRoleRequestsSchema = z.object({
-  limit: z.coerce.number().min(1).max(100).default(10),
-  offset: z.coerce.number().min(0).default(0),
-  status: z.enum(['pending', 'approved', 'rejected']).default('pending'),
-  orderBy: z
-    .string()
-    .min(1)
-    .nullish()
-    .refine(
-      v =>
-        v
-          ? v
-              .split(',')
-              .every(s => roleRequestsOrderBySchema.safeParse(s).success)
-          : true,
-      {
-        params: {
-          i18n: {
-            key: 'invalidEnumValue',
-            options: {
-              options: joinValues(roleRequestsOrderBySchema.options),
-            },
-          },
-        },
-      },
-    ),
-});
-
-export type GetRoleRequestsInput = z.infer<typeof getRoleRequestsSchema>;
-
 export const userSchema = z.object({
   id: z.string(),
   firstName: z.string().max(16).nullable(),
@@ -154,3 +96,69 @@ export const confirmPassword = <
     },
   );
 };
+
+export const roleRequestSchema = z.object({
+  id: z.string(),
+  role: roleSchema,
+  user: userSchema.optional(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export const createRoleRequestSchema = z.object({
+  role: roleSchema,
+});
+
+export const getRoleRequestSchema = z.object({
+  requestId: z.string().length(16),
+});
+
+export const updateRoleRequestSchema = getRoleRequestSchema.extend({
+  status: z.enum(['approved', 'rejected']),
+});
+
+export type GetRoleRequestInput = z.infer<typeof getRoleRequestSchema>;
+
+export const roleRequestsOrderBySchema = z.enum([
+  'role',
+  '-role',
+  'createdAt',
+  '-createdAt',
+]);
+
+export type RoleRequestsOrderByInput = z.infer<
+  typeof roleRequestsOrderBySchema
+>;
+
+export type RoleRequestsOrderByColumns<T = RoleRequestsOrderByInput> =
+  T extends `-${string}` ? never : T;
+
+export const getRoleRequestsSchema = z.object({
+  limit: z.coerce.number().min(1).max(100).default(10),
+  offset: z.coerce.number().min(0).default(0),
+  status: z.enum(['pending', 'approved', 'rejected']).default('pending'),
+  orderBy: z
+    .string()
+    .min(1)
+    .nullish()
+    .refine(
+      v =>
+        v
+          ? v
+              .split(',')
+              .every(s => roleRequestsOrderBySchema.safeParse(s).success)
+          : true,
+      {
+        params: {
+          i18n: {
+            key: 'invalidEnumValue',
+            options: {
+              options: joinValues(roleRequestsOrderBySchema.options),
+            },
+          },
+        },
+      },
+    ),
+});
+
+export type GetRoleRequestsInput = z.infer<typeof getRoleRequestsSchema>;
