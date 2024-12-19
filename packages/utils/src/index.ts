@@ -123,6 +123,16 @@ export const get = <T extends object, K extends keyof T>(
   }, object);
 };
 
+export const pick = <T extends object, K extends keyof T>(
+  object: T,
+  keys: K[],
+): Pick<T, K> => {
+  return keys.reduce(
+    (acc, key) => ({ ...acc, [key]: object[key as keyof T] }),
+    {} as Pick<T, K>,
+  );
+};
+
 export const omit = <T extends object, K extends keyof T>(
   object: T,
   keys: K[],

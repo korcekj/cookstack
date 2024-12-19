@@ -31,6 +31,31 @@ import { initializeDB } from '.';
 import { getOrderByClauses } from './utils';
 import { getTableColumns, sql, count, eq, and, asc } from 'drizzle-orm';
 
+export const useCategory = (c: Context<Env>, options: GetCategoryInput) => {
+  const { locale } = c.get('i18n');
+
+  const db = initializeDB(c.env.DB);
+
+  return db
+    .select({
+      id: categoriesTable.id,
+      name: categoriesTranslations.name,
+      slug: categoriesTranslations.slug,
+      createdAt: categoriesTable.createdAt,
+      updatedAt: categoriesTable.updatedAt,
+    })
+    .from(categoriesTable)
+    .innerJoin(
+      categoriesTranslations,
+      and(
+        eq(categoriesTranslations.categoryId, categoriesTable.id),
+        eq(categoriesTranslations.language, locale()),
+      ),
+    )
+    .where(eq(categoriesTable.id, options.categoryId))
+    .limit(1);
+};
+
 export const useCategories = async (
   c: Context<Env>,
   options: GetCategoryInput | GetCategoriesInput,
@@ -95,6 +120,60 @@ export const useCategories = async (
   return { categories, total };
 };
 
+export const useRecipe = (c: Context<Env>, options: GetRecipeInput) => {
+  const { locale } = c.get('i18n');
+
+  const db = initializeDB(c.env.DB);
+
+  return db
+    .select({
+      id: sql`${recipesTable.id}`.mapWith(recipesTable.id).as('r_id'),
+      imageUrl: recipesTable.imageUrl,
+      preparation: recipesTable.preparation,
+      cook: recipesTable.cook,
+      total: recipesTable.total,
+      yield: recipesTable.yield,
+      name: sql`${recipesTranslations.name}`
+        .mapWith(recipesTranslations.name)
+        .as('rt_name'),
+      slug: sql`${recipesTranslations.slug}`
+        .mapWith(recipesTranslations.slug)
+        .as('rt_slug'),
+      description: recipesTranslations.description,
+      category: {
+        id: categoriesTable.id,
+        name: categoriesTranslations.name,
+        slug: categoriesTranslations.slug,
+        createdAt: categoriesTable.createdAt,
+        updatedAt: categoriesTable.updatedAt,
+      },
+      createdAt: sql`${recipesTable.createdAt}`
+        .mapWith(recipesTable.createdAt)
+        .as('r_created_at'),
+      updatedAt: sql`${recipesTable.updatedAt}`
+        .mapWith(recipesTable.updatedAt)
+        .as('r_updated_at'),
+    })
+    .from(recipesTable)
+    .innerJoin(
+      recipesTranslations,
+      and(
+        eq(recipesTranslations.recipeId, recipesTable.id),
+        eq(recipesTranslations.language, locale()),
+      ),
+    )
+    .innerJoin(categoriesTable, eq(categoriesTable.id, recipesTable.categoryId))
+    .innerJoin(
+      categoriesTranslations,
+      and(
+        eq(categoriesTranslations.categoryId, recipesTable.categoryId),
+        eq(categoriesTranslations.language, locale()),
+      ),
+    )
+    .where(eq(recipesTable.id, options.recipeId))
+    .limit(1);
+};
+
 export const useRecipes = async (
   c: Context<Env>,
   options: GetRecipeInput | GetRecipesInput | GetCategoryInput,
@@ -109,10 +188,6 @@ export const useRecipes = async (
       ? eq(recipesTable.categoryId, options.categoryId)
       : undefined,
   ];
-
-  const categoryColumns = getTableColumns(categoriesTable);
-  const { categoryId, language, ...categoryTranslationsColumns } =
-    getTableColumns(categoriesTranslations);
 
   const recipesQuery = db
     .select({
@@ -130,8 +205,11 @@ export const useRecipes = async (
         .as('rt_slug'),
       description: recipesTranslations.description,
       category: {
-        ...categoryColumns,
-        ...categoryTranslationsColumns,
+        id: categoriesTable.id,
+        name: categoriesTranslations.name,
+        slug: categoriesTranslations.slug,
+        createdAt: categoriesTable.createdAt,
+        updatedAt: categoriesTable.updatedAt,
       },
       createdAt: sql`${recipesTable.createdAt}`
         .mapWith(recipesTable.createdAt)

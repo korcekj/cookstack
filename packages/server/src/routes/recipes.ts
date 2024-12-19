@@ -14,13 +14,13 @@ import {
 } from '../services/db/schema';
 import { eq } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
-import { generateId, slugify } from '@cs/utils';
 import { verifyRoles } from '../middlewares/auth';
 import rateLimit from '../middlewares/rate-limit';
-import { useRecipes } from '../services/db/queries';
 import { initializeImage } from '../services/image';
+import { generateId, slugify, pick, omit } from '@cs/utils';
 import { getConflictUpdateSetter } from '../services/db/utils';
 import { validator, validateRecipe } from '../middlewares/validation';
+import { useRecipe, useRecipes, useCategory } from '../services/db/queries';
 
 import sections from './sections';
 
@@ -44,7 +44,7 @@ recipes.post(
   verifyRoles(['author', 'admin']),
   validator('json', createRecipeSchema),
   async c => {
-    const { t } = c.get('i18n');
+    const { t, locale } = c.get('i18n');
     const { translations, ...recipe } = c.req.valid('json');
 
     const db = initializeDB(c.env.DB);
@@ -53,20 +53,39 @@ recipes.post(
     const recipeId = generateId(16);
 
     try {
-      await db.batch([
-        db.insert(recipesTable).values({
-          ...recipe,
-          id: recipeId,
-          userId,
-        }),
-        db.insert(recipesTranslations).values(
-          translations.map(v => ({
-            ...v,
-            recipeId,
-            slug: slugify(v.name),
-          })),
-        ),
+      const [[insert1], insert2, [get1]] = await db.batch([
+        db
+          .insert(recipesTable)
+          .values({
+            ...recipe,
+            id: recipeId,
+            userId,
+          })
+          .returning(),
+        db
+          .insert(recipesTranslations)
+          .values(
+            translations.map(v => ({
+              ...v,
+              recipeId,
+              slug: slugify(v.name),
+            })),
+          )
+          .returning(),
+        useCategory(c, { categoryId: recipe.categoryId }),
       ]);
+
+      const translation = insert2.find(v => v.language === locale());
+      return c.json(
+        {
+          ...omit(insert1, ['userId']),
+          ...(translation
+            ? pick(translation, ['name', 'description', 'slug'])
+            : {}),
+          category: get1,
+        },
+        201,
+      );
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {
@@ -78,8 +97,6 @@ recipes.post(
 
       throw err;
     }
-
-    return c.json({ id: recipeId }, 201);
   },
 );
 
@@ -90,9 +107,9 @@ recipes.get(
   async c => {
     const options = c.req.valid('param');
 
-    const { recipes } = await useRecipes(c, options);
+    const [recipe] = await useRecipe(c, options);
 
-    return c.json(recipes[0]);
+    return c.json(recipe);
   },
 );
 

@@ -14,11 +14,11 @@ import {
 } from '../services/db/schema';
 import { eq } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
-import { generateId, slugify } from '@cs/utils';
 import { verifyRoles } from '../middlewares/auth';
 import rateLimit from '../middlewares/rate-limit';
+import { generateId, slugify, pick } from '@cs/utils';
 import { getConflictUpdateSetter } from '../services/db/utils';
-import { useCategories, useRecipes } from '../services/db/queries';
+import { useCategory, useCategories, useRecipes } from '../services/db/queries';
 import { validator, validateCategory } from '../middlewares/validation';
 
 const categories = new Hono<Env>();
@@ -41,7 +41,7 @@ categories.post(
   verifyRoles(['author', 'admin']),
   validator('json', createCategorySchema),
   async c => {
-    const { t } = c.get('i18n');
+    const { t, locale } = c.get('i18n');
     const { translations } = c.req.valid('json');
 
     const db = initializeDB(c.env.DB);
@@ -49,18 +49,33 @@ categories.post(
     const categoryId = generateId(16);
 
     try {
-      await db.batch([
-        db.insert(categoriesTable).values({
-          id: categoryId,
-        }),
-        db.insert(categoriesTranslations).values(
-          translations.map(v => ({
-            categoryId,
-            slug: slugify(v.name),
-            ...v,
-          })),
-        ),
+      const [[insert1], insert2] = await db.batch([
+        db
+          .insert(categoriesTable)
+          .values({
+            id: categoryId,
+          })
+          .returning(),
+        db
+          .insert(categoriesTranslations)
+          .values(
+            translations.map(v => ({
+              categoryId,
+              slug: slugify(v.name),
+              ...v,
+            })),
+          )
+          .returning(),
       ]);
+
+      const translation = insert2.find(v => v.language === locale());
+      return c.json(
+        {
+          ...insert1,
+          ...(translation ? pick(translation, ['name', 'slug']) : {}),
+        },
+        201,
+      );
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {
@@ -70,8 +85,6 @@ categories.post(
 
       throw err;
     }
-
-    return c.json({ id: categoryId }, 201);
   },
 );
 
@@ -82,9 +95,9 @@ categories.get(
   async c => {
     const options = c.req.valid('param');
 
-    const { categories } = await useCategories(c, options);
+    const [category] = await useCategory(c, options);
 
-    return c.json(categories[0]);
+    return c.json(category);
   },
 );
 
