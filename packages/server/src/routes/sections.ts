@@ -16,11 +16,11 @@ import {
   validateRecipe,
   validateSection,
 } from '../middlewares/validation';
-import { generateId } from '@cs/utils';
 import { eq, inArray } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
 import { verifyRoles } from '../middlewares/auth';
 import rateLimit from '../middlewares/rate-limit';
+import { generateId, pick, omit } from '@cs/utils';
 import { useSections } from '../services/db/queries';
 
 import ingredients from './ingredients';
@@ -50,7 +50,7 @@ sections.post(
   validateRecipe,
   validator('json', createSectionSchema),
   async c => {
-    const { t } = c.get('i18n');
+    const { t, locale } = c.get('i18n');
     const { recipeId } = c.req.valid('param');
     const { translations, ...section } = c.req.valid('json');
 
@@ -63,17 +63,30 @@ sections.post(
         sectionsTable,
         eq(sectionsTable.recipeId, recipeId),
       );
-      await db.batch([
+      const [[insert1], insert2] = await db.batch([
         db
           .insert(sectionsTable)
-          .values({ ...section, id: sectionId, recipeId, position }),
-        db.insert(sectionsTranslations).values(
-          translations.map(v => ({
-            ...v,
-            sectionId,
-          })),
-        ),
+          .values({ ...section, id: sectionId, recipeId, position })
+          .returning(),
+        db
+          .insert(sectionsTranslations)
+          .values(
+            translations.map(v => ({
+              ...v,
+              sectionId,
+            })),
+          )
+          .returning(),
       ]);
+
+      const translation = insert2.find(v => v.language === locale());
+      return c.json(
+        {
+          ...omit(insert1, ['recipeId']),
+          ...(translation ? pick(translation, ['name']) : {}),
+        },
+        201,
+      );
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {
@@ -83,8 +96,6 @@ sections.post(
 
       throw err;
     }
-
-    return c.json({ id: sectionId }, 201);
   },
 );
 

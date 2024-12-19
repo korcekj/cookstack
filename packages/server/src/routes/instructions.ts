@@ -16,11 +16,11 @@ import {
   validateSection,
   validateInstruction,
 } from '../middlewares/validation';
-import { generateId } from '@cs/utils';
 import { eq, inArray } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
 import { verifyRoles } from '../middlewares/auth';
 import rateLimit from '../middlewares/rate-limit';
+import { generateId, pick, omit } from '@cs/utils';
 import { useInstructions } from '../services/db/queries';
 
 const instructions = new Hono<Env>();
@@ -34,7 +34,7 @@ instructions.post(
   validateSection,
   validator('json', createInstructionSchema),
   async c => {
-    const { t } = c.get('i18n');
+    const { t, locale } = c.get('i18n');
     const { sectionId } = c.req.valid('param');
     const { translations, ...instruction } = c.req.valid('json');
 
@@ -47,20 +47,35 @@ instructions.post(
         instructionsTable,
         eq(instructionsTable.sectionId, sectionId),
       );
-      await db.batch([
-        db.insert(instructionsTable).values({
-          ...instruction,
-          position,
-          sectionId,
-          id: instructionId,
-        }),
-        db.insert(instructionsTranslations).values(
-          translations.map(v => ({
-            ...v,
-            instructionId,
-          })),
-        ),
+      const [[insert1], insert2] = await db.batch([
+        db
+          .insert(instructionsTable)
+          .values({
+            ...instruction,
+            position,
+            sectionId,
+            id: instructionId,
+          })
+          .returning(),
+        db
+          .insert(instructionsTranslations)
+          .values(
+            translations.map(v => ({
+              ...v,
+              instructionId,
+            })),
+          )
+          .returning(),
       ]);
+
+      const translation = insert2.find(v => v.language === locale());
+      return c.json(
+        {
+          ...omit(insert1, ['sectionId']),
+          ...(translation ? pick(translation, ['text']) : {}),
+        },
+        201,
+      );
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {
@@ -70,8 +85,6 @@ instructions.post(
 
       throw err;
     }
-
-    return c.json({ id: instructionId }, 201);
   },
 );
 

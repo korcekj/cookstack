@@ -16,11 +16,11 @@ import {
   validateSection,
   validateIngredient,
 } from '../middlewares/validation';
-import { generateId } from '@cs/utils';
 import { eq, inArray } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
 import { verifyRoles } from '../middlewares/auth';
 import rateLimit from '../middlewares/rate-limit';
+import { generateId, pick, omit } from '@cs/utils';
 import { useIngredients } from '../services/db/queries';
 
 const ingredients = new Hono<Env>();
@@ -34,7 +34,7 @@ ingredients.post(
   validateSection,
   validator('json', createIngredientSchema),
   async c => {
-    const { t } = c.get('i18n');
+    const { t, locale } = c.get('i18n');
     const { sectionId } = c.req.valid('param');
     const { translations, ...ingredient } = c.req.valid('json');
 
@@ -47,20 +47,35 @@ ingredients.post(
         ingredientsTable,
         eq(ingredientsTable.sectionId, sectionId),
       );
-      await db.batch([
-        db.insert(ingredientsTable).values({
-          ...ingredient,
-          position,
-          sectionId,
-          id: ingredientId,
-        }),
-        db.insert(ingredientsTranslations).values(
-          translations.map(v => ({
-            ...v,
-            ingredientId,
-          })),
-        ),
+      const [[insert1], insert2] = await db.batch([
+        db
+          .insert(ingredientsTable)
+          .values({
+            ...ingredient,
+            position,
+            sectionId,
+            id: ingredientId,
+          })
+          .returning(),
+        db
+          .insert(ingredientsTranslations)
+          .values(
+            translations.map(v => ({
+              ...v,
+              ingredientId,
+            })),
+          )
+          .returning(),
       ]);
+
+      const translation = insert2.find(v => v.language === locale());
+      return c.json(
+        {
+          ...omit(insert1, ['sectionId']),
+          ...(translation ? pick(translation, ['name', 'unit', 'amount']) : {}),
+        },
+        201,
+      );
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {
@@ -70,8 +85,6 @@ ingredients.post(
 
       throw err;
     }
-
-    return c.json({ id: ingredientId }, 201);
   },
 );
 
