@@ -127,7 +127,7 @@ recipes.patch(
     const db = initializeDB(c.env.DB);
 
     try {
-      await db.batch([
+      const [_1, ...get1] = await db.batch([
         db
           .update(recipesTable)
           .set({ ...recipe, updatedAt: new Date() })
@@ -156,7 +156,11 @@ recipes.patch(
                 }),
             ]
           : []),
+        useRecipe(c, { recipeId }),
       ]);
+
+      const [results] = get1.filter(v => Array.isArray(v)).map(v => v[0]);
+      return c.json(results);
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {
@@ -168,8 +172,6 @@ recipes.patch(
 
       throw err;
     }
-
-    return c.body(null, 204);
   },
 );
 

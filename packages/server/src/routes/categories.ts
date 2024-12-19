@@ -133,7 +133,7 @@ categories.patch(
     const db = initializeDB(c.env.DB);
 
     try {
-      await db.batch([
+      const [_1, _2, [results]] = await db.batch([
         db
           .update(categoriesTable)
           .set({ updatedAt: new Date() })
@@ -157,7 +157,10 @@ categories.patch(
               'slug',
             ]),
           }),
+        useCategory(c, { categoryId }),
       ]);
+
+      return c.json(results);
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {
@@ -167,8 +170,6 @@ categories.patch(
 
       throw err;
     }
-
-    return c.body(null, 204);
   },
 );
 
