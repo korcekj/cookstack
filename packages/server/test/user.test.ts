@@ -1,37 +1,23 @@
-import type { User } from '@cs/utils/zod';
+import type { User, RoleRequest } from '@cs/utils/zod';
 
-import {
-  signUp,
-  signOut,
-  getUser,
-  makeAuthor,
-  verifyEmail,
-} from './utils/auth';
 import app from '../src';
+import { setRole } from './utils/db';
+import { signUp } from './utils/auth';
 import { env } from 'cloudflare:test';
 import { generateImage } from './utils/image';
-import { executionCtx, imageUpload } from './mocks';
-
-let userId: string | null = null;
-let cookie: string | null = null;
+import { getUser, createRoleRequest } from './utils/user';
+import { executionCtx, imageUpload, emailSend } from './mocks';
 
 describe('User route - /api/user', () => {
+  const roleRequests: string[] = [];
+
   beforeAll(async () => {
     const res = await signUp('test2@example.com', 'password123');
-
     const json = await res.json<User>();
-
-    userId = json.id;
-    cookie = res.headers.get('set-cookie') ?? '';
+    await setRole(json.id, 'admin');
   });
 
-  afterAll(async () => {
-    await signOut({ Cookie: cookie });
-    userId = null;
-    cookie = null;
-  });
-
-  it('Should not return a user - POST /api/user/profile', async () => {
+  it('Should not return a user due to invalid cookie header - POST /api/user/profile', async () => {
     const res = await getUser();
 
     expect(res.status).toBe(401);
@@ -41,59 +27,12 @@ describe('User route - /api/user', () => {
   });
 
   it('Should return a user - POST /api/user/profile', async ({ headers }) => {
-    const res = await getUser({ ...headers, Cookie: cookie });
+    const res = await getUser(headers);
 
     const json = await res.json<User>();
     expect(res.status).toBe(200);
     expect(json).toMatchObject({
-      email: 'test2@example.com',
-    });
-  });
-
-  it('Should not make an author due to invalid token - POST /api/user/author', async ({
-    headers,
-  }) => {
-    const res = await makeAuthor({ ...headers, Cookie: cookie }, 'test');
-
-    expect(res.status).toBe(400);
-    expect(await res.json()).toMatchObject({
-      error: 'Invalid token',
-    });
-  });
-
-  it('Should not make an author due to unverified email - POST /api/user/author', async ({
-    headers,
-  }) => {
-    const res = await makeAuthor({ ...headers, Cookie: cookie });
-
-    expect(res.status).toBe(400);
-    expect(await res.json()).toMatchObject({
-      error: 'Unverified email',
-    });
-  });
-
-  it('Should make an author - POST /api/user/author', async ({ headers }) => {
-    let res = await verifyEmail(userId!, { ...headers, Cookie: cookie });
-    cookie = res.headers.get('set-cookie') ?? '';
-
-    res = await makeAuthor({ ...headers, Cookie: cookie });
-    cookie = res.headers.get('set-cookie') ?? '';
-
-    expect(res.status).toBe(200);
-    expect(await res.json()).toMatchObject({
-      role: 'author',
-      emailVerified: true,
-    });
-  });
-
-  it('Should not make an author due to its existence - POST /api/user/author', async ({
-    headers,
-  }) => {
-    const res = await makeAuthor({ ...headers, Cookie: cookie });
-
-    expect(res.status).toBe(400);
-    expect(await res.json()).toMatchObject({
-      error: 'Author already exists',
+      email: 'test1@example.com',
     });
   });
 
@@ -106,7 +45,6 @@ describe('User route - /api/user', () => {
         method: 'PATCH',
         headers: {
           ...headers,
-          Cookie: cookie!,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -125,7 +63,7 @@ describe('User route - /api/user', () => {
     });
   });
 
-  it('Should not update user image - PUT /api/user/profile/image', async ({
+  it('Should not update user image due to invalid file type - PUT /api/user/profile/image', async ({
     headers,
   }) => {
     const formData = new FormData();
@@ -136,10 +74,7 @@ describe('User route - /api/user', () => {
       '/api/user/profile/image',
       {
         method: 'PUT',
-        headers: {
-          ...headers,
-          Cookie: cookie!,
-        },
+        headers,
         body: formData,
       },
       env,
@@ -165,10 +100,7 @@ describe('User route - /api/user', () => {
       '/api/user/profile/image',
       {
         method: 'PUT',
-        headers: {
-          ...headers,
-          Cookie: cookie!,
-        },
+        headers,
         body: formData,
       },
       env,
@@ -186,6 +118,101 @@ describe('User route - /api/user', () => {
       publicId: json.id,
       folder: `cookstack/${env.ENV}/users`,
       uploadPreset: 'cookstack',
+    });
+  });
+
+  it('Should not return any role requests - GET /api/user/role-requests', async ({
+    headers,
+  }) => {
+    const res = await app.request(
+      '/api/user/role-requests',
+      { headers },
+      env,
+      executionCtx,
+    );
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({
+      requests: [],
+      total: 0,
+    });
+  });
+
+  it('Should not create a user role request due to assigned role - POST /api/user/role-requests', async ({
+    headers,
+  }) => {
+    const res = await createRoleRequest('user', headers);
+
+    expect(res.status).toBe(400);
+    expect(await res.json()).toMatchObject({
+      error: 'Bad request',
+    });
+  });
+
+  it('Should create an author role request - POST /api/user/role-requests', async ({
+    headers,
+  }) => {
+    const res = await createRoleRequest('author', headers);
+
+    const json = await res.json<RoleRequest>();
+
+    expect(res.status).toBe(201);
+    expect(json).toMatchObject({
+      id: expect.any(String),
+      role: 'author',
+      status: 'pending',
+    });
+
+    roleRequests.push(json.id);
+  });
+
+  it('Should create an admin role request - POST /api/user/role-requests', async ({
+    headers,
+  }) => {
+    const res = await createRoleRequest('admin', headers);
+
+    const json = await res.json<RoleRequest>();
+
+    expect(res.status).toBe(201);
+    expect(json).toMatchObject({
+      id: expect.any(String),
+      role: 'admin',
+      status: 'pending',
+    });
+
+    roleRequests.push(json.id);
+  });
+
+  it('Should not create an author role request due to existing one - POST /api/user/role-requests', async ({
+    headers,
+  }) => {
+    const res = await createRoleRequest('author', headers);
+
+    expect(res.status).toBe(409);
+    expect(await res.json()).toMatchObject({
+      error: 'Role already requested',
+    });
+  });
+
+  it('Should return role requests - GET /api/user/role-requests', async ({
+    headers,
+  }) => {
+    const res = await app.request(
+      '/api/user/role-requests?orderBy=-role',
+      { headers },
+      env,
+      executionCtx,
+    );
+
+    expect(res.status).toBe(200);
+    expect(emailSend).toHaveBeenCalledWith({
+      to: 'test2@example.com',
+      subject: 'Role request',
+      html: expect.any(String),
+    });
+    expect(await res.json()).toMatchObject({
+      requests: roleRequests.map(id => ({ id })),
+      total: 2,
     });
   });
 });

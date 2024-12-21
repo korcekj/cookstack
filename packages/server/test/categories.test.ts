@@ -1,31 +1,28 @@
-import type { User, Category } from '@cs/utils/zod';
+import type { User, Category, Recipe } from '@cs/utils/zod';
 
 import app from '../src';
 import { env } from 'cloudflare:test';
 import { executionCtx } from './mocks';
-import { createRecipe, deleteRecipe } from './utils/recipe';
-import { getUser, makeAuthor, verifyEmail } from './utils/auth';
+import { signUp, signIn } from './utils/auth';
+import { createRecipe } from './utils/recipe';
 import { createCategory, deleteCategory } from './utils/category';
-
-let recipeId: string | null = null;
-let categoryId: string | null = null;
+import { setRole, deleteRecipes, deleteCategories } from './utils/db';
 
 describe('Categories route - /api/categories', () => {
-  beforeEach(async ({ headers }) => {
-    let cookie = headers['Cookie'];
-    const user = await (await getUser(headers)).json<User>();
+  let cookie: string;
+  let recipeId: string;
+  let categoryId: string;
 
-    if (!user.emailVerified) {
-      const res = await verifyEmail(user.id, headers);
-      cookie = res.headers.get('set-cookie') ?? '';
-    }
+  beforeAll(async () => {
+    let res = await signIn('test3@example.com', 'password123');
+    if (!res.ok) res = await signUp('test3@example.com', 'password123');
 
-    if (user.role !== 'author') {
-      const res = await makeAuthor({ ...headers, Cookie: cookie });
-      cookie = res.headers.get('set-cookie') ?? '';
-    }
+    cookie = res.headers.get('set-cookie') ?? '';
+    const json = await res.json<User>();
+    await setRole(json.id, 'author');
 
-    headers['Cookie'] = cookie;
+    await deleteRecipes();
+    await deleteCategories();
   });
 
   it('Should not return any category - POST /api/categories', async () => {
@@ -39,13 +36,17 @@ describe('Categories route - /api/categories', () => {
   });
 
   it('Should create a category - POST /api/categories', async ({ headers }) => {
-    const res = await createCategory(headers);
+    const res = await createCategory({ ...headers, Cookie: cookie }, 'Test 1');
 
-    const json = await res.json<{ id: string }>();
+    const json = await res.json<Category>();
 
     expect(res.status).toBe(201);
     expect(json).toMatchObject({
       id: expect.any(String),
+      name: 'Test 1',
+      slug: 'test-1',
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String),
     });
 
     categoryId = json.id;
@@ -54,7 +55,7 @@ describe('Categories route - /api/categories', () => {
   it('Should not create a category due to its existence - POST /api/categories', async ({
     headers,
   }) => {
-    const res = await createCategory(headers);
+    const res = await createCategory({ ...headers, Cookie: cookie }, 'Test 1');
 
     expect(res.status).toBe(409);
     expect(await res.json()).toMatchObject({
@@ -72,23 +73,7 @@ describe('Categories route - /api/categories', () => {
     });
   });
 
-  it('Should not return any categories due to offset - POST /api/categories', async () => {
-    const res = await app.request(
-      '/api/categories?limit=1&offset=1',
-      {},
-      env,
-      executionCtx,
-    );
-
-    expect(res.status).toBe(200);
-    expect(await res.json()).toMatchObject({
-      categories: [],
-      total: 1,
-      page: 2,
-    });
-  });
-
-  it('Should not get a category - GET /api/categories/:categoryId', async () => {
+  it('Should not get a category due to invalid id - GET /api/categories/:categoryId', async () => {
     const res = await app.request(
       '/api/categories/0000000000000000',
       {},
@@ -101,6 +86,7 @@ describe('Categories route - /api/categories', () => {
       error: 'Category not found',
     });
   });
+
   it('Should get a category - GET /api/categories/:categoryId', async () => {
     const res = await app.request(
       `/api/categories/${categoryId}`,
@@ -110,7 +96,7 @@ describe('Categories route - /api/categories', () => {
     );
 
     expect(res.status).toBe(200);
-    expect(await res.json<Category>()).toMatchObject({
+    expect(await res.json()).toMatchObject({
       id: categoryId,
       name: expect.any(String),
       slug: expect.any(String),
@@ -137,8 +123,8 @@ describe('Categories route - /api/categories', () => {
   it('Should return recipes - GET /api/categories/:categoryId/recipes', async ({
     headers,
   }) => {
-    let res = await createRecipe(categoryId!, headers);
-    recipeId = (await res.json<{ id: string }>()).id;
+    let res = await createRecipe(categoryId, { ...headers, Cookie: cookie });
+    recipeId = (await res.json<Recipe>()).id;
 
     res = await app.request(
       `/api/categories/${categoryId}/recipes`,
@@ -154,7 +140,7 @@ describe('Categories route - /api/categories', () => {
     });
   });
 
-  it('Should not update a category - PATCH /api/categories/:categoryId', async ({
+  it('Should not update a category due to invalid id - PATCH /api/categories/:categoryId', async ({
     headers,
   }) => {
     const res = await app.request(
@@ -163,6 +149,7 @@ describe('Categories route - /api/categories', () => {
         method: 'PATCH',
         headers: {
           ...headers,
+          Cookie: cookie,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -187,7 +174,7 @@ describe('Categories route - /api/categories', () => {
   it('Should not update a category due to its existence - PATCH /api/categories/:categoryId', async ({
     headers,
   }) => {
-    await createCategory(headers, 'Test 2');
+    await createCategory({ ...headers, Cookie: cookie }, 'Test 2');
 
     const res = await app.request(
       `/api/categories/${categoryId}`,
@@ -195,6 +182,7 @@ describe('Categories route - /api/categories', () => {
         method: 'PATCH',
         headers: {
           ...headers,
+          Cookie: cookie,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -225,6 +213,7 @@ describe('Categories route - /api/categories', () => {
         method: 'PATCH',
         headers: {
           ...headers,
+          Cookie: cookie,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -240,13 +229,23 @@ describe('Categories route - /api/categories', () => {
       executionCtx,
     );
 
-    expect(res.status).toBe(204);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({
+      id: categoryId,
+      name: 'Test 3',
+      slug: 'test-3',
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String),
+    });
   });
 
-  it('Should not delete a category - DELETE /api/categories/:categoryId', async ({
+  it('Should not delete a category due to invalid id - DELETE /api/categories/:categoryId', async ({
     headers,
   }) => {
-    const res = await deleteCategory('0000000000000000', headers);
+    const res = await deleteCategory('0000000000000000', {
+      ...headers,
+      Cookie: cookie,
+    });
 
     expect(res.status).toBe(404);
     expect(await res.json()).toMatchObject({
@@ -257,7 +256,10 @@ describe('Categories route - /api/categories', () => {
   it('Should not delete a category due to linked recipes - DELETE /api/categories/:categoryId', async ({
     headers,
   }) => {
-    const res = await deleteCategory(categoryId!, headers);
+    const res = await deleteCategory(categoryId, {
+      ...headers,
+      Cookie: cookie,
+    });
 
     expect(res.status).toBe(409);
     expect(await res.json()).toMatchObject({
@@ -268,13 +270,13 @@ describe('Categories route - /api/categories', () => {
   it('Should delete a category - DELETE /api/categories/:categoryId', async ({
     headers,
   }) => {
-    await deleteRecipe(recipeId!, headers);
+    await deleteRecipes();
 
-    const res = await deleteCategory(categoryId!, headers);
+    const res = await deleteCategory(categoryId, {
+      ...headers,
+      Cookie: cookie,
+    });
 
     expect(res.status).toBe(204);
-
-    recipeId = null;
-    categoryId = null;
   });
 });

@@ -1,20 +1,15 @@
 import type { User } from '@cs/utils/zod';
 
-import {
-  signUp,
-  signIn,
-  signOut,
-  verifyEmail,
-  getResetPasswordToken,
-} from './utils/auth';
 import app from '../src';
 import { env } from 'cloudflare:test';
 import { executionCtx, emailSend } from './mocks';
-
-let userId: string | null = null;
-let cookie: string | null = null;
+import { getPasswordResetToken } from './utils/db';
+import { signUp, signIn, signOut, verifyEmail } from './utils/auth';
 
 describe('Auth route - /api/auth', () => {
+  let userId: string;
+  let cookie: string;
+
   it('Should register a user - POST /api/auth/sign-up', async ({ headers }) => {
     const res = await signUp('john.doe@example.com', 'password123', headers);
 
@@ -66,7 +61,7 @@ describe('Auth route - /api/auth', () => {
       email: 'john.doe@example.com',
     });
 
-    cookie = res.headers.get('set-cookie');
+    cookie = res.headers.get('set-cookie') ?? '';
   });
 
   it('Should resend a verification code - POST /api/auth/verify-email', async ({
@@ -78,7 +73,7 @@ describe('Auth route - /api/auth', () => {
         method: 'POST',
         headers: {
           ...headers,
-          Cookie: cookie ?? '',
+          Cookie: cookie,
         },
       },
       env,
@@ -102,7 +97,7 @@ describe('Auth route - /api/auth', () => {
         method: 'POST',
         headers: {
           ...headers,
-          Cookie: cookie ?? '',
+          Cookie: cookie,
         },
       },
       env,
@@ -143,7 +138,7 @@ describe('Auth route - /api/auth', () => {
   it('Should verify a user - POST /api/auth/verify-email/:code', async ({
     headers,
   }) => {
-    const res = await verifyEmail(userId!, { ...headers, Cookie: cookie });
+    const res = await verifyEmail({ ...headers, Cookie: cookie });
 
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({
@@ -151,7 +146,7 @@ describe('Auth route - /api/auth', () => {
       email: 'john.doe@example.com',
     });
 
-    cookie = res.headers.get('set-cookie');
+    cookie = res.headers.get('set-cookie') ?? '';
   });
 
   it('Should generate a reset token - POST /api/auth/reset-password', async ({
@@ -210,7 +205,7 @@ describe('Auth route - /api/auth', () => {
   it('Should reset a password - POST /api/auth/reset-password/:token', async ({
     headers,
   }) => {
-    const token = await getResetPasswordToken(userId!);
+    const token = await getPasswordResetToken(userId!);
 
     const res = await app.request(
       `/api/auth/reset-password/${token}`,
@@ -234,15 +229,12 @@ describe('Auth route - /api/auth', () => {
       email: 'john.doe@example.com',
     });
 
-    cookie = res.headers.get('set-cookie');
+    cookie = res.headers.get('set-cookie') ?? '';
   });
 
   it('Should logout a user - POST /api/auth/sign-out', async ({ headers }) => {
     const res = await signOut({ ...headers, Cookie: cookie });
 
     expect(res.status).toBe(204);
-
-    userId = null;
-    cookie = null;
   });
 });

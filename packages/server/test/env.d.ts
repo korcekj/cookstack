@@ -3,6 +3,5 @@ declare module 'cloudflare:test' {
     ENV: 'test';
     DB: D1Database;
     MIGRATIONS: D1Migration[];
-    AUTH_AUTHOR_TOKEN: string;
   }
 }
