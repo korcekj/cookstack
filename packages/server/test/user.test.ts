@@ -3,10 +3,9 @@ import type { User, RoleRequest } from '@cs/utils/zod';
 import app from '../src';
 import { env } from 'cloudflare:test';
 import { generateImage } from './utils/image';
-import { signIn, signUp } from './utils/auth';
 import { setRole, deleteRoleRequests } from './utils/db';
-import { getUser, createRoleRequest } from './utils/user';
 import { executionCtx, imageUpload, emailSend } from './mocks';
+import { signIn, signUp, getUser, createRoleRequest } from './utils/auth';
 
 describe('User route - /api/user', () => {
   const roleRequests: string[] = [];

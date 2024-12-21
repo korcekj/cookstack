@@ -2,10 +2,9 @@ import type { User, RoleRequest } from '@cs/utils/zod';
 
 import app from '../src';
 import { env } from 'cloudflare:test';
-import { signUp, signIn } from './utils/auth';
 import { executionCtx, emailSend } from './mocks';
-import { getUser, createRoleRequest } from './utils/user';
 import { setRole, deleteRoleRequests, setRoleRequest } from './utils/db';
+import { signUp, signIn, getUser, createRoleRequest } from './utils/auth';
 
 describe('Admin route - /api/admin', () => {
   let cookie: string;
