@@ -132,7 +132,7 @@ ingredients.put(
         ingredientsTable,
         eq(ingredientsTable.sectionId, sectionId),
       );
-      const [_1, _2, _3, results] = await db.batch([
+      const [_1, _2, _3, ...get1] = await db.batch([
         db.delete(ingredientsTable).where(
           inArray(
             ingredientsTable.id,
@@ -152,6 +152,7 @@ ingredients.put(
         useIngredients(c, options),
       ]);
 
+      const [results] = get1.filter(v => Array.isArray(v));
       return c.json(results);
     } catch (err) {
       if (err instanceof Error) {
