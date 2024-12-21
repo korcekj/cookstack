@@ -1,10 +1,10 @@
 import type { User, RoleRequest } from '@cs/utils/zod';
 
 import app from '../src';
-import { setRole } from './utils/db';
-import { signUp } from './utils/auth';
 import { env } from 'cloudflare:test';
 import { generateImage } from './utils/image';
+import { signIn, signUp } from './utils/auth';
+import { setRole, deleteRoleRequests } from './utils/db';
 import { getUser, createRoleRequest } from './utils/user';
 import { executionCtx, imageUpload, emailSend } from './mocks';
 
@@ -12,9 +12,13 @@ describe('User route - /api/user', () => {
   const roleRequests: string[] = [];
 
   beforeAll(async () => {
-    const res = await signUp('test2@example.com', 'password123');
+    let res = await signIn('test2@example.com', 'password123');
+    if (!res.ok) res = await signUp('test2@example.com', 'password123');
+
     const json = await res.json<User>();
     await setRole(json.id, 'admin');
+
+    await deleteRoleRequests();
   });
 
   it('Should not return a user due to invalid cookie header - POST /api/user/profile', async () => {
