@@ -4,9 +4,8 @@ import app from '../src';
 import { env } from 'cloudflare:test';
 import { executionCtx } from './mocks';
 import { signUp, signIn } from './utils/auth';
-import { createRecipe } from './utils/recipe';
-import { createCategory, deleteCategory } from './utils/category';
 import { setRole, deleteRecipes, deleteCategories } from './utils/db';
+import { createRecipe, createCategory, deleteCategory } from './utils';
 
 describe('Categories route - /api/categories', () => {
   let cookie: string;

@@ -4,8 +4,7 @@ import app from '../src';
 import { env } from 'cloudflare:test';
 import { executionCtx } from './mocks';
 import { signUp, signIn } from './utils/auth';
-import { createCategory } from './utils/category';
-import { createRecipe, deleteRecipe } from './utils/recipe';
+import { createRecipe, createCategory, deleteRecipe } from './utils';
 import { setRole, deleteRecipes, deleteCategories } from './utils/db';
 
 describe('Recipes route - /api/recipes', () => {
