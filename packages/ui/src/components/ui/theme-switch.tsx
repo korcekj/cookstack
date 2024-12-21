@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from './dropdown-menu';
 import { Button } from './button';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, Laptop } from 'lucide-react';
 
 export const ThemeSwitch: React.FC = () => {
   const { setTheme } = useTheme();
@@ -25,12 +25,15 @@ export const ThemeSwitch: React.FC = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTheme('light')}>
+          <Sun />
           Light
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme('dark')}>
+          <Moon />
           Dark
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme('system')}>
+          <Laptop />
           System
         </DropdownMenuItem>
       </DropdownMenuContent>

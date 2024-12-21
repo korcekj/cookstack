@@ -13,8 +13,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@cs/ui/components';
-import { Globe } from 'lucide-react';
 import { Link } from '@/i18n/routing';
+import { Languages, Globe } from 'lucide-react';
 
 export const LocaleSwitch: React.FC = () => {
   const t = useTranslations('LocaleSwitch');
@@ -37,6 +37,7 @@ export const LocaleSwitch: React.FC = () => {
             disabled={locale === currentLocale}
           >
             <Link href={{ pathname, search }} locale={locale}>
+              <Languages />
               {t('locale', { locale })}
             </Link>
           </DropdownMenuItem>
