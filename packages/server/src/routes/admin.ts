@@ -10,8 +10,8 @@ import { initializeDB } from '../services/db';
 import { initializeAuth } from '../services/auth';
 import rateLimit from '../middlewares/rate-limit';
 import { initializeEmail } from '../services/email';
-import { useRoleRequests } from '../services/db/queries';
 import { verifyAuth, verifyRoles } from '../middlewares/auth';
+import { useRoleRequest, useRoleRequests } from '../services/db/queries';
 import { validator, validateRoleRequest } from '../middlewares/validation';
 import { updateRoleRequestSchema, getRoleRequestsSchema } from '@cs/utils/zod';
 
@@ -42,11 +42,9 @@ roleRequests.post(
     const mail = initializeEmail(c);
     const db = initializeDB(c.env.DB);
 
-    const {
-      requests: [request],
-    } = await useRoleRequests(c, { requestId });
+    const [request] = await useRoleRequest(c, { requestId });
 
-    await db.batch([
+    const [_1, ...get1] = await db.batch([
       db
         .update(roleRequestsTable)
         .set({ status, updatedAt: new Date() })
@@ -55,10 +53,11 @@ roleRequests.post(
         ? [
             db
               .update(users)
-              .set({ role: request!.role, updatedAt: new Date() })
+              .set({ role: request.role, updatedAt: new Date() })
               .where(eq(users.id, request.user!.id)),
           ]
         : []),
+      useRoleRequest(c, { requestId }),
     ]);
 
     if (status === 'approved') {
@@ -78,7 +77,8 @@ roleRequests.post(
       }),
     );
 
-    return c.json({ id: requestId, role: request.role, status });
+    const [results] = get1.filter(v => Array.isArray(v)).map(v => v[0]);
+    return c.json(results);
   },
 );
 

@@ -97,10 +97,15 @@ export const confirmPassword = <
   );
 };
 
+const statusSchema = z.enum(['pending', 'approved', 'rejected']);
+
+export type Status = z.infer<typeof statusSchema>;
+
 export const roleRequestSchema = z.object({
   id: z.string(),
   role: roleSchema,
   user: userSchema.optional(),
+  status: statusSchema,
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -138,7 +143,7 @@ export type RoleRequestsOrderByColumns<T = RoleRequestsOrderByInput> =
 export const getRoleRequestsSchema = z.object({
   limit: z.coerce.number().min(1).max(100).default(10),
   offset: z.coerce.number().min(0).default(0),
-  status: z.enum(['pending', 'approved', 'rejected']).default('pending'),
+  status: statusSchema.default('pending'),
   orderBy: z
     .string()
     .min(1)

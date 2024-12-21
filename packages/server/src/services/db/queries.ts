@@ -348,6 +348,33 @@ export const useInstructions = (c: Context<Env>, options: GetSectionInput) => {
     .orderBy(asc(instructionsTable.position));
 };
 
+export const useRoleRequest = (
+  c: Context<Env>,
+  options: GetRoleRequestInput,
+) => {
+  const db = initializeDB(c.env.DB);
+
+  const { hashedPassword, ...columns } = getTableColumns(users);
+
+  return db
+    .select({
+      id: sql`${roleRequests.id}`.mapWith(roleRequests.id).as('r_id'),
+      role: sql`${roleRequests.role}`.mapWith(roleRequests.role).as('r_role'),
+      ...('userId' in options ? {} : { user: columns }),
+      status: roleRequests.status,
+      createdAt: sql`${roleRequests.createdAt}`
+        .mapWith(roleRequests.updatedAt)
+        .as('r_created_at'),
+      updatedAt: sql`${roleRequests.updatedAt}`
+        .mapWith(roleRequests.updatedAt)
+        .as('r_updated_at'),
+    })
+    .from(roleRequests)
+    .innerJoin(users, eq(roleRequests.userId, users.id))
+    .where(eq(roleRequests.id, options.requestId))
+    .limit(1);
+};
+
 export const useRoleRequests = async (
   c: Context<Env>,
   options:
