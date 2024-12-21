@@ -13,8 +13,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@cs/ui/components';
+import { Globe } from 'lucide-react';
 import { Link } from '@/i18n/routing';
-import { Languages } from 'lucide-react';
 
 export const LocaleSwitch: React.FC = () => {
   const t = useTranslations('LocaleSwitch');
@@ -26,7 +26,7 @@ export const LocaleSwitch: React.FC = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
-          <Languages />
+          <Globe />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
