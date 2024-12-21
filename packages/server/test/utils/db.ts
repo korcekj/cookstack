@@ -1,4 +1,4 @@
-import type { Role } from '@cs/utils/zod';
+import type { Role, RoleRequest } from '@cs/utils/zod';
 
 import { eq } from 'drizzle-orm';
 import { env } from 'cloudflare:test';
@@ -6,6 +6,7 @@ import {
   users,
   recipes,
   categories,
+  roleRequests,
   passwordResetTokens,
 } from '../../src/services/db/schema';
 import { createDate, TimeSpan } from 'oslo';
@@ -42,6 +43,22 @@ export const getPasswordResetToken = async (userId: string) => {
 export const setRole = async (userId: string, role: Role) => {
   const db = initializeDB(env.DB);
   await db.update(users).set({ role }).where(eq(users.id, userId));
+};
+
+export const setRoleRequest = async (
+  requestId: string,
+  roleRequest: Partial<RoleRequest>,
+) => {
+  const db = initializeDB(env.DB);
+  await db
+    .update(roleRequests)
+    .set(roleRequest)
+    .where(eq(roleRequests.id, requestId));
+};
+
+export const deleteRoleRequests = async () => {
+  const db = initializeDB(env.DB);
+  await db.delete(roleRequests);
 };
 
 export const deleteRecipes = async () => {
