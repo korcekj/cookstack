@@ -91,7 +91,7 @@ recipes.post(
         if (err.message.includes('D1_ERROR: UNIQUE')) {
           return c.json({ error: t('recipe.duplicate') }, 409);
         } else if (err.message.includes('D1_ERROR: FOREIGN KEY')) {
-          return c.json({ error: t('category.notFound') }, 404);
+          return c.json({ error: t('category.notFound') }, 400);
         }
       }
 
@@ -166,7 +166,7 @@ recipes.patch(
         if (err.message.includes('D1_ERROR: UNIQUE')) {
           return c.json({ error: t('recipe.duplicate') }, 409);
         } else if (err.message.includes('D1_ERROR: FOREIGN KEY')) {
-          return c.json({ error: t('category.notFound') }, 404);
+          return c.json({ error: t('category.notFound') }, 400);
         }
       }
 
