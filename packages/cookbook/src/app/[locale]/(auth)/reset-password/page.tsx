@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 
 import React from 'react';
 
-import { Image } from '@unpic/react';
+import { Image } from '@unpic/react/nextjs';
+import AuthImage from '@/../public/auth.jpeg';
 import { ForgotPassword } from '@/features/users/components/forgot-password';
 
 export const metadata: Metadata = {
@@ -16,11 +17,11 @@ const Page = async () => {
       <div className="bg-muted hidden lg:block">
         <Image
           priority
-          src="https://res.cloudinary.com/rest-image-cloud/image/upload/cookstack/auth.jpg"
+          src={AuthImage}
           alt="Zabudnuté heslo"
           width={1920}
           height={1080}
-          className="h-full w-full dark:brightness-[0.5] dark:grayscale"
+          className="h-full w-full grayscale"
         />
       </div>
     </main>

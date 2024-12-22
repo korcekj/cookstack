@@ -6,7 +6,8 @@ import { REDIRECTS } from '@/lib/constants';
 import { getLocale } from 'next-intl/server';
 import { getUserCached } from '@/features/users/api';
 
-import { Image } from '@unpic/react';
+import { Image } from '@unpic/react/nextjs';
+import AuthImage from '@/../public/auth.jpeg';
 import { VerifyEmail } from '@/features/users/components/verify-email';
 
 export const metadata: Metadata = {
@@ -24,11 +25,11 @@ const Page = async () => {
       <div className="bg-muted hidden lg:block">
         <Image
           priority
-          src="https://res.cloudinary.com/rest-image-cloud/image/upload/cookstack/auth.jpg"
+          src={AuthImage}
           alt="Overenie emailu"
           width={1920}
           height={1080}
-          className="h-full w-full dark:brightness-[0.5] dark:grayscale"
+          className="h-full w-full grayscale"
         />
       </div>
     </main>
