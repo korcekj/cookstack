@@ -4,14 +4,18 @@ import React from 'react';
 import { signOut } from '@/features/users/actions';
 import { useI18nForm } from '@/hooks/use-i18n-form';
 
-import { SubmitButton } from '@cs/ui/components';
-
-export const SignOut: React.FC = () => {
+export const SignOut: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [_, formAction] = useI18nForm(signOut);
+  const formRef = React.useRef<HTMLFormElement>(null);
 
   return (
-    <form action={formAction}>
-      <SubmitButton>Odhlásiť</SubmitButton>
+    <form ref={formRef} action={formAction} className="flex w-full flex-col">
+      <div
+        onClick={() => formRef.current?.requestSubmit()}
+        className="cursor-pointer"
+      >
+        {children}
+      </div>
     </form>
   );
 };
