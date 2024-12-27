@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+export type Prettify<T> = {
+  [K in keyof T]: T[K];
+} & {};
+
 export type ActionResponse<S extends z.ZodType<any, any>> = Partial<{
   fields: Partial<z.infer<S>>;
   fieldErrors: Partial<z.infer<S>>;
