@@ -11,3 +11,4 @@ export * from './ui/separator';
 export * from './ui/sheet';
 export * from './ui/sonner';
 export * from './ui/theme-switch';
+export * from './ui/collapsible';
