@@ -14,11 +14,11 @@ import {
 } from '../services/db/schema';
 import { eq } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
-import { verifyRoles } from '../middlewares/auth';
 import rateLimit from '../middlewares/rate-limit';
 import { initializeImage } from '../services/image';
 import { generateId, slugify, pick, omit } from '@cs/utils';
 import { getConflictUpdateSetter } from '../services/db/utils';
+import { verifyRoles, verifyAuthor } from '../middlewares/auth';
 import { validator, validateRecipe } from '../middlewares/validation';
 import { useRecipe, useRecipes, useCategory } from '../services/db/queries';
 
@@ -27,6 +27,7 @@ import sections from './sections';
 const recipes = new Hono<Env>();
 
 recipes.use(rateLimit);
+recipes.use('/:recipeId/*', validateRecipe);
 
 recipes.get('/', validator('query', getRecipesSchema), async c => {
   const options = c.req.valid('query');
@@ -100,24 +101,18 @@ recipes.post(
   },
 );
 
-recipes.get(
-  '/:recipeId',
-  validator('param', getRecipeSchema),
-  validateRecipe,
-  async c => {
-    const options = c.req.valid('param');
+recipes.get('/:recipeId', validator('param', getRecipeSchema), async c => {
+  const options = c.req.valid('param');
 
-    const [recipe] = await useRecipe(c, options);
+  const [recipe] = await useRecipe(c, options);
 
-    return c.json(recipe);
-  },
-);
+  return c.json(recipe);
+});
 
 recipes.patch(
   '/:recipeId',
-  verifyRoles(['author', 'admin']),
+  verifyAuthor(verifyRoles(['admin'])),
   validator('param', getRecipeSchema),
-  validateRecipe,
   validator('json', updateRecipeSchema),
   async c => {
     const { t } = c.get('i18n');
@@ -177,9 +172,8 @@ recipes.patch(
 
 recipes.put(
   '/:recipeId/image',
-  verifyRoles(['author', 'admin']),
+  verifyAuthor(verifyRoles(['admin'])),
   validator('param', getRecipeSchema),
-  validateRecipe,
   validator('form', imageSchema),
   async c => {
     const { recipeId } = c.req.valid('param');
@@ -209,9 +203,8 @@ recipes.put(
 
 recipes.delete(
   '/:recipeId',
-  verifyRoles(['author', 'admin']),
+  verifyAuthor(verifyRoles(['admin'])),
   validator('param', getRecipeSchema),
-  validateRecipe,
   async c => {
     const { recipeId } = c.req.valid('param');
 

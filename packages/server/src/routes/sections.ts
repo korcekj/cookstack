@@ -11,43 +11,30 @@ import {
   sectionsTranslations,
   sections as sectionsTable,
 } from '../services/db/schema';
-import {
-  validator,
-  validateRecipe,
-  validateSection,
-} from '../middlewares/validation';
 import { eq, inArray } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
-import { verifyRoles } from '../middlewares/auth';
-import rateLimit from '../middlewares/rate-limit';
 import { generateId, pick, omit } from '@cs/utils';
 import { useSections } from '../services/db/queries';
+import { verifyRoles, verifyAuthor } from '../middlewares/auth';
+import { validator, validateSection } from '../middlewares/validation';
 
 import ingredients from './ingredients';
 import instructions from './instructions';
 
 const sections = new Hono<Env>();
 
-sections.use(rateLimit);
+sections.get('/', validator('param', getRecipeSchema), async c => {
+  const options = c.req.valid('param');
 
-sections.get(
-  '/',
-  validator('param', getRecipeSchema),
-  validateRecipe,
-  async c => {
-    const options = c.req.valid('param');
+  const sections = await useSections(c, options);
 
-    const sections = await useSections(c, options);
-
-    return c.json(sections);
-  },
-);
+  return c.json(sections);
+});
 
 sections.post(
   '/',
-  verifyRoles(['author', 'admin']),
+  verifyAuthor(verifyRoles(['admin'])),
   validator('param', getRecipeSchema),
-  validateRecipe,
   validator('json', createSectionSchema),
   async c => {
     const { t, locale } = c.get('i18n');
@@ -101,9 +88,8 @@ sections.post(
 
 sections.put(
   '/',
-  verifyRoles(['author', 'admin']),
+  verifyAuthor(verifyRoles(['admin'])),
   validator('param', getRecipeSchema),
-  validateRecipe,
   validator('json', updateSectionSchema),
   async c => {
     const { t } = c.get('i18n');
@@ -166,7 +152,7 @@ sections.put(
 
 sections.delete(
   '/:sectionId',
-  verifyRoles(['author', 'admin']),
+  verifyAuthor(verifyRoles(['admin'])),
   validator('param', getSectionSchema),
   validateSection,
   async c => {
