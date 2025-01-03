@@ -26,6 +26,7 @@ export type Variables = {
   i18n: Translation;
   user: User | null;
   session: Session | null;
+  author?: { id: string };
 };
 
 export type Env = { Bindings: Bindings; Variables: Variables };

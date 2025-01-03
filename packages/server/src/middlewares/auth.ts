@@ -1,8 +1,9 @@
 import type { Env } from '../types';
 import type { Role } from '@cs/utils/zod';
+import type { MiddlewareHandler } from 'hono';
 
 import { getIp } from '../utils';
-import { every } from 'hono/combine';
+import { every, some } from 'hono/combine';
 import { bearerAuth } from 'hono/bearer-auth';
 import { createMiddleware } from 'hono/factory';
 import { initializeAuth } from '../services/auth';
@@ -56,7 +57,7 @@ export const handleBearerAuth = (token: string) =>
     },
   });
 
-export const verifyAuth = createMiddleware<Env>(async (c, next) => {
+export const verifyAuth = createMiddleware<Env>((c, next) => {
   const { t } = c.get('i18n');
   const session = c.get('session');
   if (!session) {
@@ -69,7 +70,7 @@ export const verifyAuth = createMiddleware<Env>(async (c, next) => {
 export const verifyRoles = (roles: Role[]) =>
   every(
     verifyAuth,
-    createMiddleware<Env>(async (c, next) => {
+    createMiddleware<Env>((c, next) => {
       const { t } = c.get('i18n');
 
       const user = c.get('user')!;
@@ -79,4 +80,23 @@ export const verifyRoles = (roles: Role[]) =>
 
       return next();
     }),
+  );
+
+export const verifyAuthor = (...middlewares: MiddlewareHandler[]) =>
+  some(
+    every(
+      verifyAuth,
+      createMiddleware<Env>((c, next) => {
+        const { t } = c.get('i18n');
+        const user = c.get('user')!;
+        const author = c.get('author');
+
+        if (user.id !== author?.id) {
+          throw new HTTPException(403, { message: t('auth.forbidden') });
+        }
+
+        return next();
+      }),
+    ),
+    ...middlewares,
   );

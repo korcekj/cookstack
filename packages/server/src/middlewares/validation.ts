@@ -68,10 +68,12 @@ export const validateRecipe = createMiddleware<Env>(async (c, next) => {
   const db = initializeDB(c.env.DB);
 
   const recipe = await db.query.recipes.findFirst({
-    columns: { id: true },
+    columns: { id: true, userId: true },
     where: (t, { eq }) => eq(t.id, recipeId),
   });
   if (!recipe) throw new HTTPException(404, { message: t('recipe.notFound') });
+
+  c.set('author', { id: recipe.userId });
 
   return next();
 });
