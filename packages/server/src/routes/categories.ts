@@ -14,12 +14,12 @@ import {
 } from '../services/db/schema';
 import { eq } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
+import { generateId, slugify } from '@cs/utils';
 import { verifyRoles } from '../middlewares/auth';
 import rateLimit from '../middlewares/rate-limit';
-import { generateId, slugify, pick } from '@cs/utils';
 import { getConflictUpdateSetter } from '../services/db/utils';
-import { useCategory, useCategories, useRecipes } from '../services/db/queries';
 import { validator, validateCategory } from '../middlewares/validation';
+import { useCategory, useCategories, useRecipes } from '../services/db/queries';
 
 const categories = new Hono<Env>();
 
@@ -49,33 +49,21 @@ categories.post(
     const categoryId = generateId(16);
 
     try {
-      const [[insert1], insert2] = await db.batch([
-        db
-          .insert(categoriesTable)
-          .values({
-            id: categoryId,
-          })
-          .returning(),
-        db
-          .insert(categoriesTranslations)
-          .values(
-            translations.map(v => ({
-              categoryId,
-              slug: slugify(v.name),
-              ...v,
-            })),
-          )
-          .returning(),
+      const [_1, _2, [results]] = await db.batch([
+        db.insert(categoriesTable).values({
+          id: categoryId,
+        }),
+        db.insert(categoriesTranslations).values(
+          translations.map(v => ({
+            categoryId,
+            slug: slugify(v.name),
+            ...v,
+          })),
+        ),
+        useCategory(c, { categoryId }),
       ]);
 
-      const translation = insert2.find(v => v.language === locale());
-      return c.json(
-        {
-          ...insert1,
-          ...(translation ? pick(translation, ['name', 'slug']) : {}),
-        },
-        201,
-      );
+      return c.json(results, 201);
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {

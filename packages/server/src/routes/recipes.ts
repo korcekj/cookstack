@@ -14,13 +14,13 @@ import {
 } from '../services/db/schema';
 import { eq } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
+import { generateId, slugify } from '@cs/utils';
 import rateLimit from '../middlewares/rate-limit';
 import { initializeImage } from '../services/image';
-import { generateId, slugify, pick, omit } from '@cs/utils';
+import { useRecipe, useRecipes } from '../services/db/queries';
 import { getConflictUpdateSetter } from '../services/db/utils';
 import { verifyRoles, verifyAuthor } from '../middlewares/auth';
 import { validator, validateRecipe } from '../middlewares/validation';
-import { useRecipe, useRecipes, useCategory } from '../services/db/queries';
 
 import sections from './sections';
 
@@ -54,44 +54,26 @@ recipes.post(
     const recipeId = generateId(16);
 
     try {
-      const [[insert1], insert2, [get1]] = await db.batch([
-        db
-          .insert(recipesTable)
-          .values({
-            ...recipe,
-            id: recipeId,
-            userId,
-          })
-          .returning(),
-        db
-          .insert(recipesTranslations)
-          .values(
-            translations.map(v => ({
-              ...v,
-              recipeId,
-              slug: slugify(v.name),
-            })),
-          )
-          .returning(),
-        useCategory(c, { categoryId: recipe.categoryId }),
+      const [_1, _2, [results]] = await db.batch([
+        db.insert(recipesTable).values({
+          ...recipe,
+          id: recipeId,
+          userId,
+        }),
+        db.insert(recipesTranslations).values(
+          translations.map(v => ({
+            ...v,
+            recipeId,
+            slug: slugify(v.name),
+          })),
+        ),
+        useRecipe(c, { recipeId }),
       ]);
 
-      const translation = insert2.find(v => v.language === locale());
-      return c.json(
-        {
-          ...omit(insert1, ['userId']),
-          ...(translation
-            ? pick(translation, ['name', 'description', 'slug'])
-            : {}),
-          category: get1,
-        },
-        201,
-      );
+      return c.json(results, 201);
     } catch (err) {
       if (err instanceof Error) {
-        if (err.message.includes('D1_ERROR: UNIQUE')) {
-          return c.json({ error: t('recipe.duplicate') }, 409);
-        } else if (err.message.includes('D1_ERROR: FOREIGN KEY')) {
+        if (err.message.includes('D1_ERROR: FOREIGN KEY')) {
           return c.json({ error: t('category.notFound') }, 400);
         }
       }
@@ -158,9 +140,7 @@ recipes.patch(
       return c.json(results);
     } catch (err) {
       if (err instanceof Error) {
-        if (err.message.includes('D1_ERROR: UNIQUE')) {
-          return c.json({ error: t('recipe.duplicate') }, 409);
-        } else if (err.message.includes('D1_ERROR: FOREIGN KEY')) {
+        if (err.message.includes('D1_ERROR: FOREIGN KEY')) {
           return c.json({ error: t('category.notFound') }, 400);
         }
       }
