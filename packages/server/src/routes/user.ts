@@ -14,6 +14,7 @@ import {
 import { generateId } from '@cs/utils';
 import { initializeDB } from '../services/db';
 import { verifyAuth } from '../middlewares/auth';
+import { initializeAuth } from '../services/auth';
 import { eq, getTableColumns } from 'drizzle-orm';
 import rateLimit from '../middlewares/rate-limit';
 import { initializeEmail } from '../services/email';
@@ -38,13 +39,17 @@ profile.patch(
     const user = c.get('user')!;
     const { firstName, lastName } = c.req.valid('json');
 
+    const auth = initializeAuth(c);
     const db = initializeDB(c.env.DB);
+
+    const slug = auth.slugify({ userId: user.id, firstName, lastName });
+
     await db
       .update(users)
-      .set({ firstName, lastName, updatedAt: new Date() })
+      .set({ slug, firstName, lastName, updatedAt: new Date() })
       .where(eq(users.id, user.id));
 
-    return c.json({ ...user, firstName, lastName });
+    return c.json({ ...user, slug, firstName, lastName });
   },
 );
 

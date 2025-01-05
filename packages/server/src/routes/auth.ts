@@ -15,7 +15,6 @@ import { Hono } from 'hono';
 import { eq } from 'drizzle-orm';
 import { Provider } from '../types';
 import { OAuth2RequestError } from 'arctic';
-import { isURL, generateId } from '@cs/utils';
 import { initializeDB } from '../services/db';
 import { verifyAuth } from '../middlewares/auth';
 import { initializeAuth } from '../services/auth';
@@ -23,6 +22,7 @@ import { setCookie, getCookie } from 'hono/cookie';
 import { initializeImage } from '../services/image';
 import { initializeEmail } from '../services/email';
 import { validator } from '../middlewares/validation';
+import { isURL, slugify, generateId } from '@cs/utils';
 import { users, oauthAccounts } from '../services/db/schema';
 import { generateState, generateCodeVerifier } from 'arctic';
 import rateLimit, { rateLimiter } from '../middlewares/rate-limit';
@@ -79,8 +79,11 @@ signIn.get(
     }
 
     try {
-      const { lucia, google } = initializeAuth(c);
-      const tokens = await google.validateAuthorizationCode(code, cookieCode);
+      const auth = initializeAuth(c);
+      const tokens = await auth.google.validateAuthorizationCode(
+        code,
+        cookieCode,
+      );
 
       const response = await fetch(
         'https://openidconnect.googleapis.com/v1/userinfo',
@@ -110,11 +113,13 @@ signIn.get(
         const image = initializeImage(c);
         const imageUrl = image.url(user.picture).toString();
 
+        userId = generateId(16);
         [[{ id: userId }]] = await db.batch([
           db
             .insert(users)
             .values({
-              id: generateId(16),
+              id: userId,
+              slug: userId.slice(-4),
               email: user.email,
               emailVerified: true,
               firstName: user.given_name,
@@ -133,18 +138,31 @@ signIn.get(
             })
             .returning({ id: users.id }),
         ]);
-        await db
-          .insert(oauthAccounts)
-          .values({
-            providerId: Provider.Google,
-            providerUserId: user.sub,
-            userId,
-          })
-          .onConflictDoNothing();
+
+        await db.batch([
+          db
+            .insert(oauthAccounts)
+            .values({
+              providerId: Provider.Google,
+              providerUserId: user.sub,
+              userId,
+            })
+            .onConflictDoNothing(),
+          db
+            .update(users)
+            .set({
+              slug: auth.slugify({
+                userId,
+                firstName: user.given_name,
+                lastName: user.family_name,
+              }),
+            })
+            .where(eq(users.id, userId)),
+        ]);
       }
 
-      const session = await lucia.createSession(userId, {});
-      const cookie = lucia.createSessionCookie(session.id);
+      const session = await auth.lucia.createSession(userId, {});
+      const cookie = auth.lucia.createSessionCookie(session.id);
 
       setCookie(c, cookie.name, cookie.value, cookie.attributes);
 
@@ -165,6 +183,7 @@ signIn.post('/', rateLimit, validator('json', signInSchema), async c => {
 
   const auth = initializeAuth(c);
   const db = initializeDB(c.env.DB);
+
   const user = await db.query.users.findFirst({
     where: (table, { eq }) => eq(table.email, email),
   });
@@ -194,6 +213,7 @@ signUp.post('/', validator('json', confirmPassword(signUpSchema)), async c => {
 
   const auth = initializeAuth(c);
   const db = initializeDB(c.env.DB);
+
   const exists = await db.query.users.findFirst({
     where: (table, { eq }) => eq(table.email, email),
     columns: { email: true },
@@ -201,17 +221,18 @@ signUp.post('/', validator('json', confirmPassword(signUpSchema)), async c => {
 
   if (exists) return c.json({ error: { email: t('auth.existsEmail') } }, 400);
 
+  const userId = generateId(16);
   const hashedPassword = await auth.hashPassword(password);
-  const [{ id: userId }] = await db
-    .insert(users)
-    .values({
-      id: generateId(16),
-      email,
-      hashedPassword,
-      firstName,
-      lastName,
-    })
-    .returning({ id: users.id });
+  const slug = auth.slugify({ userId, firstName, lastName });
+
+  await db.insert(users).values({
+    id: userId,
+    slug,
+    email,
+    hashedPassword,
+    firstName,
+    lastName,
+  });
 
   const code = await auth.verificationCode({
     userId,

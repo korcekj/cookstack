@@ -8,6 +8,7 @@ import {
   parseUrl,
   generateId,
   generateNumbers,
+  slugify as _slugify,
 } from '@cs/utils';
 import {
   users,
@@ -20,6 +21,7 @@ import { Google } from 'arctic';
 import { eq } from 'drizzle-orm';
 import { initializeDB } from './db';
 import { userSchema } from '@cs/utils/zod';
+import { generateName } from '../utils/generators';
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
 import { TimeSpan, createDate, isWithinExpirationDate } from 'oslo';
 
@@ -167,6 +169,21 @@ export const auth = {
         .set({ hashedPassword, updatedAt: new Date() })
         .where(eq(users.id, userId)),
     ]);
+  },
+  slugify({
+    userId,
+    firstName,
+    lastName,
+  }: {
+    userId: string;
+    firstName: string | null;
+    lastName: string | null;
+  }) {
+    if (!firstName && !lastName) {
+      return _slugify(`${generateName(userId)} ${userId.slice(-4)}`);
+    }
+
+    return _slugify(`${firstName ?? ''} ${lastName ?? ''} ${userId.slice(-4)}`);
   },
 };
 

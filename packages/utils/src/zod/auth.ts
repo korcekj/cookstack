@@ -7,6 +7,7 @@ export type Role = z.infer<typeof roleSchema>;
 
 export const userSchema = z.object({
   id: z.string(),
+  slug: z.string(),
   firstName: z.string().max(16).nullable(),
   lastName: z.string().max(32).nullable(),
   email: z.string().email(),
@@ -56,8 +57,8 @@ export const signInSchema = z.object({
 });
 
 export const signUpSchema = z.object({
-  firstName: z.string().max(16).optional(),
-  lastName: z.string().max(32).optional(),
+  firstName: z.string().max(16).nullable(),
+  lastName: z.string().max(32).nullable(),
   email: z.string().email(),
   password: z.string().min(8).max(24),
   passwordConfirm: z.string().min(8).max(24),
