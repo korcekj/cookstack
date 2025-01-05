@@ -25,7 +25,6 @@ export default {
     existsEmail: 'Zvolený email nie je možné použiť',
   },
   recipe: {
-    duplicate: 'Recept už existuje',
     notFound: 'Recept nebol nájdený',
   },
   section: {

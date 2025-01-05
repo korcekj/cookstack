@@ -113,8 +113,10 @@ export default {
     author: 'autor',
   },
   status: {
+    draft: 'koncept',
     pending: 'čakajúci',
     approved: 'schvalený',
     rejected: 'zamietnutý',
+    published: 'publikovaný',
   },
 };

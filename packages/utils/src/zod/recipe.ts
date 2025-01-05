@@ -1,6 +1,11 @@
 import { z } from 'zod';
 import { joinValues } from '../index';
+import { authorSchema } from './auth';
 import { categorySchema } from './category';
+
+const statusSchema = z.enum(['draft', 'published']);
+
+export type Status = z.infer<typeof statusSchema>;
 
 export const recipeSchema = z.object({
   id: z.string(),
@@ -12,7 +17,9 @@ export const recipeSchema = z.object({
   name: z.string(),
   slug: z.string(),
   description: z.string().nullable(),
+  user: authorSchema,
   category: categorySchema,
+  status: statusSchema,
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -25,6 +32,7 @@ export const createRecipeSchema = z.object({
   cook: z.number().nonnegative(),
   yield: z.number().positive(),
   categoryId: z.string().length(16),
+  status: statusSchema.default('draft'),
   translations: z
     .array(
       z.object({
@@ -43,6 +51,7 @@ export const updateRecipeSchema = z
     cook: z.number().nonnegative(),
     yield: z.number().positive(),
     categoryId: z.string().length(16),
+    status: statusSchema,
     translations: z
       .array(
         z.object({
@@ -82,6 +91,7 @@ export type RecipesOrderByColumns<T = RecipesOrderByInput> =
 export const getRecipesSchema = z.object({
   limit: z.coerce.number().min(1).max(100).default(10),
   offset: z.coerce.number().min(0).default(0),
+  status: statusSchema.optional(),
   orderBy: z
     .string()
     .min(1)

@@ -25,7 +25,6 @@ export default {
     existsEmail: 'Email cannot be used',
   },
   recipe: {
-    duplicate: 'Recipe already exists',
     notFound: 'Recipe not found',
   },
   section: {

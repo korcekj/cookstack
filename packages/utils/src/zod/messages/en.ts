@@ -113,8 +113,10 @@ export default {
     author: 'author',
   },
   status: {
+    draft: 'draft',
     pending: 'pending',
     approved: 'approved',
     rejected: 'rejected',
+    published: 'published',
   },
 };
