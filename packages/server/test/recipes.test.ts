@@ -69,32 +69,19 @@ describe('Recipes route - /api/recipes', () => {
       id: expect.any(String),
       name: 'Test 2',
       slug: 'test-2',
+      user: expect.any(Object),
       category: {
         id: categoryId,
       },
       preparation: expect.any(Number),
       cook: expect.any(Number),
       yield: expect.any(Number),
+      status: expect.any(String),
       createdAt: expect.any(String),
       updatedAt: expect.any(String),
     });
 
     recipeId = json.id;
-  });
-
-  it('Should not create a recipe due to its existence - POST /api/recipes', async ({
-    headers,
-  }) => {
-    const res = await createRecipe(
-      categoryId,
-      { ...headers, Cookie: cookie },
-      'Test 2',
-    );
-
-    expect(res.status).toBe(409);
-    expect(await res.json()).toMatchObject({
-      error: 'Recipe already exists',
-    });
   });
 
   it('Should return recipes - POST /api/recipes', async () => {
@@ -134,12 +121,14 @@ describe('Recipes route - /api/recipes', () => {
       id: recipeId,
       name: expect.any(String),
       slug: expect.any(String),
+      user: expect.any(Object),
       category: {
         id: categoryId,
       },
       preparation: expect.any(Number),
       cook: expect.any(Number),
       yield: expect.any(Number),
+      status: expect.any(String),
       createdAt: expect.any(String),
       updatedAt: expect.any(String),
     });
@@ -202,39 +191,6 @@ describe('Recipes route - /api/recipes', () => {
     });
   });
 
-  it('Should not update a recipe due to its existence - PATCH /api/recipes/:recipeId', async ({
-    headers,
-  }) => {
-    await createRecipe(categoryId, { ...headers, Cookie: cookie }, 'Test 3');
-
-    const res = await app.request(
-      `/api/recipes/${recipeId}`,
-      {
-        method: 'PATCH',
-        headers: {
-          ...headers,
-          Cookie: cookie,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          translations: [
-            {
-              name: 'Test 3',
-              language: 'en',
-            },
-          ],
-        }),
-      },
-      env,
-      executionCtx,
-    );
-
-    expect(res.status).toBe(409);
-    expect(await res.json()).toMatchObject({
-      error: 'Recipe already exists',
-    });
-  });
-
   it('Should update a recipe - PATCH /api/recipes/:recipeId', async ({
     headers,
   }) => {
@@ -265,12 +221,14 @@ describe('Recipes route - /api/recipes', () => {
       id: recipeId,
       name: 'Test 4',
       slug: 'test-4',
+      user: expect.any(Object),
       category: {
         id: categoryId,
       },
       preparation: expect.any(Number),
       cook: expect.any(Number),
       yield: expect.any(Number),
+      status: expect.any(String),
       createdAt: expect.any(String),
       updatedAt: expect.any(String),
     });

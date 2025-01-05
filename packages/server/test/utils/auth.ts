@@ -18,6 +18,8 @@ export const signUp = async (email: string, password: string, headers = {}) => {
         email,
         password,
         passwordConfirm: password,
+        firstName: null,
+        lastName: null,
       }),
     },
     env,
