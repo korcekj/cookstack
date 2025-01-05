@@ -13,6 +13,7 @@ import {
 
 export const users = sqliteTable('users', {
   id: text('id').notNull().primaryKey(),
+  slug: text('slug').notNull().unique(),
   email: text('email').notNull().unique(),
   emailVerified: integer('email_verified', { mode: 'boolean' })
     .default(false)
@@ -150,6 +151,9 @@ export const recipes = sqliteTable(
     categoryId: text('category_id')
       .notNull()
       .references(() => categories.id),
+    status: text('status', {
+      enum: ['draft', 'published'],
+    }).default('draft'),
     createdAt: integer('created_at', { mode: 'timestamp' }).default(
       sql`(strftime('%s', 'now'))`,
     ),
@@ -178,7 +182,6 @@ export const recipesTranslations = sqliteTable(
   },
   t => ({
     pk: primaryKey({ columns: [t.recipeId, t.language] }),
-    unq: uniqueIndex('recipes_translations_unq').on(t.slug, t.language),
     nameIdx: index('recipes_translations_name_idx').on(t.name),
   }),
 );
