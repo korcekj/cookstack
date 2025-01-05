@@ -128,7 +128,9 @@ export const useRecipe = (c: Context<Env>, options: GetRecipeInput) => {
   return db
     .select({
       id: sql`${recipesTable.id}`.mapWith(recipesTable.id).as('r_id'),
-      imageUrl: recipesTable.imageUrl,
+      imageUrl: sql`${recipesTable.imageUrl}`
+        .mapWith(recipesTable.imageUrl)
+        .as('r_image_url'),
       preparation: recipesTable.preparation,
       cook: recipesTable.cook,
       total: recipesTable.total,
@@ -140,6 +142,13 @@ export const useRecipe = (c: Context<Env>, options: GetRecipeInput) => {
         .mapWith(recipesTranslations.slug)
         .as('rt_slug'),
       description: recipesTranslations.description,
+      user: {
+        id: sql`${users.id}`.mapWith(users.id).as('u_id'),
+        slug: sql`${users.slug}`.mapWith(users.slug).as('r_slug'),
+        firstName: users.firstName,
+        lastName: users.lastName,
+        imageUrl: users.imageUrl,
+      },
       category: {
         id: categoriesTable.id,
         name: categoriesTranslations.name,
@@ -147,6 +156,7 @@ export const useRecipe = (c: Context<Env>, options: GetRecipeInput) => {
         createdAt: categoriesTable.createdAt,
         updatedAt: categoriesTable.updatedAt,
       },
+      status: recipesTable.status,
       createdAt: sql`${recipesTable.createdAt}`
         .mapWith(recipesTable.createdAt)
         .as('r_created_at'),
@@ -162,6 +172,7 @@ export const useRecipe = (c: Context<Env>, options: GetRecipeInput) => {
         eq(recipesTranslations.language, locale()),
       ),
     )
+    .innerJoin(users, eq(users.id, recipesTable.userId))
     .innerJoin(categoriesTable, eq(categoriesTable.id, recipesTable.categoryId))
     .innerJoin(
       categoriesTranslations,
@@ -183,6 +194,7 @@ export const useRecipes = async (
   const db = initializeDB(c.env.DB);
 
   const whereClauses = [
+    'status' in options ? eq(recipesTable.status, options.status!) : undefined,
     'recipeId' in options ? eq(recipesTable.id, options.recipeId) : undefined,
     'categoryId' in options
       ? eq(recipesTable.categoryId, options.categoryId)
@@ -192,7 +204,9 @@ export const useRecipes = async (
   const recipesQuery = db
     .select({
       id: sql`${recipesTable.id}`.mapWith(recipesTable.id).as('r_id'),
-      imageUrl: recipesTable.imageUrl,
+      imageUrl: sql`${recipesTable.imageUrl}`
+        .mapWith(recipesTable.imageUrl)
+        .as('r_image_url'),
       preparation: recipesTable.preparation,
       cook: recipesTable.cook,
       total: recipesTable.total,
@@ -204,6 +218,13 @@ export const useRecipes = async (
         .mapWith(recipesTranslations.slug)
         .as('rt_slug'),
       description: recipesTranslations.description,
+      user: {
+        id: sql`${users.id}`.mapWith(users.id).as('u_id'),
+        slug: sql`${users.slug}`.mapWith(users.slug).as('r_slug'),
+        firstName: users.firstName,
+        lastName: users.lastName,
+        imageUrl: users.imageUrl,
+      },
       category: {
         id: categoriesTable.id,
         name: categoriesTranslations.name,
@@ -211,6 +232,7 @@ export const useRecipes = async (
         createdAt: categoriesTable.createdAt,
         updatedAt: categoriesTable.updatedAt,
       },
+      status: recipesTable.status,
       createdAt: sql`${recipesTable.createdAt}`
         .mapWith(recipesTable.createdAt)
         .as('r_created_at'),
@@ -226,6 +248,7 @@ export const useRecipes = async (
         eq(recipesTranslations.language, locale()),
       ),
     )
+    .innerJoin(users, eq(users.id, recipesTable.userId))
     .innerJoin(categoriesTable, eq(categoriesTable.id, recipesTable.categoryId))
     .innerJoin(
       categoriesTranslations,
@@ -384,7 +407,7 @@ export const useRoleRequests = async (
   const db = initializeDB(c.env.DB);
 
   const whereClauses = [
-    'status' in options ? eq(roleRequests.status, options.status) : undefined,
+    'status' in options ? eq(roleRequests.status, options.status!) : undefined,
     'userId' in options ? eq(roleRequests.userId, options.userId!) : undefined,
     'requestId' in options ? eq(roleRequests.id, options.requestId) : undefined,
   ];

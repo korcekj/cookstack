@@ -5,6 +5,16 @@ export const roleSchema = z.enum(['user', 'author', 'admin']);
 
 export type Role = z.infer<typeof roleSchema>;
 
+export const authorSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  firstName: z.string().max(16).nullable(),
+  lastName: z.string().max(32).nullable(),
+  imageUrl: z.string().url().nullable(),
+});
+
+export type Author = z.infer<typeof authorSchema>;
+
 export const userSchema = z.object({
   id: z.string(),
   slug: z.string(),
@@ -144,7 +154,7 @@ export type RoleRequestsOrderByColumns<T = RoleRequestsOrderByInput> =
 export const getRoleRequestsSchema = z.object({
   limit: z.coerce.number().min(1).max(100).default(10),
   offset: z.coerce.number().min(0).default(0),
-  status: statusSchema.default('pending'),
+  status: statusSchema.optional(),
   orderBy: z
     .string()
     .min(1)
