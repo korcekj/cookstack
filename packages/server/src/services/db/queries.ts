@@ -11,7 +11,7 @@ import type {
   RoleRequestsOrderByColumns,
 } from '@cs/utils/zod';
 import type { Context } from 'hono';
-import type { Env, Prettify } from '../../types';
+import type { Env } from '../../types';
 
 import {
   users,
