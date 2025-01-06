@@ -31,12 +31,8 @@ import { initializeDB } from '.';
 import { getOrderByClauses } from './utils';
 import { getTableColumns, sql, count, eq, and, asc } from 'drizzle-orm';
 
-export const useCategory = (c: Context<Env>, options: GetCategoryInput) => {
-  const { locale } = c.get('i18n');
-
-  const db = initializeDB(c.env.DB);
-
-  return db
+const _categories = (db: ReturnType<typeof initializeDB>, locale: string) =>
+  db
     .select({
       id: categoriesTable.id,
       name: categoriesTranslations.name,
@@ -49,9 +45,74 @@ export const useCategory = (c: Context<Env>, options: GetCategoryInput) => {
       categoriesTranslations,
       and(
         eq(categoriesTranslations.categoryId, categoriesTable.id),
-        eq(categoriesTranslations.language, locale()),
+        eq(categoriesTranslations.language, locale),
+      ),
+    );
+
+const _recipes = (db: ReturnType<typeof initializeDB>, locale: string) =>
+  db
+    .select({
+      id: sql`${recipesTable.id}`.mapWith(recipesTable.id).as('r_id'),
+      imageUrl: sql`${recipesTable.imageUrl}`
+        .mapWith(recipesTable.imageUrl)
+        .as('r_image_url'),
+      preparation: recipesTable.preparation,
+      cook: recipesTable.cook,
+      total: recipesTable.total,
+      yield: recipesTable.yield,
+      name: sql`${recipesTranslations.name}`
+        .mapWith(recipesTranslations.name)
+        .as('rt_name'),
+      slug: sql`${recipesTranslations.slug}`
+        .mapWith(recipesTranslations.slug)
+        .as('rt_slug'),
+      description: recipesTranslations.description,
+      user: {
+        id: sql`${users.id}`.mapWith(users.id).as('u_id'),
+        slug: sql`${users.slug}`.mapWith(users.slug).as('r_slug'),
+        firstName: users.firstName,
+        lastName: users.lastName,
+        imageUrl: users.imageUrl,
+      },
+      category: {
+        id: categoriesTable.id,
+        name: categoriesTranslations.name,
+        slug: categoriesTranslations.slug,
+        createdAt: categoriesTable.createdAt,
+        updatedAt: categoriesTable.updatedAt,
+      },
+      status: recipesTable.status,
+      createdAt: sql`${recipesTable.createdAt}`
+        .mapWith(recipesTable.createdAt)
+        .as('r_created_at'),
+      updatedAt: sql`${recipesTable.updatedAt}`
+        .mapWith(recipesTable.updatedAt)
+        .as('r_updated_at'),
+    })
+    .from(recipesTable)
+    .innerJoin(
+      recipesTranslations,
+      and(
+        eq(recipesTranslations.recipeId, recipesTable.id),
+        eq(recipesTranslations.language, locale),
       ),
     )
+    .innerJoin(users, eq(users.id, recipesTable.userId))
+    .innerJoin(categoriesTable, eq(categoriesTable.id, recipesTable.categoryId))
+    .innerJoin(
+      categoriesTranslations,
+      and(
+        eq(categoriesTranslations.categoryId, recipesTable.categoryId),
+        eq(categoriesTranslations.language, locale),
+      ),
+    );
+
+export const useCategory = (c: Context<Env>, options: GetCategoryInput) => {
+  const { locale } = c.get('i18n');
+
+  const db = initializeDB(c.env.DB);
+
+  return _categories(db, locale())
     .where(eq(categoriesTable.id, options.categoryId))
     .limit(1);
 };
@@ -70,23 +131,7 @@ export const useCategories = async (
 
   const db = initializeDB(c.env.DB);
 
-  const categoriesQuery = db
-    .select({
-      id: categoriesTable.id,
-      name: categoriesTranslations.name,
-      slug: categoriesTranslations.slug,
-      createdAt: categoriesTable.createdAt,
-      updatedAt: categoriesTable.updatedAt,
-    })
-    .from(categoriesTable)
-    .innerJoin(
-      categoriesTranslations,
-      and(
-        eq(categoriesTranslations.categoryId, categoriesTable.id),
-        eq(categoriesTranslations.language, locale()),
-      ),
-    )
-    .where(and(...whereClauses));
+  const categoriesQuery = _categories(db, locale()).where(and(...whereClauses));
 
   const totalQuery = db
     .select({ total: count() })
@@ -125,62 +170,7 @@ export const useRecipe = (c: Context<Env>, options: GetRecipeInput) => {
 
   const db = initializeDB(c.env.DB);
 
-  return db
-    .select({
-      id: sql`${recipesTable.id}`.mapWith(recipesTable.id).as('r_id'),
-      imageUrl: sql`${recipesTable.imageUrl}`
-        .mapWith(recipesTable.imageUrl)
-        .as('r_image_url'),
-      preparation: recipesTable.preparation,
-      cook: recipesTable.cook,
-      total: recipesTable.total,
-      yield: recipesTable.yield,
-      name: sql`${recipesTranslations.name}`
-        .mapWith(recipesTranslations.name)
-        .as('rt_name'),
-      slug: sql`${recipesTranslations.slug}`
-        .mapWith(recipesTranslations.slug)
-        .as('rt_slug'),
-      description: recipesTranslations.description,
-      user: {
-        id: sql`${users.id}`.mapWith(users.id).as('u_id'),
-        slug: sql`${users.slug}`.mapWith(users.slug).as('r_slug'),
-        firstName: users.firstName,
-        lastName: users.lastName,
-        imageUrl: users.imageUrl,
-      },
-      category: {
-        id: categoriesTable.id,
-        name: categoriesTranslations.name,
-        slug: categoriesTranslations.slug,
-        createdAt: categoriesTable.createdAt,
-        updatedAt: categoriesTable.updatedAt,
-      },
-      status: recipesTable.status,
-      createdAt: sql`${recipesTable.createdAt}`
-        .mapWith(recipesTable.createdAt)
-        .as('r_created_at'),
-      updatedAt: sql`${recipesTable.updatedAt}`
-        .mapWith(recipesTable.updatedAt)
-        .as('r_updated_at'),
-    })
-    .from(recipesTable)
-    .innerJoin(
-      recipesTranslations,
-      and(
-        eq(recipesTranslations.recipeId, recipesTable.id),
-        eq(recipesTranslations.language, locale()),
-      ),
-    )
-    .innerJoin(users, eq(users.id, recipesTable.userId))
-    .innerJoin(categoriesTable, eq(categoriesTable.id, recipesTable.categoryId))
-    .innerJoin(
-      categoriesTranslations,
-      and(
-        eq(categoriesTranslations.categoryId, recipesTable.categoryId),
-        eq(categoriesTranslations.language, locale()),
-      ),
-    )
+  return _recipes(db, locale())
     .where(eq(recipesTable.id, options.recipeId))
     .limit(1);
 };
@@ -202,63 +192,7 @@ export const useRecipes = async (
       : undefined,
   ];
 
-  const recipesQuery = db
-    .select({
-      id: sql`${recipesTable.id}`.mapWith(recipesTable.id).as('r_id'),
-      imageUrl: sql`${recipesTable.imageUrl}`
-        .mapWith(recipesTable.imageUrl)
-        .as('r_image_url'),
-      preparation: recipesTable.preparation,
-      cook: recipesTable.cook,
-      total: recipesTable.total,
-      yield: recipesTable.yield,
-      name: sql`${recipesTranslations.name}`
-        .mapWith(recipesTranslations.name)
-        .as('rt_name'),
-      slug: sql`${recipesTranslations.slug}`
-        .mapWith(recipesTranslations.slug)
-        .as('rt_slug'),
-      description: recipesTranslations.description,
-      user: {
-        id: sql`${users.id}`.mapWith(users.id).as('u_id'),
-        slug: sql`${users.slug}`.mapWith(users.slug).as('r_slug'),
-        firstName: users.firstName,
-        lastName: users.lastName,
-        imageUrl: users.imageUrl,
-      },
-      category: {
-        id: categoriesTable.id,
-        name: categoriesTranslations.name,
-        slug: categoriesTranslations.slug,
-        createdAt: categoriesTable.createdAt,
-        updatedAt: categoriesTable.updatedAt,
-      },
-      status: recipesTable.status,
-      createdAt: sql`${recipesTable.createdAt}`
-        .mapWith(recipesTable.createdAt)
-        .as('r_created_at'),
-      updatedAt: sql`${recipesTable.updatedAt}`
-        .mapWith(recipesTable.updatedAt)
-        .as('r_updated_at'),
-    })
-    .from(recipesTable)
-    .innerJoin(
-      recipesTranslations,
-      and(
-        eq(recipesTranslations.recipeId, recipesTable.id),
-        eq(recipesTranslations.language, locale()),
-      ),
-    )
-    .innerJoin(users, eq(users.id, recipesTable.userId))
-    .innerJoin(categoriesTable, eq(categoriesTable.id, recipesTable.categoryId))
-    .innerJoin(
-      categoriesTranslations,
-      and(
-        eq(categoriesTranslations.categoryId, recipesTable.categoryId),
-        eq(categoriesTranslations.language, locale()),
-      ),
-    )
-    .where(and(...whereClauses));
+  const recipesQuery = _recipes(db, locale()).where(and(...whereClauses));
 
   const totalQuery = db
     .select({ total: count() })
