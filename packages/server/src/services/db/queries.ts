@@ -195,6 +195,7 @@ export const useRecipes = async (
 
   const whereClauses = [
     'status' in options ? eq(recipesTable.status, options.status!) : undefined,
+    'userId' in options ? eq(recipesTable.userId, options.userId!) : undefined,
     'recipeId' in options ? eq(recipesTable.id, options.recipeId) : undefined,
     'categoryId' in options
       ? eq(recipesTable.categoryId, options.categoryId)
@@ -400,9 +401,7 @@ export const useRoleRequest = (
 
 export const useRoleRequests = async (
   c: Context<Env>,
-  options:
-    | GetRoleRequestInput
-    | Prettify<GetRoleRequestsInput & { userId?: string }>,
+  options: GetRoleRequestInput | GetRoleRequestsInput,
 ) => {
   const db = initializeDB(c.env.DB);
 

@@ -92,6 +92,7 @@ export const getRecipesSchema = z.object({
   limit: z.coerce.number().min(1).max(100).default(10),
   offset: z.coerce.number().min(0).default(0),
   status: statusSchema.optional(),
+  userId: z.string().length(16).optional(),
   orderBy: z
     .string()
     .min(1)
