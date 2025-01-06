@@ -8,7 +8,7 @@ import {
   parseUrl,
   generateId,
   generateNumbers,
-  slugify as _slugify,
+  slugify as slugify_,
 } from '@cs/utils';
 import {
   users,
@@ -180,10 +180,10 @@ export const auth = {
     lastName: string | null;
   }) {
     if (!firstName && !lastName) {
-      return _slugify(`${generateName(userId)} ${userId.slice(-4)}`);
+      return slugify_(`${generateName(userId)} ${userId.slice(-4)}`);
     }
 
-    return _slugify(`${firstName ?? ''} ${lastName ?? ''} ${userId.slice(-4)}`);
+    return slugify_(`${firstName ?? ''} ${lastName ?? ''} ${userId.slice(-4)}`);
   },
 };
 
