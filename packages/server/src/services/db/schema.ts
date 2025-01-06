@@ -105,6 +105,24 @@ export const roleRequests = sqliteTable(
   }),
 );
 
+export const favorites = sqliteTable(
+  'favorites',
+  {
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    recipeId: text('recipe_id')
+      .notNull()
+      .references(() => recipes.id, { onDelete: 'cascade' }),
+    createdAt: integer('created_at', { mode: 'timestamp' }).default(
+      sql`(strftime('%s', 'now'))`,
+    ),
+  },
+  t => ({
+    pk: primaryKey({ columns: [t.userId, t.recipeId] }),
+  }),
+);
+
 export const categories = sqliteTable('categories', {
   id: text('id').notNull().primaryKey(),
   createdAt: integer('created_at', { mode: 'timestamp' }).default(

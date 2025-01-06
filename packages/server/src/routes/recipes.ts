@@ -11,23 +11,27 @@ import { Hono } from 'hono';
 import {
   recipesTranslations,
   recipes as recipesTable,
+  favorites as favoritesTable,
 } from '../services/db/schema';
-import { eq } from 'drizzle-orm';
+import {
+  useRecipe,
+  useRecipes,
+  useFavoriteRecipes,
+} from '../services/db/queries';
+import { eq, and } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
 import { generateId, slugify } from '@cs/utils';
 import rateLimit from '../middlewares/rate-limit';
 import { initializeImage } from '../services/image';
-import { useRecipe, useRecipes } from '../services/db/queries';
 import { getConflictUpdateSetter } from '../services/db/utils';
-import { verifyRoles, verifyAuthor } from '../middlewares/auth';
 import { validator, validateRecipe } from '../middlewares/validation';
+import { verifyRoles, verifyAuthor, verifyAuth } from '../middlewares/auth';
 
 import sections from './sections';
 
 const recipes = new Hono<Env>();
 
 recipes.use(rateLimit);
-recipes.use('/:recipeId/*', validateRecipe);
 
 recipes.get('/', validator('query', getRecipesSchema), async c => {
   const options = c.req.valid('query');
@@ -39,6 +43,23 @@ recipes.get('/', validator('query', getRecipesSchema), async c => {
 
   return c.json({ recipes, total, page, pages });
 });
+
+recipes.get(
+  '/favorites',
+  verifyAuth,
+  validator('query', getRecipesSchema),
+  async c => {
+    const user = c.get('user')!;
+    const options = c.req.valid('query');
+    const { limit, offset } = options;
+
+    const { recipes, total } = await useFavoriteRecipes(c, user.id, options);
+    const page = Math.floor(offset / limit) + 1;
+    const pages = Math.ceil(total / limit);
+
+    return c.json({ recipes, total, page, pages });
+  },
+);
 
 recipes.post(
   '/',
@@ -83,6 +104,7 @@ recipes.post(
   },
 );
 
+recipes.use('/:recipeId/*', validateRecipe);
 recipes.get('/:recipeId', validator('param', getRecipeSchema), async c => {
   const options = c.req.valid('param');
 
@@ -178,6 +200,38 @@ recipes.put(
       .where(eq(recipesTable.id, recipeId));
 
     return c.json({ id: imageId, url: imageUrl });
+  },
+);
+
+recipes.put(
+  '/:recipeId/favorite',
+  verifyAuth,
+  validator('param', getRecipeSchema),
+  async c => {
+    const user = c.get('user')!;
+    const { recipeId } = c.req.valid('param');
+
+    const db = initializeDB(c.env.DB);
+
+    const favorite = await db.query.favorites.findFirst({
+      where: (t, { and, eq }) =>
+        and(eq(t.recipeId, recipeId), eq(t.userId, user.id)),
+    });
+
+    if (favorite) {
+      await db
+        .delete(favoritesTable)
+        .where(
+          and(
+            eq(favoritesTable.recipeId, recipeId),
+            eq(favoritesTable.userId, user.id),
+          ),
+        );
+    } else {
+      await db.insert(favoritesTable).values({ recipeId, userId: user.id });
+    }
+
+    return c.body(null, 204);
   },
 );
 
