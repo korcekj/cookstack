@@ -22,13 +22,15 @@ export const users = sqliteTable('users', {
   firstName: text('first_name'),
   lastName: text('last_name'),
   imageUrl: text('image_url'),
-  role: text('role', { enum: ['user', 'author', 'admin'] }).default('user'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(
-    sql`(strftime('%s', 'now'))`,
-  ),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-    sql`(strftime('%s', 'now'))`,
-  ),
+  role: text('role', { enum: ['user', 'author', 'admin'] })
+    .default('user')
+    .notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp' })
+    .default(sql`(strftime('%s', 'now'))`)
+    .notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' })
+    .default(sql`(strftime('%s', 'now'))`)
+    .notNull(),
 });
 
 export type User = typeof users.$inferSelect;
@@ -90,13 +92,15 @@ export const roleRequests = sqliteTable(
       .references(() => users.id, { onDelete: 'cascade' }),
     status: text('status', {
       enum: ['pending', 'approved', 'rejected'],
-    }).default('pending'),
-    createdAt: integer('created_at', { mode: 'timestamp' }).default(
-      sql`(strftime('%s', 'now'))`,
-    ),
-    updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-      sql`(strftime('%s', 'now'))`,
-    ),
+    })
+      .default('pending')
+      .notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .default(sql`(strftime('%s', 'now'))`)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .default(sql`(strftime('%s', 'now'))`)
+      .notNull(),
   },
   t => ({
     unq: uniqueIndex('role_requests_unq')
@@ -114,9 +118,9 @@ export const favorites = sqliteTable(
     recipeId: text('recipe_id')
       .notNull()
       .references(() => recipes.id, { onDelete: 'cascade' }),
-    createdAt: integer('created_at', { mode: 'timestamp' }).default(
-      sql`(strftime('%s', 'now'))`,
-    ),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .default(sql`(strftime('%s', 'now'))`)
+      .notNull(),
   },
   t => ({
     pk: primaryKey({ columns: [t.userId, t.recipeId] }),
@@ -125,12 +129,12 @@ export const favorites = sqliteTable(
 
 export const categories = sqliteTable('categories', {
   id: text('id').notNull().primaryKey(),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(
-    sql`(strftime('%s', 'now'))`,
-  ),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-    sql`(strftime('%s', 'now'))`,
-  ),
+  createdAt: integer('created_at', { mode: 'timestamp' })
+    .default(sql`(strftime('%s', 'now'))`)
+    .notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' })
+    .default(sql`(strftime('%s', 'now'))`)
+    .notNull(),
 });
 
 export type Category = typeof categories.$inferSelect;
@@ -158,10 +162,12 @@ export const recipes = sqliteTable(
     imageUrl: text('image_url'),
     preparation: integer('preparation').notNull(),
     cook: integer('cook').notNull(),
-    total: integer('total').generatedAlwaysAs(
-      (): SQL => sql`${recipes.preparation} + ${recipes.cook}`,
-      { mode: 'virtual' },
-    ),
+    total: integer('total')
+      .generatedAlwaysAs(
+        (): SQL => sql`${recipes.preparation} + ${recipes.cook}`,
+        { mode: 'virtual' },
+      )
+      .notNull(),
     yield: integer('yield').notNull(),
     userId: text('user_id')
       .notNull()
@@ -171,13 +177,15 @@ export const recipes = sqliteTable(
       .references(() => categories.id),
     status: text('status', {
       enum: ['draft', 'published'],
-    }).default('draft'),
-    createdAt: integer('created_at', { mode: 'timestamp' }).default(
-      sql`(strftime('%s', 'now'))`,
-    ),
-    updatedAt: integer('updated_at', { mode: 'timestamp' }).default(
-      sql`(strftime('%s', 'now'))`,
-    ),
+    })
+      .default('draft')
+      .notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .default(sql`(strftime('%s', 'now'))`)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp' })
+      .default(sql`(strftime('%s', 'now'))`)
+      .notNull(),
   },
   t => ({
     userIdx: index('recipes_user_idx').on(t.userId),
