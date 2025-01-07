@@ -14,6 +14,8 @@ import { parseError } from '@cs/utils/zod';
 import { initializeDB } from '../services/db';
 import { createMiddleware } from 'hono/factory';
 import { zValidator } from '@hono/zod-validator';
+import { useRecipe } from '../services/db/queries';
+import { verifyAuthor, verifyRoles } from './auth';
 import { HTTPException } from 'hono/http-exception';
 
 export const validator = <T extends z.ZodType<any, z.ZodTypeDef, any>>(
@@ -65,17 +67,22 @@ export const validateRecipe = createMiddleware<Env>(async (c, next) => {
   const { t } = c.get('i18n');
   const { recipeId } = c.req.param() as GetRecipeInput;
 
-  const db = initializeDB(c.env.DB);
-
-  const recipe = await db.query.recipes.findFirst({
-    columns: { id: true, userId: true },
-    where: (t, { eq }) => eq(t.id, recipeId),
-  });
+  const [recipe] = await useRecipe(c, { recipeId });
   if (!recipe) throw new HTTPException(404, { message: t('recipe.notFound') });
 
-  c.set('author', { id: recipe.userId });
+  c.set('recipe', recipe);
+  c.set('author', recipe.user);
 
   return next();
+});
+
+export const validateRecipeDraft = createMiddleware<Env>(async (c, next) => {
+  const recipe = c.get('recipe')!;
+  if (recipe.status !== 'draft') {
+    return next();
+  }
+
+  return verifyAuthor(verifyRoles(['admin']))(c, next);
 });
 
 export const validateSection = createMiddleware<Env>(async (c, next) => {

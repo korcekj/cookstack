@@ -1,5 +1,5 @@
 import type { Translation } from './i18n';
-import type { User, Session } from '@cs/utils/zod';
+import type { User, Session, Recipe } from '@cs/utils/zod';
 
 export type Prettify<T> = {
   [K in keyof T]: T[K];
@@ -26,6 +26,7 @@ export type Variables = {
   i18n: Translation;
   user: User | null;
   session: Session | null;
+  recipe?: Recipe;
   author?: { id: string };
 };
 
