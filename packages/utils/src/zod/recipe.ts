@@ -32,7 +32,6 @@ export const createRecipeSchema = z.object({
   cook: z.number().nonnegative(),
   yield: z.number().positive(),
   categoryId: z.string().length(16),
-  status: statusSchema.default('draft'),
   translations: z
     .array(
       z.object({
@@ -51,7 +50,6 @@ export const updateRecipeSchema = z
     cook: z.number().nonnegative(),
     yield: z.number().positive(),
     categoryId: z.string().length(16),
-    status: statusSchema,
     translations: z
       .array(
         z.object({
