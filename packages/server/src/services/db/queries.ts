@@ -234,9 +234,9 @@ export const useRecipes = async (
 
 export const useFavoriteRecipes = async (
   c: Context<Env>,
-  userId: string,
   options: GetRecipesInput | GetCategoryInput,
 ) => {
+  const user = c.get('user')!;
   const { locale } = c.get('i18n');
 
   const db = initializeDB(c.env.DB);
@@ -254,7 +254,7 @@ export const useFavoriteRecipes = async (
       favoritesTable,
       and(
         eq(favoritesTable.recipeId, recipesTable.id),
-        eq(favoritesTable.userId, userId),
+        eq(favoritesTable.userId, user.id),
       ),
     )
     .where(and(...whereClauses));
@@ -266,7 +266,7 @@ export const useFavoriteRecipes = async (
       favoritesTable,
       and(
         eq(favoritesTable.recipeId, recipesTable.id),
-        eq(favoritesTable.userId, userId),
+        eq(favoritesTable.userId, user.id),
       ),
     )
     .where(and(...whereClauses));
