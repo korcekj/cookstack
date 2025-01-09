@@ -18,13 +18,17 @@ import {
   useRecipes,
   useFavoriteRecipes,
 } from '../services/db/queries';
+import {
+  validator,
+  validateRecipe,
+  validateRecipeDraft,
+} from '../middlewares/validation';
 import { eq, and } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
 import { generateId, slugify } from '@cs/utils';
 import rateLimit from '../middlewares/rate-limit';
 import { initializeImage } from '../services/image';
 import { getConflictUpdateSetter } from '../services/db/utils';
-import { validator, validateRecipe } from '../middlewares/validation';
 import { verifyRoles, verifyAuthor, verifyAuth } from '../middlewares/auth';
 
 import sections from './sections';
@@ -49,11 +53,10 @@ recipes.get(
   verifyAuth,
   validator('query', getRecipesSchema),
   async c => {
-    const user = c.get('user')!;
     const options = c.req.valid('query');
     const { limit, offset } = options;
 
-    const { recipes, total } = await useFavoriteRecipes(c, user.id, options);
+    const { recipes, total } = await useFavoriteRecipes(c, options);
     const page = Math.floor(offset / limit) + 1;
     const pages = Math.ceil(total / limit);
 
@@ -66,7 +69,7 @@ recipes.post(
   verifyRoles(['author', 'admin']),
   validator('json', createRecipeSchema),
   async c => {
-    const { t, locale } = c.get('i18n');
+    const { t } = c.get('i18n');
     const { translations, ...recipe } = c.req.valid('json');
 
     const db = initializeDB(c.env.DB);
@@ -105,10 +108,9 @@ recipes.post(
 );
 
 recipes.use('/:recipeId/*', validateRecipe);
+recipes.get('/:recipeId/*', validateRecipeDraft);
 recipes.get('/:recipeId', validator('param', getRecipeSchema), async c => {
-  const options = c.req.valid('param');
-
-  const [recipe] = await useRecipe(c, options);
+  const recipe = c.get('recipe')!;
 
   return c.json(recipe);
 });
@@ -206,6 +208,7 @@ recipes.put(
 recipes.put(
   '/:recipeId/favorite',
   verifyAuth,
+  validateRecipeDraft,
   validator('param', getRecipeSchema),
   async c => {
     const user = c.get('user')!;
