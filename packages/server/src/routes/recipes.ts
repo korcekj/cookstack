@@ -29,7 +29,7 @@ import { initializeDB } from '../services/db';
 import { generateId } from '@cs/utils/generators';
 import rateLimit from '../middlewares/rate-limit';
 import { initializeImage } from '../services/image';
-import { getConflictUpdateSetter } from '../services/db/utils';
+import { getConflictUpdateSetter } from '../utils/db';
 import { verifyRoles, verifyAuthor, verifyAuth } from '../middlewares/auth';
 
 import sections from './sections';
