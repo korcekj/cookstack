@@ -11,9 +11,9 @@ import {
   users,
   roleRequests as roleRequestsTable,
 } from '../services/db/schema';
-import { generateId } from '@cs/utils';
 import { initializeDB } from '../services/db';
 import { verifyAuth } from '../middlewares/auth';
+import { generateId } from '@cs/utils/generators';
 import { initializeAuth } from '../services/auth';
 import { eq, getTableColumns } from 'drizzle-orm';
 import rateLimit from '../middlewares/rate-limit';

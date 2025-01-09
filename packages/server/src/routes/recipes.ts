@@ -23,9 +23,10 @@ import {
   validateRecipe,
   validateRecipeDraft,
 } from '../middlewares/validation';
+import { slugify } from '@cs/utils';
 import { eq, and } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
-import { generateId, slugify } from '@cs/utils';
+import { generateId } from '@cs/utils/generators';
 import rateLimit from '../middlewares/rate-limit';
 import { initializeImage } from '../services/image';
 import { getConflictUpdateSetter } from '../services/db/utils';

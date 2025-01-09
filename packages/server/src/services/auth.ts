@@ -3,27 +3,24 @@ import type { User } from './db/schema';
 import type { Env, AuthConfig } from '../types';
 
 import {
-  sha256,
-  pbkdf2,
-  parseUrl,
-  generateId,
-  generateNumbers,
-  slugify as slugify_,
-} from '@cs/utils';
-import {
   users,
   sessions,
   passwordResetTokens,
   emailVerificationCodes,
 } from './db/schema';
+import {
+  generateId,
+  generateName,
+  generateNumbers,
+} from '@cs/utils/generators';
 import { Lucia } from 'lucia';
 import { Google } from 'arctic';
 import { eq } from 'drizzle-orm';
 import { initializeDB } from './db';
 import { userSchema } from '@cs/utils/zod';
-import { generateName } from '../utils/generators';
 import { DrizzleSQLiteAdapter } from '@lucia-auth/adapter-drizzle';
 import { TimeSpan, createDate, isWithinExpirationDate } from 'oslo';
+import { sha256, pbkdf2, parseUrl, slugify as slugify_ } from '@cs/utils';
 
 declare module 'lucia' {
   interface Register {

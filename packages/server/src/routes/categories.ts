@@ -13,8 +13,9 @@ import {
   categoriesTranslations,
 } from '../services/db/schema';
 import { eq } from 'drizzle-orm';
+import { slugify } from '@cs/utils';
 import { initializeDB } from '../services/db';
-import { generateId, slugify } from '@cs/utils';
+import { generateId } from '@cs/utils/generators';
 import { verifyRoles } from '../middlewares/auth';
 import rateLimit from '../middlewares/rate-limit';
 import { getConflictUpdateSetter } from '../services/db/utils';

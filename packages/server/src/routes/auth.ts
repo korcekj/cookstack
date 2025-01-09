@@ -13,16 +13,17 @@ import {
 } from '@cs/utils/zod';
 import { Hono } from 'hono';
 import { eq } from 'drizzle-orm';
+import { isURL } from '@cs/utils';
 import { Provider } from '../types';
 import { OAuth2RequestError } from 'arctic';
 import { initializeDB } from '../services/db';
 import { verifyAuth } from '../middlewares/auth';
 import { initializeAuth } from '../services/auth';
+import { generateId } from '@cs/utils/generators';
 import { setCookie, getCookie } from 'hono/cookie';
 import { initializeImage } from '../services/image';
 import { initializeEmail } from '../services/email';
 import { validator } from '../middlewares/validation';
-import { isURL, slugify, generateId } from '@cs/utils';
 import { users, oauthAccounts } from '../services/db/schema';
 import { generateState, generateCodeVerifier } from 'arctic';
 import rateLimit, { rateLimiter } from '../middlewares/rate-limit';

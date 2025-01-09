@@ -1,6 +1,7 @@
 import type { Role, RoleRequest } from '@cs/utils/zod';
 
 import { eq } from 'drizzle-orm';
+import { sha256 } from '@cs/utils';
 import { env } from 'cloudflare:test';
 import {
   users,
@@ -10,7 +11,7 @@ import {
   passwordResetTokens,
 } from '../../src/services/db/schema';
 import { createDate, TimeSpan } from 'oslo';
-import { sha256, generateId } from '@cs/utils';
+import { generateId } from '@cs/utils/generators';
 import { initializeDB } from '../../src/services/db';
 
 export const getVerificationCode = async (userId: string) => {

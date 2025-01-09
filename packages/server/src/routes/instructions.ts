@@ -16,9 +16,10 @@ import {
   validateSection,
   validateInstruction,
 } from '../middlewares/validation';
+import { pick, omit } from '@cs/utils';
 import { eq, inArray } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
-import { generateId, pick, omit } from '@cs/utils';
+import { generateId } from '@cs/utils/generators';
 import { useInstructions } from '../services/db/queries';
 import { verifyRoles, verifyAuthor } from '../middlewares/auth';
 

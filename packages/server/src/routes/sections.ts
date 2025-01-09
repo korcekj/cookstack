@@ -11,9 +11,10 @@ import {
   sectionsTranslations,
   sections as sectionsTable,
 } from '../services/db/schema';
+import { pick, omit } from '@cs/utils';
 import { eq, inArray } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
-import { generateId, pick, omit } from '@cs/utils';
+import { generateId } from '@cs/utils/generators';
 import { useSections } from '../services/db/queries';
 import { verifyRoles, verifyAuthor } from '../middlewares/auth';
 import { validator, validateSection } from '../middlewares/validation';
