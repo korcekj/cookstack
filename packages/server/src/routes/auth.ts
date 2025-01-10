@@ -130,7 +130,6 @@ signIn.get(
             .onConflictDoUpdate({
               target: users.email,
               set: {
-                imageUrl,
                 emailVerified: true,
                 firstName: user.given_name,
                 lastName: user.family_name,
