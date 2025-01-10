@@ -2,5 +2,6 @@ node_modules/
 
 # custom
 .bruno
+.excalidraw
 .nx
 .idea
