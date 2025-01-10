@@ -169,9 +169,9 @@ export const recipes = sqliteTable(
       )
       .notNull(),
     yield: integer('yield').notNull(),
-    userId: text('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'set null' }),
+    userId: text('user_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
     categoryId: text('category_id')
       .notNull()
       .references(() => categories.id),
