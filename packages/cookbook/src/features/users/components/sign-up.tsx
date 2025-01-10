@@ -64,6 +64,7 @@ export const SignUpForm: React.FC<Props> = ({ className }) => {
                         autoComplete="given-name"
                         placeholder="Meno"
                         {...field}
+                        value={field.value ?? ''}
                       />
                     </FormControl>
                     <FormMessage />
@@ -81,6 +82,7 @@ export const SignUpForm: React.FC<Props> = ({ className }) => {
                         autoComplete="family-name"
                         placeholder="Priezvisko"
                         {...field}
+                        value={field.value ?? ''}
                       />
                     </FormControl>
                     <FormMessage />
