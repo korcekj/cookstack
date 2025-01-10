@@ -9,6 +9,7 @@ import type {
 import {
   createRecipe,
   createSection,
+  publishRecipe,
   createCategory,
   createIngredient,
   deleteIngredient,
@@ -44,6 +45,8 @@ describe('Ingredients route - /api/recipes/:recipeId/sections/:sectionId/ingredi
 
     res = await createSection(recipeId, { Cookie: cookie });
     sectionId = (await res.json<Section>()).id;
+
+    res = await publishRecipe(recipeId, { Cookie: cookie });
   });
 
   it('Should not return any ingredients - GET /api/recipes/:recipeId/sections/:sectionId/ingredients', async () => {

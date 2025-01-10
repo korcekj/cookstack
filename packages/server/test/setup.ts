@@ -1,3 +1,4 @@
+import { defaultHeaders } from './utils';
 import { signUp, signIn, signOut } from './utils/auth';
 import { applyD1Migrations, env } from 'cloudflare:test';
 import { afterEach, beforeEach, beforeAll } from 'vitest';
@@ -8,10 +9,7 @@ declare module 'vitest' {
   }
 }
 
-const headers: Record<string, string> = {
-  Origin: '',
-  'Accept-Language': 'en',
-};
+const headers: Record<string, string> = { ...defaultHeaders };
 
 beforeAll(async () => {
   await applyD1Migrations(env.DB, env.MIGRATIONS);

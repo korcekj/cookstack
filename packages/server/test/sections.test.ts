@@ -2,9 +2,10 @@ import type { User, Section, Recipe, Category } from '@cs/utils/zod';
 
 import {
   createRecipe,
+  publishRecipe,
   createSection,
-  createCategory,
   deleteSection,
+  createCategory,
 } from './utils';
 import app from '../src';
 import { env } from 'cloudflare:test';
@@ -33,6 +34,8 @@ describe('Sections route - /api/recipes/:recipeId/sections', () => {
 
     res = await createRecipe(categoryId, { Cookie: cookie });
     recipeId = (await res.json<Recipe>()).id;
+
+    res = await publishRecipe(recipeId, { Cookie: cookie });
   });
 
   it('Should not return any sections - GET /api/recipes/:recipeId/sections', async () => {

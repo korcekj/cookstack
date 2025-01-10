@@ -1,10 +1,15 @@
 import type { User, Recipe, Category } from '@cs/utils/zod';
 
+import {
+  createRecipe,
+  deleteRecipe,
+  publishRecipe,
+  createCategory,
+} from './utils';
 import app from '../src';
 import { env } from 'cloudflare:test';
 import { executionCtx } from './mocks';
 import { signUp, signIn } from './utils/auth';
-import { createRecipe, createCategory, deleteRecipe } from './utils';
 import { setRole, deleteRecipes, deleteCategories } from './utils/db';
 
 describe('Recipes route - /api/recipes', () => {
@@ -76,7 +81,7 @@ describe('Recipes route - /api/recipes', () => {
       preparation: expect.any(Number),
       cook: expect.any(Number),
       yield: expect.any(Number),
-      status: expect.any(String),
+      status: 'draft',
       createdAt: expect.any(String),
       updatedAt: expect.any(String),
     });
@@ -84,8 +89,13 @@ describe('Recipes route - /api/recipes', () => {
     recipeId = json.id;
   });
 
-  it('Should return recipes - POST /api/recipes', async () => {
-    const res = await app.request('/api/recipes', {}, env, executionCtx);
+  it('Should return recipes - POST /api/recipes', async ({ headers }) => {
+    const res = await app.request(
+      '/api/recipes',
+      { headers: { ...headers, Cookie: cookie } },
+      env,
+      executionCtx,
+    );
 
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({
@@ -108,10 +118,33 @@ describe('Recipes route - /api/recipes', () => {
     });
   });
 
-  it('Should get a recipe - GET /api/recipes/:recipeId', async () => {
+  it('Should not get a recipe due to draft - GET /api/recipes/:recipeId', async ({
+    headers,
+  }) => {
     const res = await app.request(
       `/api/recipes/${recipeId}`,
-      {},
+      { headers },
+      env,
+      executionCtx,
+    );
+
+    expect(res.status).toBe(403);
+    expect(await res.json()).toMatchObject({
+      error: 'Forbidden',
+    });
+  });
+
+  it('Should get a recipe - GET /api/recipes/:recipeId', async ({
+    headers,
+  }) => {
+    const res = await app.request(
+      `/api/recipes/${recipeId}`,
+      {
+        headers: {
+          ...headers,
+          Cookie: cookie,
+        },
+      },
       env,
       executionCtx,
     );
@@ -232,6 +265,13 @@ describe('Recipes route - /api/recipes', () => {
       createdAt: expect.any(String),
       updatedAt: expect.any(String),
     });
+  });
+
+  it('Should publish a recipe - PATCH /api/recipes/:recipeId/publish', async ({
+    headers,
+  }) => {
+    const res = await publishRecipe(recipeId, { ...headers, Cookie: cookie });
+    expect(res.status).toBe(204);
   });
 
   it('Should not delete a recipe due to invalid id - DELETE /api/recipes/:recipeId', async ({

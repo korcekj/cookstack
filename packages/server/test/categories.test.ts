@@ -127,7 +127,7 @@ describe('Categories route - /api/categories', () => {
 
     res = await app.request(
       `/api/categories/${categoryId}/recipes`,
-      {},
+      { headers: { ...headers, Cookie: cookie } },
       env,
       executionCtx,
     );

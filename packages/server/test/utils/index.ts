@@ -2,6 +2,11 @@ import app from '../../src';
 import { env } from 'cloudflare:test';
 import { executionCtx } from '../mocks';
 
+export const defaultHeaders = {
+  Origin: '',
+  'Accept-Language': 'en',
+};
+
 export const createCategory = async (headers = {}, name = 'Test 1') => {
   return app.request(
     '/api/categories',
@@ -62,6 +67,21 @@ export const createRecipe = async (
           },
         ],
       }),
+    },
+    env,
+    executionCtx,
+  );
+};
+
+export const publishRecipe = async (recipeId: string, headers = {}) => {
+  return app.request(
+    `/api/recipes/${recipeId}/publish`,
+    {
+      method: 'PATCH',
+      headers: {
+        ...defaultHeaders,
+        ...headers,
+      },
     },
     env,
     executionCtx,

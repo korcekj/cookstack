@@ -9,6 +9,7 @@ import type {
 import {
   createRecipe,
   createSection,
+  publishRecipe,
   createCategory,
   createInstruction,
   deleteInstruction,
@@ -44,6 +45,8 @@ describe('Instructions route - /api/recipes/:recipeId/sections/:sectionId/instru
 
     res = await createSection(recipeId, { Cookie: cookie });
     sectionId = (await res.json<Section>()).id;
+
+    res = await publishRecipe(recipeId, { Cookie: cookie });
   });
 
   it('Should not create an instruction due to invalid section id - POST /api/recipes/:recipeId/sections/:sectionId/instructions', async ({
