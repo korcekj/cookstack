@@ -95,8 +95,8 @@ describe('User route - /api/user', () => {
   it('Should update user image - PUT /api/user/profile/image', async ({
     headers,
   }) => {
-    const formData = new FormData();
     const blob = generateImage();
+    const formData = new FormData();
     formData.append('image', blob, 'test.jpg');
 
     const res = await app.request(
