@@ -29,8 +29,8 @@ import {
   instructions as instructionsTable,
 } from './schema';
 import { initializeDB } from '.';
-import { getOrderByClauses } from './utils';
-import { getTableColumns, sql, count, eq, and, asc } from 'drizzle-orm';
+import { getOrderByClauses, getRecipesWhereClauses } from '../../utils/db';
+import { getTableColumns, sql, count, eq, and, or, asc } from 'drizzle-orm';
 
 export const QUERIES = {
   CATEGORIES: (db: ReturnType<typeof initializeDB>, locale: string) =>
@@ -173,17 +173,27 @@ export const useRecipe = (c: Context<Env>, options: GetRecipeInput) => {
 
 export const useRecipes = async (
   c: Context<Env>,
-  options: GetRecipesInput | GetCategoryInput,
+  options: GetRecipesInput & Partial<GetCategoryInput>,
 ) => {
+  const user = c.get('user');
   const { locale } = c.get('i18n');
 
   const db = initializeDB(c.env.DB);
 
+  const recipesWhereClauses = getRecipesWhereClauses(user, options);
+
   const whereClauses = [
-    'status' in options ? eq(recipesTable.status, options.status!) : undefined,
+    or(
+      ...recipesWhereClauses.map(({ status, userId }) =>
+        and(
+          status ? eq(recipesTable.status, status) : undefined,
+          userId ? eq(recipesTable.userId, userId) : undefined,
+        ),
+      ),
+    ),
     'userId' in options ? eq(recipesTable.userId, options.userId!) : undefined,
     'categoryId' in options
-      ? eq(recipesTable.categoryId, options.categoryId)
+      ? eq(recipesTable.categoryId, options.categoryId!)
       : undefined,
   ];
 
@@ -234,7 +244,7 @@ export const useRecipes = async (
 
 export const useFavoriteRecipes = async (
   c: Context<Env>,
-  options: GetRecipesInput | GetCategoryInput,
+  options: GetRecipesInput & Partial<GetCategoryInput>,
 ) => {
   const user = c.get('user')!;
   const { locale } = c.get('i18n');
@@ -245,7 +255,7 @@ export const useFavoriteRecipes = async (
     'status' in options ? eq(recipesTable.status, options.status!) : undefined,
     'userId' in options ? eq(recipesTable.userId, options.userId!) : undefined,
     'categoryId' in options
-      ? eq(recipesTable.categoryId, options.categoryId)
+      ? eq(recipesTable.categoryId, options.categoryId!)
       : undefined,
   ];
 
