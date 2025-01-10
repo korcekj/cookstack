@@ -8,8 +8,9 @@ import {
 } from './utils';
 import app from '../src';
 import { env } from 'cloudflare:test';
-import { executionCtx } from './mocks';
+import { generateImage } from './utils/image';
 import { signUp, signIn } from './utils/auth';
+import { executionCtx, imageUpload } from './mocks';
 import { setRole, deleteRecipes, deleteCategories } from './utils/db';
 
 describe('Recipes route - /api/recipes', () => {
@@ -264,6 +265,234 @@ describe('Recipes route - /api/recipes', () => {
       status: expect.any(String),
       createdAt: expect.any(String),
       updatedAt: expect.any(String),
+    });
+  });
+
+  it('Should not return any favorite recipes due to invalid header - GET /api/recipes/favorites', async () => {
+    const res = await app.request(
+      '/api/recipes/favorites',
+      {},
+      env,
+      executionCtx,
+    );
+
+    expect(res.status).toBe(401);
+    expect(await res.json()).toMatchObject({
+      error: 'Unauthorized',
+    });
+  });
+
+  it('Should not return any favorite recipes - GET /api/recipes/favorites', async ({
+    headers,
+  }) => {
+    const res = await app.request(
+      '/api/recipes/favorites',
+      {
+        headers: {
+          ...headers,
+          Cookie: cookie,
+        },
+      },
+      env,
+      executionCtx,
+    );
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({
+      recipes: [],
+      total: 0,
+    });
+  });
+
+  it('Should not favorite a recipe due to draft - PUT /api/recipes/:recipeId/favorite', async ({
+    headers,
+  }) => {
+    const res = await app.request(
+      `/api/recipes/${recipeId}/favorite`,
+      {
+        method: 'PUT',
+        headers,
+      },
+      env,
+      executionCtx,
+    );
+
+    expect(res.status).toBe(403);
+    expect(await res.json()).toMatchObject({
+      error: 'Forbidden',
+    });
+  });
+
+  it('Should not favorite a recipe due to invalid id - PUT /api/recipes/:recipeId/favorite', async ({
+    headers,
+  }) => {
+    const res = await app.request(
+      `/api/recipes/0000000000000000/favorite`,
+      {
+        method: 'PUT',
+        headers: {
+          ...headers,
+          Cookie: cookie,
+        },
+      },
+      env,
+      executionCtx,
+    );
+
+    expect(res.status).toBe(404);
+    expect(await res.json()).toMatchObject({
+      error: 'Recipe not found',
+    });
+  });
+
+  it('Should favorite a recipe - PUT /api/recipes/:recipeId/favorite', async ({
+    headers,
+  }) => {
+    const res = await app.request(
+      `/api/recipes/${recipeId}/favorite`,
+      {
+        method: 'PUT',
+        headers: {
+          ...headers,
+          Cookie: cookie,
+        },
+      },
+      env,
+      executionCtx,
+    );
+
+    expect(res.status).toBe(204);
+  });
+
+  it('Should return favorite recipes - GET /api/recipes/favorites', async ({
+    headers,
+  }) => {
+    const res = await app.request(
+      '/api/recipes/favorites',
+      { headers: { ...headers, Cookie: cookie } },
+      env,
+      executionCtx,
+    );
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({
+      recipes: [{ id: recipeId }],
+      total: 1,
+    });
+  });
+
+  it('Should not update a recipe image due to invalid id - PUT /api/recipes/:recipeId/image', async ({
+    headers,
+  }) => {
+    const blob = generateImage();
+    const formData = new FormData();
+    formData.append('image', blob, 'test.jpg');
+
+    const res = await app.request(
+      `/api/recipes/0000000000000000/image`,
+      {
+        method: 'PUT',
+        headers: {
+          ...headers,
+          Cookie: cookie,
+        },
+        body: formData,
+      },
+      env,
+      executionCtx,
+    );
+
+    expect(res.status).toBe(404);
+    expect(await res.json()).toMatchObject({
+      error: 'Recipe not found',
+    });
+  });
+
+  it('Should not update a recipe image due to invalid author - PUT /api/recipes/:recipeId/image', async ({
+    headers,
+  }) => {
+    const blob = generateImage();
+    const formData = new FormData();
+    formData.append('image', blob, 'test.jpg');
+
+    const res = await app.request(
+      `/api/recipes/${recipeId}/image`,
+      {
+        method: 'PUT',
+        headers,
+        body: formData,
+      },
+      env,
+      executionCtx,
+    );
+
+    expect(res.status).toBe(403);
+    expect(await res.json()).toMatchObject({
+      error: 'Forbidden',
+    });
+  });
+
+  it('Should not update a recipe image due to invalid file type - PUT /api/recipes/:recipeId/image', async ({
+    headers,
+  }) => {
+    const formData = new FormData();
+    const blob = new Blob(['test'], { type: 'text/plain' });
+    formData.append('image', blob, 'test.txt');
+
+    const res = await app.request(
+      `/api/recipes/${recipeId}/image`,
+      {
+        method: 'PUT',
+        headers: {
+          ...headers,
+          Cookie: cookie,
+        },
+        body: formData,
+      },
+      env,
+      executionCtx,
+    );
+
+    expect(res.status).toBe(400);
+    expect(await res.json()).toMatchObject({
+      error: {
+        image: 'File type is not allowed',
+      },
+    });
+  });
+
+  it('Should update a recipe image - PUT /api/recipes/:recipeId/image', async ({
+    headers,
+  }) => {
+    const blob = generateImage();
+    const formData = new FormData();
+    formData.append('image', blob, 'test.jpg');
+
+    const res = await app.request(
+      `/api/recipes/${recipeId}/image`,
+      {
+        method: 'PUT',
+        headers: {
+          ...headers,
+          Cookie: cookie,
+        },
+        body: formData,
+      },
+      env,
+      executionCtx,
+    );
+
+    const json = await res.json<{ id: string }>();
+
+    expect(res.status).toBe(200);
+    expect(json).toMatchObject({
+      id: expect.any(String),
+      url: expect.any(String),
+    });
+    expect(imageUpload).toHaveBeenCalledWith(expect.any(File), {
+      publicId: json.id,
+      folder: `cookstack/${env.ENV}/recipes`,
+      uploadPreset: 'cookstack',
     });
   });
 
