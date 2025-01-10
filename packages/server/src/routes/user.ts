@@ -122,6 +122,7 @@ roleRequests.post('/', validator('json', createRoleRequestSchema), async c => {
       Promise.all(
         admins.map(({ email }) =>
           mail.send({
+            from: mail.senders.notifications,
             to: email,
             subject: t('emails.roleRequest.subject'),
             html: mail.templates.roleRequest({ id, role }),

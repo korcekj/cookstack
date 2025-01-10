@@ -9,6 +9,10 @@ export const resend = {
   config: {} as ResendConfig,
   instance: new Resend('re_123'),
   templates: {} as Record<keyof typeof templates, (...args: any[]) => string>,
+  senders: {
+    info: 'info@cookstack.korcek.com',
+    notifications: 'notifications@cookstack.korcek.com',
+  },
   configure(config: ResendConfig) {
     this.instance = new Resend(config.apiKey);
     this.config = {
@@ -20,7 +24,7 @@ export const resend = {
   async send(email: Email) {
     try {
       await this.instance.emails.send({
-        from: 'CookStack <cookstack@korcek.com>',
+        from: this.senders.info,
         ...email,
       });
       return true;

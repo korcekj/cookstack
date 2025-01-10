@@ -67,6 +67,7 @@ roleRequests.post(
 
     c.executionCtx.waitUntil(
       mail.send({
+        from: mail.senders.notifications,
         to: request.user!.email,
         subject: t('emails.roleRequestStatus.subject'),
         html: mail.templates.roleRequestStatus({
