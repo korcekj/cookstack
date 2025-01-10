@@ -175,6 +175,24 @@ recipes.patch(
   },
 );
 
+recipes.patch(
+  '/:recipeId/publish',
+  verifyAuthor(verifyRoles(['admin'])),
+  validator('param', getRecipeSchema),
+  async c => {
+    const { recipeId } = c.req.valid('param');
+
+    const db = initializeDB(c.env.DB);
+
+    await db
+      .update(recipesTable)
+      .set({ status: 'published' })
+      .where(eq(recipesTable.id, recipeId));
+
+    return c.body(null, 204);
+  },
+);
+
 recipes.put(
   '/:recipeId/image',
   verifyAuthor(verifyRoles(['admin'])),
