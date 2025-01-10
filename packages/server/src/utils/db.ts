@@ -1,14 +1,13 @@
 import type { SQL } from 'drizzle-orm';
-import type { User } from '@cs/utils/zod';
-import type { Status, GetRecipesInput } from '@cs/utils/zod/recipe';
 import type { SQLiteColumn, SQLiteTable } from 'drizzle-orm/sqlite-core';
+import type { User, RecipeStatus, GetRecipesInput } from '@cs/utils/zod';
 
 import { sql, asc, desc, getTableColumns } from 'drizzle-orm';
 
 export const getRecipesWhereClauses = (
   user: User | null,
   options: GetRecipesInput,
-): Partial<{ status: Status; userId: string }>[] => {
+): Partial<{ status: RecipeStatus; userId: string }>[] => {
   if (!user || user.role === 'user') return [{ status: 'published' }];
   else if (user.role === 'author') {
     if (!('userId' in options)) {
