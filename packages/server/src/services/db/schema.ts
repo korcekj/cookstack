@@ -109,24 +109,6 @@ export const roleRequests = sqliteTable(
   }),
 );
 
-export const favorites = sqliteTable(
-  'favorites',
-  {
-    userId: text('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
-    recipeId: text('recipe_id')
-      .notNull()
-      .references(() => recipes.id, { onDelete: 'cascade' }),
-    createdAt: integer('created_at', { mode: 'timestamp' })
-      .default(sql`(strftime('%s', 'now'))`)
-      .notNull(),
-  },
-  t => ({
-    pk: primaryKey({ columns: [t.userId, t.recipeId] }),
-  }),
-);
-
 export const categories = sqliteTable('categories', {
   id: text('id').notNull().primaryKey(),
   createdAt: integer('created_at', { mode: 'timestamp' })
@@ -209,6 +191,24 @@ export const recipesTranslations = sqliteTable(
   t => ({
     pk: primaryKey({ columns: [t.recipeId, t.language] }),
     nameIdx: index('recipes_translations_name_idx').on(t.name),
+  }),
+);
+
+export const recipesFavorites = sqliteTable(
+  'recipes_favorites',
+  {
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    recipeId: text('recipe_id')
+      .notNull()
+      .references(() => recipes.id, { onDelete: 'cascade' }),
+    createdAt: integer('created_at', { mode: 'timestamp' })
+      .default(sql`(strftime('%s', 'now'))`)
+      .notNull(),
+  },
+  t => ({
+    pk: primaryKey({ columns: [t.userId, t.recipeId] }),
   }),
 );
 

@@ -16,6 +16,7 @@ import type { Env } from '../../types';
 import {
   users,
   roleRequests,
+  recipesFavorites,
   recipesTranslations,
   sectionsTranslations,
   categoriesTranslations,
@@ -23,7 +24,6 @@ import {
   instructionsTranslations,
   recipes as recipesTable,
   sections as sectionsTable,
-  favorites as favoritesTable,
   categories as categoriesTable,
   ingredients as ingredientsTable,
   instructions as instructionsTable,
@@ -261,10 +261,10 @@ export const useFavoriteRecipes = async (
 
   const recipesQuery = QUERIES.RECIPES(db, locale())
     .innerJoin(
-      favoritesTable,
+      recipesFavorites,
       and(
-        eq(favoritesTable.recipeId, recipesTable.id),
-        eq(favoritesTable.userId, user.id),
+        eq(recipesFavorites.recipeId, recipesTable.id),
+        eq(recipesFavorites.userId, user.id),
       ),
     )
     .where(and(...whereClauses));
@@ -273,10 +273,10 @@ export const useFavoriteRecipes = async (
     .select({ total: count() })
     .from(recipesTable)
     .innerJoin(
-      favoritesTable,
+      recipesFavorites,
       and(
-        eq(favoritesTable.recipeId, recipesTable.id),
-        eq(favoritesTable.userId, user.id),
+        eq(recipesFavorites.recipeId, recipesTable.id),
+        eq(recipesFavorites.userId, user.id),
       ),
     )
     .where(and(...whereClauses));
