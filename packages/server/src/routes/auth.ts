@@ -17,6 +17,7 @@ import { isURL } from '@cs/utils';
 import { Provider } from '../types';
 import { OAuth2RequestError } from 'arctic';
 import { initializeDB } from '../services/db';
+import { log } from '../middlewares/analytics';
 import { verifyAuth } from '../middlewares/auth';
 import { initializeAuth } from '../services/auth';
 import { generateId } from '@cs/utils/generators';
@@ -177,85 +178,96 @@ signIn.get(
   },
 );
 
-signIn.post('/', rateLimit, validator('json', signInSchema), async c => {
-  const { t } = c.get('i18n');
-  const { email, password } = c.req.valid('json');
+signIn.post(
+  '/',
+  rateLimit,
+  log('auth', 'User sign-in attempt'),
+  validator('json', signInSchema),
+  async c => {
+    const { t } = c.get('i18n');
+    const { email, password } = c.req.valid('json');
 
-  const auth = initializeAuth(c);
-  const db = initializeDB(c.env.DB);
+    const auth = initializeAuth(c);
+    const db = initializeDB(c.env.DB);
 
-  const user = await db.query.users.findFirst({
-    where: (table, { eq }) => eq(table.email, email),
-  });
+    const user = await db.query.users.findFirst({
+      where: (table, { eq }) => eq(table.email, email),
+    });
 
-  if (!user || !user.hashedPassword) {
-    return c.json({ error: t('auth.invalidEmailPassword') }, 400);
-  }
+    if (!user || !user.hashedPassword) {
+      return c.json({ error: t('auth.invalidEmailPassword') }, 400);
+    }
 
-  const isValid = await auth.verifyPassword(user.hashedPassword, password);
-  if (!isValid) {
-    return c.json({ error: t('auth.invalidEmailPassword') }, 400);
-  }
+    const isValid = await auth.verifyPassword(user.hashedPassword, password);
+    if (!isValid) {
+      return c.json({ error: t('auth.invalidEmailPassword') }, 400);
+    }
 
-  const session = await auth.lucia.createSession(user.id, {});
-  const cookie = auth.lucia.createSessionCookie(session.id);
+    const session = await auth.lucia.createSession(user.id, {});
+    const cookie = auth.lucia.createSessionCookie(session.id);
 
-  setCookie(c, cookie.name, cookie.value, cookie.attributes);
+    setCookie(c, cookie.name, cookie.value, cookie.attributes);
 
-  const { user: luciaUser } = await auth.lucia.validateSession(session.id);
-  return c.json(luciaUser);
-});
+    const { user: luciaUser } = await auth.lucia.validateSession(session.id);
+    return c.json(luciaUser);
+  },
+);
 
 signUp.use(rateLimit);
-signUp.post('/', validator('json', confirmPassword(signUpSchema)), async c => {
-  const { t } = c.get('i18n');
-  const { firstName, lastName, email, password } = c.req.valid('json');
+signUp.post(
+  '/',
+  log('auth', 'User sign-up attempt'),
+  validator('json', confirmPassword(signUpSchema)),
+  async c => {
+    const { t } = c.get('i18n');
+    const { firstName, lastName, email, password } = c.req.valid('json');
 
-  const auth = initializeAuth(c);
-  const db = initializeDB(c.env.DB);
+    const auth = initializeAuth(c);
+    const db = initializeDB(c.env.DB);
 
-  const exists = await db.query.users.findFirst({
-    where: (table, { eq }) => eq(table.email, email),
-    columns: { email: true },
-  });
+    const exists = await db.query.users.findFirst({
+      where: (table, { eq }) => eq(table.email, email),
+      columns: { email: true },
+    });
 
-  if (exists) return c.json({ error: { email: t('auth.existsEmail') } }, 400);
+    if (exists) return c.json({ error: { email: t('auth.existsEmail') } }, 400);
 
-  const userId = generateId(16);
-  const hashedPassword = await auth.hashPassword(password);
-  const slug = auth.slugify({ userId, firstName, lastName });
+    const userId = generateId(16);
+    const hashedPassword = await auth.hashPassword(password);
+    const slug = auth.slugify({ userId, firstName, lastName });
 
-  await db.insert(users).values({
-    id: userId,
-    slug,
-    email,
-    hashedPassword,
-    firstName,
-    lastName,
-  });
+    await db.insert(users).values({
+      id: userId,
+      slug,
+      email,
+      hashedPassword,
+      firstName,
+      lastName,
+    });
 
-  const code = await auth.verificationCode({
-    userId,
-    email,
-  });
+    const code = await auth.verificationCode({
+      userId,
+      email,
+    });
 
-  const mail = initializeEmail(c);
-  c.executionCtx.waitUntil(
-    mail.send({
-      to: email,
-      subject: t('emails.verificationCode.subject'),
-      html: mail.templates.verificationCode({ code }),
-    }),
-  );
+    const mail = initializeEmail(c);
+    c.executionCtx.waitUntil(
+      mail.send({
+        to: email,
+        subject: t('emails.verificationCode.subject'),
+        html: mail.templates.verificationCode({ code }),
+      }),
+    );
 
-  const session = await auth.lucia.createSession(userId, {});
-  const cookie = auth.lucia.createSessionCookie(session.id);
+    const session = await auth.lucia.createSession(userId, {});
+    const cookie = auth.lucia.createSessionCookie(session.id);
 
-  setCookie(c, cookie.name, cookie.value, cookie.attributes);
+    setCookie(c, cookie.name, cookie.value, cookie.attributes);
 
-  const { user: luciaUser } = await auth.lucia.validateSession(session.id);
-  return c.json(luciaUser, 201);
-});
+    const { user: luciaUser } = await auth.lucia.validateSession(session.id);
+    return c.json(luciaUser, 201);
+  },
+);
 
 signOut.use(rateLimit);
 signOut.use(verifyAuth);
@@ -273,31 +285,37 @@ signOut.post('/', async c => {
 });
 
 verifyEmail.use(verifyAuth);
-verifyEmail.post('/', rateLimiter(1, '1 m'), async c => {
-  const { t } = c.get('i18n');
-  const { id: userId, email, emailVerified } = c.get('user')!;
+verifyEmail.post(
+  '/',
+  rateLimiter(1, '1 m'),
+  validator('json', verifyEmailSchema),
+  async c => {
+    const { t } = c.get('i18n');
+    const { id: userId, email, emailVerified } = c.get('user')!;
 
-  if (emailVerified) return c.json({ error: t('errors.badRequest') }, 400);
+    if (emailVerified) return c.json({ error: t('errors.badRequest') }, 400);
 
-  const auth = initializeAuth(c);
+    const auth = initializeAuth(c);
 
-  const code = await auth.verificationCode({ userId, email });
+    const code = await auth.verificationCode({ userId, email });
 
-  const mail = initializeEmail(c);
-  c.executionCtx.waitUntil(
-    mail.send({
-      to: email,
-      subject: t('emails.verificationCode.subject'),
-      html: mail.templates.verificationCode({ code }),
-    }),
-  );
+    const mail = initializeEmail(c);
+    c.executionCtx.waitUntil(
+      mail.send({
+        to: email,
+        subject: t('emails.verificationCode.subject'),
+        html: mail.templates.verificationCode({ code }),
+      }),
+    );
 
-  return c.body(null, 204);
-});
+    return c.body(null, 204);
+  },
+);
 
 verifyEmail.post(
   '/:code',
   rateLimit,
+  log('auth', 'Email verification attempt'),
   validator('param', verifyEmailSchema),
   async c => {
     const { t } = c.get('i18n');
@@ -372,6 +390,7 @@ resetPassword.post(
 resetPassword.post(
   '/:token',
   rateLimit,
+  log('auth', 'Password reset attempt'),
   validator('param', resetPasswordSchema.pick({ token: true })),
   validator('json', confirmPassword(resetPasswordSchema.omit({ token: true }))),
   async c => {

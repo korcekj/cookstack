@@ -118,3 +118,5 @@ export type CloudinaryTransformation = {
   o?: number;
   g?: string;
 };
+
+export type SentryLevel = 'debug' | 'info' | 'warning' | 'error' | 'fatal';

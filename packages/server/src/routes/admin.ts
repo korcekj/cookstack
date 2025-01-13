@@ -7,6 +7,7 @@ import {
 } from '../services/db/schema';
 import { eq } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
+import { log } from '../middlewares/analytics';
 import { initializeAuth } from '../services/auth';
 import rateLimit from '../middlewares/rate-limit';
 import { initializeEmail } from '../services/email';
@@ -33,6 +34,7 @@ roleRequests.get('/', validator('query', getRoleRequestsSchema), async c => {
 
 roleRequests.post(
   '/:requestId/:status',
+  log('admin', 'Role request update attempt'),
   validator('param', updateRoleRequestSchema),
   validateRoleRequest,
   async c => {

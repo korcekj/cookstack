@@ -1,4 +1,4 @@
-import type { Env } from '../types';
+import type { Env, SentryLevel } from '../types';
 
 import { every } from 'hono/combine';
 import { sentry } from '@hono/sentry';
@@ -28,3 +28,26 @@ export const analytics = every(
     sentry.setTag('status_code', c.res.status);
   }),
 );
+
+export const log = (
+  category: string,
+  message: string,
+  level: SentryLevel = 'info',
+) =>
+  createMiddleware<Env>(async (c, next) => {
+    const user = c.get('user');
+    const sentry = c.get('sentry');
+
+    sentry.addBreadcrumb({
+      category,
+      message,
+      level,
+      data: {
+        url: c.req.url,
+        method: c.req.method,
+        userId: user?.id,
+      },
+    });
+
+    return next();
+  });

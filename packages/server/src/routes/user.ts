@@ -12,6 +12,7 @@ import {
   roleRequests as roleRequestsTable,
 } from '../services/db/schema';
 import { initializeDB } from '../services/db';
+import { log } from '../middlewares/analytics';
 import { verifyAuth } from '../middlewares/auth';
 import { generateId } from '@cs/utils/generators';
 import { initializeAuth } from '../services/auth';
@@ -34,6 +35,7 @@ profile.get('/', async c => {
 profile.patch(
   '/',
   rateLimit,
+  log('user', 'Profile update attempt'),
   validator('json', userSchema.pick({ firstName: true, lastName: true })),
   async c => {
     const user = c.get('user')!;
@@ -96,52 +98,59 @@ roleRequests.get('/', validator('query', getRoleRequestsSchema), async c => {
   return c.json({ requests, total, page, pages });
 });
 
-roleRequests.post('/', validator('json', createRoleRequestSchema), async c => {
-  const { t } = c.get('i18n');
-  const user = c.get('user')!;
-  const { role } = c.req.valid('json');
+roleRequests.post(
+  '/',
+  verifyAuth,
+  log('user', 'Role request creation attempt'),
+  validator('json', createRoleRequestSchema),
+  async c => {
+    const { t } = c.get('i18n');
+    const user = c.get('user')!;
+    const { role } = c.req.valid('json');
 
-  if (user.role === role) return c.json({ error: t('errors.badRequest') }, 400);
+    if (user.role === role)
+      return c.json({ error: t('errors.badRequest') }, 400);
 
-  const mail = initializeEmail(c);
-  const db = initializeDB(c.env.DB);
+    const mail = initializeEmail(c);
+    const db = initializeDB(c.env.DB);
 
-  const id = generateId(16);
-  const { userId, ...columns } = getTableColumns(roleRequestsTable);
+    const id = generateId(16);
+    const { userId, ...columns } = getTableColumns(roleRequestsTable);
 
-  try {
-    const [[request], admins] = await db.batch([
-      db
-        .insert(roleRequestsTable)
-        .values({ id, role, userId: user.id })
-        .returning(columns),
-      db.query.users.findMany({ where: (t, { eq }) => eq(t.role, 'admin') }),
-    ]);
+    try {
+      const [[request], admins] = await db.batch([
+        db
+          .insert(roleRequestsTable)
+          .values({ id, role, userId: user.id })
+          .returning(columns),
+        db.query.users.findMany({ where: (t, { eq }) => eq(t.role, 'admin') }),
+      ]);
 
-    c.executionCtx.waitUntil(
-      Promise.all(
-        admins.map(({ email }) =>
-          mail.send({
-            from: mail.senders.notifications,
-            to: email,
-            subject: t('emails.roleRequest.subject'),
-            html: mail.templates.roleRequest({ id, role }),
-          }),
+      c.executionCtx.waitUntil(
+        Promise.all(
+          admins.map(({ email }) =>
+            mail.send({
+              from: mail.senders.notifications,
+              to: email,
+              subject: t('emails.roleRequest.subject'),
+              html: mail.templates.roleRequest({ id, role }),
+            }),
+          ),
         ),
-      ),
-    );
+      );
 
-    return c.json(request, 201);
-  } catch (err) {
-    if (err instanceof Error) {
-      if (err.message.includes('D1_ERROR: UNIQUE')) {
-        return c.json({ error: t('roleRequest.duplicate') }, 409);
+      return c.json(request, 201);
+    } catch (err) {
+      if (err instanceof Error) {
+        if (err.message.includes('D1_ERROR: UNIQUE')) {
+          return c.json({ error: t('roleRequest.duplicate') }, 409);
+        }
       }
-    }
 
-    throw err;
-  }
-});
+      throw err;
+    }
+  },
+);
 
 user.use(verifyAuth);
 user.route('/profile', profile);

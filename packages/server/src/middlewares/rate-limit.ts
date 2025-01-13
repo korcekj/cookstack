@@ -23,6 +23,7 @@ export const rateLimiter = (tokens: number, duration: Duration) =>
 
     const key = identifier(c);
     const { t } = c.get('i18n');
+    const sentry = c.get('sentry');
 
     const redis = Redis.fromEnv(c.env);
     const limiter = new Ratelimit({
@@ -38,6 +39,18 @@ export const rateLimiter = (tokens: number, duration: Duration) =>
     c.executionCtx.waitUntil(pending);
 
     if (!success) {
+      sentry.addBreadcrumb({
+        category: 'Rate limit',
+        message: 'Rate limit exceeded',
+        level: 'warning',
+        data: {
+          identifier: key,
+          req: {
+            ip,
+            country,
+          },
+        },
+      });
       throw new HTTPException(429, { message: t('errors.tooManyRequests') });
     }
 

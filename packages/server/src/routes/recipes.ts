@@ -9,9 +9,9 @@ import {
 } from '@cs/utils/zod';
 import { Hono } from 'hono';
 import {
+  recipesFavorites,
   recipesTranslations,
   recipes as recipesTable,
-  favorites as favoritesTable,
 } from '../services/db/schema';
 import {
   useRecipe,
@@ -26,6 +26,7 @@ import {
 import { slugify } from '@cs/utils';
 import { eq, and } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
+import { log } from '../middlewares/analytics';
 import { generateId } from '@cs/utils/generators';
 import rateLimit from '../middlewares/rate-limit';
 import { initializeImage } from '../services/image';
@@ -67,6 +68,7 @@ recipes.get(
 
 recipes.post(
   '/',
+  log('recipes', 'Recipe creation attempt'),
   verifyRoles(['author', 'admin']),
   validator('json', createRecipeSchema),
   async c => {
@@ -118,6 +120,7 @@ recipes.get('/:recipeId', validator('param', getRecipeSchema), async c => {
 
 recipes.patch(
   '/:recipeId',
+  log('recipes', 'Recipe update attempt'),
   verifyAuthor(verifyRoles(['admin'])),
   validator('param', getRecipeSchema),
   validator('json', updateRecipeSchema),
@@ -177,6 +180,7 @@ recipes.patch(
 
 recipes.patch(
   '/:recipeId/publish',
+  log('recipes', 'Recipe publication attempt'),
   verifyAuthor(verifyRoles(['admin'])),
   validator('param', getRecipeSchema),
   async c => {
@@ -235,22 +239,22 @@ recipes.put(
 
     const db = initializeDB(c.env.DB);
 
-    const favorite = await db.query.favorites.findFirst({
+    const favorite = await db.query.recipesFavorites.findFirst({
       where: (t, { and, eq }) =>
         and(eq(t.recipeId, recipeId), eq(t.userId, user.id)),
     });
 
     if (favorite) {
       await db
-        .delete(favoritesTable)
+        .delete(recipesFavorites)
         .where(
           and(
-            eq(favoritesTable.recipeId, recipeId),
-            eq(favoritesTable.userId, user.id),
+            eq(recipesFavorites.recipeId, recipeId),
+            eq(recipesFavorites.userId, user.id),
           ),
         );
     } else {
-      await db.insert(favoritesTable).values({ recipeId, userId: user.id });
+      await db.insert(recipesFavorites).values({ recipeId, userId: user.id });
     }
 
     return c.body(null, 204);
@@ -259,6 +263,7 @@ recipes.put(
 
 recipes.delete(
   '/:recipeId',
+  log('recipes', 'Recipe deletion attempt', 'warning'),
   verifyAuthor(verifyRoles(['admin'])),
   validator('param', getRecipeSchema),
   async c => {
