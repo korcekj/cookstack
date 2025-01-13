@@ -29,6 +29,7 @@ import { initializeDB } from '../services/db';
 import { log } from '../middlewares/analytics';
 import { generateId } from '@cs/utils/generators';
 import rateLimit from '../middlewares/rate-limit';
+import { HTTPException } from 'hono/http-exception';
 import { initializeImage } from '../services/image';
 import { getConflictUpdateSetter } from '../utils/db';
 import { verifyRoles, verifyAuthor, verifyAuth } from '../middlewares/auth';
@@ -101,7 +102,7 @@ recipes.post(
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: FOREIGN KEY')) {
-          return c.json({ error: t('category.notFound') }, 400);
+          throw new HTTPException(400, { message: t('category.notFound') });
         }
       }
 
@@ -169,7 +170,7 @@ recipes.patch(
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: FOREIGN KEY')) {
-          return c.json({ error: t('category.notFound') }, 400);
+          throw new HTTPException(400, { message: t('category.notFound') });
         }
       }
 

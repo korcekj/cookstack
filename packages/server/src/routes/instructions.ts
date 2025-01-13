@@ -20,6 +20,7 @@ import { pick, omit } from '@cs/utils';
 import { eq, inArray } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
 import { generateId } from '@cs/utils/generators';
+import { HTTPException } from 'hono/http-exception';
 import { useInstructions } from '../services/db/queries';
 import { verifyRoles, verifyAuthor } from '../middlewares/auth';
 
@@ -77,7 +78,7 @@ instructions.post(
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {
-          return c.json({ error: t('instruction.duplicate') }, 409);
+          throw new HTTPException(409, { message: t('instruction.duplicate') });
         }
       }
 
@@ -155,7 +156,7 @@ instructions.put(
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {
-          return c.json({ error: t('instruction.duplicate') }, 409);
+          throw new HTTPException(409, { message: t('instruction.duplicate') });
         }
       }
 

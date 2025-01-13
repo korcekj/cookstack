@@ -24,6 +24,7 @@ import { generateId } from '@cs/utils/generators';
 import { setCookie, getCookie } from 'hono/cookie';
 import { initializeImage } from '../services/image';
 import { initializeEmail } from '../services/email';
+import { HTTPException } from 'hono/http-exception';
 import { validator } from '../middlewares/validation';
 import { users, oauthAccounts } from '../services/db/schema';
 import { generateState, generateCodeVerifier } from 'arctic';
@@ -77,7 +78,7 @@ signIn.get(
       cookieState !== state ||
       !cookieCode
     ) {
-      return c.json({ error: t('errors.badRequest') }, 400);
+      throw new HTTPException(400, { message: t('errors.badRequest') });
     }
 
     try {
@@ -98,7 +99,7 @@ signIn.get(
 
       const user = (await response.json()) as GoogleUser;
       if (!user?.email_verified) {
-        return c.json({ error: t('auth.unverifiedEmail') }, 400);
+        throw new HTTPException(400, { message: t('auth.unverifiedEmail') });
       }
 
       const db = initializeDB(c.env.DB);
@@ -171,9 +172,11 @@ signIn.get(
       return c.redirect('/', 301);
     } catch (err) {
       if (err instanceof OAuth2RequestError) {
-        return c.json({ error: t('auth.invalidCode') }, 400);
+        throw new HTTPException(400, { message: t('auth.invalidCode') });
       }
-      return c.json({ error: t('errors.internalServerError') }, 500);
+      throw new HTTPException(500, {
+        message: t('errors.internalServerError'),
+      });
     }
   },
 );
@@ -195,12 +198,12 @@ signIn.post(
     });
 
     if (!user || !user.hashedPassword) {
-      return c.json({ error: t('auth.invalidEmailPassword') }, 400);
+      throw new HTTPException(400, { message: t('auth.invalidEmailPassword') });
     }
 
     const isValid = await auth.verifyPassword(user.hashedPassword, password);
     if (!isValid) {
-      return c.json({ error: t('auth.invalidEmailPassword') }, 400);
+      throw new HTTPException(400, { message: t('auth.invalidEmailPassword') });
     }
 
     const session = await auth.lucia.createSession(user.id, {});
@@ -230,7 +233,9 @@ signUp.post(
       columns: { email: true },
     });
 
-    if (exists) return c.json({ error: { email: t('auth.existsEmail') } }, 400);
+    if (exists) {
+      throw new HTTPException(400, { message: t('auth.existsEmail') });
+    }
 
     const userId = generateId(16);
     const hashedPassword = await auth.hashPassword(password);
@@ -329,7 +334,9 @@ verifyEmail.post(
       email,
       code,
     });
-    if (!validCode) return c.json({ error: t('auth.invalidCode') }, 400);
+    if (!validCode) {
+      throw new HTTPException(400, { message: t('auth.invalidCode') });
+    }
 
     await auth.lucia.invalidateUserSessions(userId);
     await db
@@ -363,7 +370,7 @@ resetPassword.post(
       where: (table, { eq }) => eq(table.email, email),
     });
     if (!user || !user.hashedPassword || !user.emailVerified) {
-      return c.json({ error: t('auth.invalidEmail') }, 400);
+      throw new HTTPException(400, { message: t('auth.invalidEmail') });
     }
 
     const token = await auth.resetToken({
@@ -401,7 +408,9 @@ resetPassword.post(
     const auth = initializeAuth(c);
 
     const userId = await auth.verifyToken({ token });
-    if (!userId) return c.json({ error: t('auth.invalidToken') }, 400);
+    if (!userId) {
+      throw new HTTPException(400, { message: t('auth.invalidToken') });
+    }
 
     await auth.lucia.invalidateUserSessions(userId);
 

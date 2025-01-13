@@ -15,6 +15,7 @@ import { pick, omit } from '@cs/utils';
 import { eq, inArray } from 'drizzle-orm';
 import { initializeDB } from '../services/db';
 import { generateId } from '@cs/utils/generators';
+import { HTTPException } from 'hono/http-exception';
 import { useSections } from '../services/db/queries';
 import { verifyRoles, verifyAuthor } from '../middlewares/auth';
 import { validator, validateSection } from '../middlewares/validation';
@@ -78,7 +79,7 @@ sections.post(
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {
-          return c.json({ error: t('section.duplicate') }, 409);
+          throw new HTTPException(409, { message: t('section.duplicate') });
         }
       }
 
@@ -142,7 +143,7 @@ sections.put(
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {
-          return c.json({ error: t('section.duplicate') }, 409);
+          throw new HTTPException(409, { message: t('section.duplicate') });
         }
       }
 

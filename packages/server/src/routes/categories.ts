@@ -19,6 +19,7 @@ import { log } from '../middlewares/analytics';
 import { generateId } from '@cs/utils/generators';
 import { verifyRoles } from '../middlewares/auth';
 import rateLimit from '../middlewares/rate-limit';
+import { HTTPException } from 'hono/http-exception';
 import { getConflictUpdateSetter } from '../utils/db';
 import { validator, validateCategory } from '../middlewares/validation';
 import { useCategory, useCategories, useRecipes } from '../services/db/queries';
@@ -70,7 +71,7 @@ categories.post(
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {
-          return c.json({ error: t('category.duplicate') }, 409);
+          throw new HTTPException(409, { message: t('category.duplicate') });
         }
       }
 
@@ -156,7 +157,7 @@ categories.patch(
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {
-          return c.json({ error: t('category.duplicate') }, 409);
+          throw new HTTPException(409, { message: t('category.duplicate') });
         }
       }
 

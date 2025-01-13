@@ -20,6 +20,7 @@ import { eq, getTableColumns } from 'drizzle-orm';
 import rateLimit from '../middlewares/rate-limit';
 import { initializeEmail } from '../services/email';
 import { initializeImage } from '../services/image';
+import { HTTPException } from 'hono/http-exception';
 import { validator } from '../middlewares/validation';
 import { useRoleRequests } from '../services/db/queries';
 
@@ -143,7 +144,7 @@ roleRequests.post(
     } catch (err) {
       if (err instanceof Error) {
         if (err.message.includes('D1_ERROR: UNIQUE')) {
-          return c.json({ error: t('roleRequest.duplicate') }, 409);
+          throw new HTTPException(409, { message: t('roleRequest.duplicate') });
         }
       }
 
