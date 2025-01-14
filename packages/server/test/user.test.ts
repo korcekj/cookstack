@@ -211,6 +211,7 @@ describe('User route - /api/user', () => {
     expect(emailSend).toHaveBeenCalledWith({
       to: 'test2@example.com',
       subject: 'Role request',
+      from: expect.any(String),
       html: expect.any(String),
     });
     expect(await res.json()).toMatchObject({
