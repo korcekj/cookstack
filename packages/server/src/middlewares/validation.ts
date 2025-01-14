@@ -40,8 +40,9 @@ export const validateRoleRequest = createMiddleware<Env>(async (c, next) => {
     where: (t, { and, eq }) =>
       and(eq(t.id, requestId), eq(t.status, 'pending')),
   });
-  if (!request)
+  if (!request) {
     throw new HTTPException(404, { message: t('roleRequest.notFound') });
+  }
 
   return next();
 });
