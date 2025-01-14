@@ -234,7 +234,9 @@ signUp.post(
     });
 
     if (exists) {
-      throw new HTTPException(400, { message: t('auth.existsEmail') });
+      throw new HTTPException(400, {
+        res: c.json({ error: { email: t('auth.existsEmail') } }),
+      });
     }
 
     const userId = generateId(16);
@@ -290,32 +292,29 @@ signOut.post('/', async c => {
 });
 
 verifyEmail.use(verifyAuth);
-verifyEmail.post(
-  '/',
-  rateLimiter(1, '1 m'),
-  validator('json', verifyEmailSchema),
-  async c => {
-    const { t } = c.get('i18n');
-    const { id: userId, email, emailVerified } = c.get('user')!;
+verifyEmail.post('/', rateLimiter(1, '1 m'), async c => {
+  const { t } = c.get('i18n');
+  const { id: userId, email, emailVerified } = c.get('user')!;
 
-    if (emailVerified) return c.json({ error: t('errors.badRequest') }, 400);
+  if (emailVerified) {
+    throw new HTTPException(400, { message: t('errors.badRequest') });
+  }
 
-    const auth = initializeAuth(c);
+  const auth = initializeAuth(c);
 
-    const code = await auth.verificationCode({ userId, email });
+  const code = await auth.verificationCode({ userId, email });
 
-    const mail = initializeEmail(c);
-    c.executionCtx.waitUntil(
-      mail.send({
-        to: email,
-        subject: t('emails.verificationCode.subject'),
-        html: mail.templates.verificationCode({ code }),
-      }),
-    );
+  const mail = initializeEmail(c);
+  c.executionCtx.waitUntil(
+    mail.send({
+      to: email,
+      subject: t('emails.verificationCode.subject'),
+      html: mail.templates.verificationCode({ code }),
+    }),
+  );
 
-    return c.body(null, 204);
-  },
-);
+  return c.body(null, 204);
+});
 
 verifyEmail.post(
   '/:code',

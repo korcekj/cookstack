@@ -66,6 +66,7 @@ app.onError((err, c) => {
   const { t } = c.get('i18n');
 
   if (err instanceof HTTPException) {
+    if (err.res) return err.getResponse();
     return c.json({ error: err.message }, err.status);
   }
 

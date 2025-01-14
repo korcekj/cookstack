@@ -25,7 +25,9 @@ export const validator = <T extends z.ZodType<any, z.ZodTypeDef, any>>(
   zValidator(target, schema, (result, c) => {
     if (!result.success) {
       const error = parseError(result.error);
-      return c.json({ error }, 400);
+      throw new HTTPException(400, {
+        res: c.json({ error }),
+      });
     }
   });
 
