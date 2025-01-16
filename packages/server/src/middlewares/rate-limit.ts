@@ -28,15 +28,13 @@ export const rateLimiter = (tokens: number, duration: Duration) =>
     const redis = Redis.fromEnv(c.env);
     const limiter = new Ratelimit({
       redis,
-      analytics: true,
       ephemeralCache: cache,
       limiter: Ratelimit.slidingWindow(tokens, duration),
     });
 
     const ip = getIp(c);
     const country = getCountry(c);
-    const { success, pending } = await limiter.limit(key, { ip, country });
-    c.executionCtx.waitUntil(pending);
+    const { success } = await limiter.limit(key, { ip, country });
 
     if (!success) {
       sentry.addBreadcrumb({
@@ -44,11 +42,9 @@ export const rateLimiter = (tokens: number, duration: Duration) =>
         message: 'Rate limit exceeded',
         level: 'warning',
         data: {
+          ip,
+          country,
           identifier: key,
-          req: {
-            ip,
-            country,
-          },
         },
       });
       throw new HTTPException(429, { message: t('errors.tooManyRequests') });
