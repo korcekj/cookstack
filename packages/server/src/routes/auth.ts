@@ -64,6 +64,7 @@ signIn.get('/google', validator('query', signInGoogleSchema), async c => {
 
 signIn.get(
   '/google/callback',
+  log('auth', 'Google sign-in callback attempt'),
   validator('query', signInGoogleCallbackSchema),
   async c => {
     const { t } = c.get('i18n');
