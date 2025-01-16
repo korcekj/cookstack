@@ -17,7 +17,7 @@
     "@hono/sentry": "^1.2.0",
     "@hono/zod-validator": "^0.2.2",
     "@lucia-auth/adapter-drizzle": "^1.1.0",
-    "@upstash/ratelimit": "^2.0.2",
+    "@upstash/ratelimit": "^2.0.5",
     "@upstash/redis": "^1.34.0",
     "arctic": "^1.9.2",
     "drizzle-orm": "^0.35.1",

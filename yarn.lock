@@ -2260,10 +2260,10 @@
   dependencies:
     "@upstash/redis" "^1.28.3"
 
-"@upstash/ratelimit@^2.0.2":
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/@upstash/ratelimit/-/ratelimit-2.0.4.tgz#c2c8d80b23c9f297fc802f44f8c12397f9550bf4"
-  integrity sha512-rKZWlZXXK93Xv1cz5/eCbGN4ZbvN3dWbjT2V6Of/3vqQGzd3TnD/xS3Okxp8EoG7L4MeLpy6UsRuMKGnuDZFAQ==
+"@upstash/ratelimit@^2.0.5":
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/@upstash/ratelimit/-/ratelimit-2.0.5.tgz#0e8e693b79bdcf5d8643c38bebe8b76e7b79b54a"
+  integrity sha512-1FRv0cs3ZlBjCNOCpCmKYmt9BYGIJf0J0R3pucOPE88R21rL7jNjXG+I+rN/BVOvYJhI9niRAS/JaSNjiSICxA==
   dependencies:
     "@upstash/core-analytics" "^0.0.10"
 
