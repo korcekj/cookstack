@@ -8,6 +8,7 @@ export * from './image';
 export * from './recipe';
 export * from './section';
 export * from './category';
+export * from './analytics';
 export * from './ingredient';
 export * from './instruction';
 
