@@ -1,10 +1,27 @@
+import type { Env } from '../types';
 import type { Context } from 'hono';
 
+import { sanitizeUrlSchema } from '@cs/utils/zod';
 import { objectEntries, fileToObject } from '@cs/utils';
 
 export const getIp = (c: Context) => c.req.header('cf-connecting-ip');
 
 export const getCountry = (c: Context) => c.req.raw.cf?.country as string;
+
+export const getIdentifier = (c: Context<Env>) => {
+  const ip = getIp(c);
+  const route = getRoute(c);
+  const user = c.get('user');
+
+  const url = new URL(
+    sanitizeUrlSchema.parse({
+      url: c.req.url,
+      route,
+    }),
+  );
+
+  return user?.id ?? `${ip ?? 'global'}:${url.pathname}${url.search}`;
+};
 
 export const getBody = async (c: Context) => {
   if (!['POST', 'PUT', 'PATCH'].includes(c.req.method)) return undefined;
