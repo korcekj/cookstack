@@ -74,6 +74,13 @@ export const combineEntries = <T extends [string, unknown][]>(
     .join(delimiter);
 };
 
+export const fileToObject = (file: File) => ({
+  name: file.name,
+  size: file.size,
+  type: file.type,
+  lastModified: file.lastModified,
+});
+
 export const formDataEntries = <K extends string | number | symbol>(
   obj: Record<string, FormDataEntryValue>,
 ) => {
